@@ -36,7 +36,8 @@ cd emacs-24.4
 ./configure --prefix=/opt/emacs
 make
 make install
-cp /src/emacs /usr/bin/emacs
+cp src/emacs /usr/bin/emacs
+chmod 755 /usr/bin/emacs
 
 # Create Directory For Emacs Config
 cd ~
@@ -44,6 +45,7 @@ mkdir .emacs.d
 
 # Python Packages Required For Elpy
 pip install \
+    ipython \
     jedi \
     flake8 \
     importmagic \
@@ -106,3 +108,6 @@ echo "
   (unless (package-installed-p package)
     (package-install package)))
 " >> .emacs.d/init-packages.el
+
+# Grant Permission To Emacs Config - may want to make priveledges less open
+chmod 777 .emacs.d
