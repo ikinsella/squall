@@ -111,3 +111,17 @@ echo "
 
 # Grant Permission To Emacs Config - may want to make priveledges less open
 chmod 777 .emacs.d
+
+# Grant Docker Access To User
+echo "
+-------------------------------------------------------------------------------
+To finish setting up the development environment evaluate:
+
+1.) sudo usermod -aG docker \$USER
+2.) service docker restart
+3.) ssh-keygen
+
+Update your github account's recognized keys with the public key then evaluate:
+git clone git@github.com:ikinsella/squall.git
+-------------------------------------------------------------------------------
+"
