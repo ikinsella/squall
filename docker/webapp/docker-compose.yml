@@ -1,0 +1,10 @@
+webapp:
+  build: .
+  ports:
+   - "5000:5000"
+  volumes:
+   - .:/src
+  links:
+   - db
+db:
+  image: mongo
