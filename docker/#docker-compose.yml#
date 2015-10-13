@@ -13,6 +13,6 @@ nb:
   ports:
    - "8888:8888"
   volumes:
-   - ./notebook:/home/jovyan/work
+   - ./notebook:
   links:
    - db

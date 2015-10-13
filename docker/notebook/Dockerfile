@@ -1,4 +1,4 @@
 From jupyter/scipy-notebook
-ADD . /src
-WORKDIR /src
+ADD . /home/jovyan/work
+WORKDIR /home/jovyan/work
 RUN pip install -r deps.txt
