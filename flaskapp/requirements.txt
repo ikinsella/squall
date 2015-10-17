@@ -3,7 +3,7 @@ autopep8==1.2.1
 Babel==2.1.1
 blinker==1.4
 cov-core==1.15.0
-coverage==4.0.1
+coverage==3.7.1
 cssmin==0.2.0
 decorator==4.0.4
 flake8==2.4.1

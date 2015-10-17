@@ -20,15 +20,18 @@ class User(db.Model, UserMixin):
     def check_password(self, value):
         return check_password_hash(self.password, value)
 
+    @property
     def is_authenticated(self):
         if isinstance(self, AnonymousUserMixin):
             return False
         else:
             return True
 
+    @property
     def is_active(self):
         return True
 
+    @property
     def is_anonymous(self):
         if isinstance(self, AnonymousUserMixin):
             return True
@@ -39,4 +42,4 @@ class User(db.Model, UserMixin):
         return self.id
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<User {username}>'.format(username=self.username)
