@@ -1,2 +1,2 @@
 # Squall
-Library for performing multi-voxel pattern analysis on spark clusters.
+Library to perform fMRI analysis on HTC systems
