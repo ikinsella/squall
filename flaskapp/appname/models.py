@@ -144,7 +144,8 @@ class Implementation(db.Model):
     address = db.Column(db.String(256), index=False, unique=False)
     executable = db.Column(db.String(64), index=False, unique=False)
 
-    arguments = db.relationship()
+    arguments = db.relationship(
+        'argument', backref='implementation', lazy='dynamic')
 
     def __init__(self, name, number, description):
         self.name = name
@@ -171,6 +172,9 @@ class Argument(db.Model):
     """Represents a single valid argument belonging to an
        implementation of an algorithm
     """
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+
     def __init__(self, key, data_type, is_opitonal):
         super(Argument, self).__init__()
         self.key = key
@@ -181,6 +185,9 @@ class Argument(db.Model):
 class DataCollection(db.Model):
     """Represents a collection of datasets derived from a common source
     """
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+
     def __init__(self, name, descipription, tags):
         super(DataCollection, self).__init__()
         self.name = name
@@ -197,6 +204,9 @@ class DataCollection(db.Model):
 class DataSet(object):
     """Represents a single dataset belonging to a data collection
     """
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+
     def __init__(self, name, address, description, tags):
         super(DataSet, self).__init__()
         self.name = name
@@ -215,6 +225,9 @@ class Experiment(db.Model):
     """Represents an experiment composed jobs run with a variable number of
        datasets and algorithms
     """
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+
     def __init__(self, name, description, tags):
         super(Experiment, self).__init__()
         self.name = name
@@ -231,6 +244,9 @@ class Experiment(db.Model):
 class Batch(db.Model):
     """Represents a batch of jobs to be run on HTCondor
     """
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+
     def __init__(self, params_list, num_jobs, description, tags):
         super(Batch, self).__init__()
         self.params_list = params_list
@@ -248,6 +264,9 @@ class Batch(db.Model):
 class Job(db.Model):
     """Represents a single job, belonging to a Batch
     """
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+
     def __init__(self, process_number):
         super(Job, self).__init__()
         self.process_number = process_number
@@ -262,6 +281,9 @@ class Job(db.Model):
 class Param(db.Model):
     """Represents a single parameter value belonging to a job
     """
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+
     def __init__(self, key, value):
         super(Param, self).__init__()
         self.key = key
@@ -280,6 +302,9 @@ class Tag(db.Model):
         and implementations. A User defines tags in a view and each collected
         job is associated with all the tags contained in its hierarchy.
     """
-    def __init__(self, value):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+
+    def __init__(self, name):
         super(Tag, self).__init__()
-        self.value = value
+        self.name = name
