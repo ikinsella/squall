@@ -59,21 +59,31 @@ jobs_tags = db.Table(
     db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')))
 
+""" Entities """
+
 
 class User(db.Model, UserMixin):
+    """ Represents a single User who has access to the application
+    """
+
+    # Fields
     id = db.Column(db.Integer(), primary_key=True)
     username = db.Column(db.String())
     password = db.Column(db.String())
 
+    # relationships
+    """
+    Moving To Multi-User TODO:
+    algorithms = db.relationship()
+    datacollections = db.relationship()
+    experiments = db.relationship()
+    batches = db.relationship()
+    tags = db.relationship()
+    """
+
     def __init__(self, username, password):
         self.username = username
         self.set_password(password)
-
-    def set_password(self, password):
-        self.password = generate_password_hash(password)
-
-    def check_password(self, value):
-        return check_password_hash(self.password, value)
 
     @property
     def is_authenticated(self):
@@ -93,6 +103,12 @@ class User(db.Model, UserMixin):
         else:
             return False
 
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, value):
+        return check_password_hash(self.password, value)
+
     def get_id(self):
         return self.id
 
@@ -103,12 +119,22 @@ class User(db.Model, UserMixin):
 class Algorithm(db.Model):
     """ Entity representing a single algorithm used in a an experiment
     """
-    id = db.Column(db.Integer, primary_key=True)
 
+    # Fields
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
     description = db.Column(db.String(512), index=False, unique=False)
+
+    # Relationships
     implementations = db.relationship(
         'Implementation', backref='algorithm', lazy='dynamic')
+    """ TODO:
+    tags = db.relationship()
+    """
+    """
+    Moving To Multi-User TODO:
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    """
 
     def __init__(self, name, description):
         self.name = name
@@ -136,16 +162,27 @@ class Algorithm(db.Model):
 class Implementation(db.Model):
     """ Entity representing a single implementation of an algorithm
     """
-    id = db.Column(db.Integer, primary_key=True)
-    algorithm_id = db.Column(db.Integer, db.ForeignKey('algorithm.id'))
 
+    # Fields
+    id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
-    description = db.Column(db.String(512), index=False, unique=False)
     address = db.Column(db.String(256), index=False, unique=False)
     executable = db.Column(db.String(64), index=False, unique=False)
+    description = db.Column(db.String(512), index=False, unique=False)
 
+    # Relationships
+    algorithm_id = db.Column(db.Integer, db.ForeignKey('algorithm.id'))
     arguments = db.relationship(
-        'argument', backref='implementation', lazy='dynamic')
+        'Argument', backref='implementation', lazy='dynamic')
+    """ TODO:
+    experiments = db.relationship()
+    batches = db.relationship()
+    tags = db.relationship()
+    """
+    """
+    Moving To Multi-User TODO:
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    """
 
     def __init__(self, name, number, description):
         self.name = name
@@ -169,30 +206,56 @@ class Implementation(db.Model):
 
 
 class Argument(db.Model):
-    """Represents a single valid argument belonging to an
-       implementation of an algorithm
+    """ Entity representing a single valid argument belonging to an
+        implementation of an algorithm
     """
+
+    # Fields
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
+    data_type = db.Column(
+        db.Enum('int', 'float', 'string', 'enum'), index=True, unique=False)
+    optional = db.Column(db.Boolean())
 
-    def __init__(self, key, data_type, is_opitonal):
+    # Relationships
+    implementation = db.Column(db.Integer, db.ForeignKey('implementation.id'))
+
+    def __init__(self, name, data_type, optional):
         super(Argument, self).__init__()
-        self.key = key
+        self.name = name
         self.data_type = data_type
-        self.is_opitonal = is_opitonal
+        self.optional = optional
+
+    def get_id(self):
+        try:
+            return unicode(self.id)  # python 2
+        except NameError:
+            return str(self.id)  # python 3
 
 
 class DataCollection(db.Model):
-    """Represents a collection of datasets derived from a common source
+    """ Represents a collection of datasets derived from a common source
     """
+
+    # Fields
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
+    description = db.Column(db.String(512), index=False, unique=False)
 
-    def __init__(self, name, descipription, tags):
+    # Relationships
+    """ TODO:
+    datasets = db.relationship()
+    tags = db.relationship()
+    """
+    """
+    Moving To Multi-User TODO:
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    """
+
+    def __init__(self, name, descipription):
         super(DataCollection, self).__init__()
         self.name = name
         self.descipription = descipription
-        self.tags = tags
 
     def get_id(self):
         try:
@@ -202,37 +265,67 @@ class DataCollection(db.Model):
 
 
 class DataSet(object):
-    """Represents a single dataset belonging to a data collection
+    """ Represents a single dataset belonging to a data collection
     """
+
+    # Fields
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
+    address = db.Column(db.String(256), index=False, unique=False)
+    description = db.Column(db.String(512), index=False, unique=False)
 
-    def __init__(self, name, address, description, tags):
+    # Relationships
+    data_collection = db.Column(
+        db.Integer, db.ForeignKey('data_collection.id'))
+    """ TODO:
+    experiments = db.relationship()
+    batches = db.relationship()
+    tags = db.relationship()
+    """
+    """
+    Moving To Multi-User TODO:
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    """
+
+    def __init__(self, name, address, description):
         super(DataSet, self).__init__()
         self.name = name
         self.address = address
         self.description = description
-        self.tags = tags
 
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
+        def get_id(self):
+            try:
+                return unicode(self.id)  # python 2
+            except NameError:
+                return str(self.id)  # python 3
 
 
 class Experiment(db.Model):
     """Represents an experiment composed jobs run with a variable number of
        datasets and algorithms
     """
+
+    # Fields
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
+    description = db.Column(db.String(512), index=False, unique=False)
 
-    def __init__(self, name, description, tags):
+    # Relationships
+    """ TODO:
+    data_set = db.relationship()
+    implementation = db.relationship()
+    batches = db.relationship()
+    tags = db.relationship()
+    """
+    """
+    Moving To Multi-User TODO:
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    """
+
+    def __init__(self, name, description):
         super(Experiment, self).__init__()
         self.name = name
         self.description = description
-        self.tags = tags
 
     def get_id(self):
         try:
@@ -242,34 +335,63 @@ class Experiment(db.Model):
 
 
 class Batch(db.Model):
-    """Represents a batch of jobs to be run on HTCondor
+    """ Represents a batch of jobs to be run on HTCondor
     """
+
+    # Fields
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
+    description = db.Column(db.String(512), index=False, unique=False)
 
-    def __init__(self, params_list, num_jobs, description, tags):
+    # Relationships
+    experiment = db.Column(db.Integer, db.ForeignKey('experiment.id'))
+    data_set = db.Column(db.Integer, db.ForeignKey('data_set.id'))
+    implementation = db.Column(db.Integer, db.ForeignKey('implementation.id'))
+    """ TODO:
+    jobs = db.relationship()
+    tags = db.relationship()
+    """
+    """
+    Moving To Multi-User TODO:
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    """
+
+    def __init__(self, name, description):
         super(Batch, self).__init__()
-        self.params_list = params_list
-        self.num_jobs = num_jobs
+        self.name = name
         self.description = description
-        self.tags = tags
 
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
+        def get_id(self):
+            try:
+                return unicode(self.id)  # python 2
+            except NameError:
+                return str(self.id)  # python 3
 
 
 class Job(db.Model):
     """Represents a single job, belonging to a Batch
     """
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(64), index=True, unique=True)
 
-    def __init__(self, process_number):
+    # Fields
+    id = db.Column(db.Integer, primary_key=True)
+    is_completed = db.Column(db.Boolean, index=True, unique=False)
+    process = db.Column(db.Integer, index=True, unique=True)
+
+    # Relationships
+    batch = db.Column(db.Integer, db.ForeignKey('batch.id'))
+    """ TODO:
+    params = db.relationship()
+    tags = db.relationship()
+    """
+    """
+    Moving To Multi-User TODO:
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    """
+
+    def __init__(self, process):
         super(Job, self).__init__()
-        self.process_number = process_number
+        self.process = process
+        self.is_completed = False
 
     def get_id(self):
         try:
@@ -279,14 +401,21 @@ class Job(db.Model):
 
 
 class Param(db.Model):
-    """Represents a single parameter value belonging to a job
+    """ Represents a single parameter value belonging to a job
     """
+
+    # Fields
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
+    # TODO: make value data-type flexible
+    value = db.Column(db.String(64), index=True, unique=True)
 
-    def __init__(self, key, value):
+    # Relationships
+    job = db.Column(db.Integer, db.ForeignKey('job.id'))
+
+    def __init__(self, name, value):
         super(Param, self).__init__()
-        self.key = key
+        self.name = name
         self.value = value
 
     def get_id(self):
@@ -302,8 +431,25 @@ class Tag(db.Model):
         and implementations. A User defines tags in a view and each collected
         job is associated with all the tags contained in its hierarchy.
     """
+
+    # Fields
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
+
+    # Relationships
+    """ TODO:
+    implementations = db.relationship()
+    algorithms = db.relationship()
+    data_collections = db.relationship()
+    data_sets = db.relationship()
+    experiments = db.relationship()
+    batches = db.relationship()
+    jobs = db.relationship()
+    """
+    """
+    Moving To Multi-User TODO:
+    user = db.Column(db.Integer, db.ForeignKey('user.id'))
+    """
 
     def __init__(self, name):
         super(Tag, self).__init__()
