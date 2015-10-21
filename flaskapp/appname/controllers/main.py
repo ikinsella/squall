@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, flash, request, redirect, url_for
+from flask import Blueprint, render_template, flash, request, \
+    redirect, url_for
 from flask.ext.login import login_user, logout_user, login_required
 
 from appname.extensions import cache
-from appname.forms import LoginForm
-from appname.models import User
+from appname.forms import LoginForm, CreateUserForm
+from appname.models import db, User
 
 main = Blueprint('main', __name__)
 
@@ -36,7 +37,17 @@ def logout():
     return redirect(url_for(".home"))
 
 
-@main.route("/restricted")
+@main.route("/restricted", methods=["Get", "Post"])
 @login_required
-def restricted():
-    return "You can only see this if you are logged in!", 200
+def create_user():
+    form = CreateUserForm()
+    if form.validate_on_submit():
+
+        # TODO: Create Method for db.session.add & commit
+        new_user = User(form.username.data, form.password.data)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("New user created successfully.", "success")
+        return redirect(url_for(".home"))
+    return render_template("create_user.html", form=form)

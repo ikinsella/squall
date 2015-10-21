@@ -73,7 +73,8 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(64))
     password = db.Column(db.String(64))
     tags = db.relationship('Tag', secondary=users_tags,
-                           backref=db.backref('users', lazy='dynamic'))
+                           backref=db.backref('users',
+                                              lazy='dynamic'))
     # relationships
     """
     Moving To Multi-User TODO:

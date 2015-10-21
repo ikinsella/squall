@@ -28,3 +28,21 @@ class LoginForm(Form):
             return False
 
         return True
+
+
+class CreateUserForm(Form):
+    username = TextField(u'Username', validators=[validators.required()])
+    password = PasswordField(u'Password', validators=[validators.required()])
+
+    def validate(self):
+        check_validate = super(CreateUserForm, self).validate()
+        # if our validators do not pass
+        if not check_validate:
+            return False
+        # Does our the exist
+        user = User.query.filter_by(username=self.username.data).first()
+        if not user:
+            return True
+
+        self.username.errors.append('Username Unavailable')
+        return False
