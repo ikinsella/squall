@@ -4,8 +4,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
+
 """ Tables For Many To Many Relationships """
-"""
+
 implementations_experiments = db.Table(
     'implementations_experiments',
     db.Column(
@@ -14,8 +15,8 @@ implementations_experiments = db.Table(
 
 data_sets_experiments = db.Table(
     'data_sets_experiments',
-    db.Column('data_set_id', db.Integer, db.ForeignKey('data_set.id')),
-    db.Column('experiment_id', db.Integer, db.ForeignKey('experiment.id')))
+    db.Column('experiment_id', db.Integer, db.ForeignKey('experiment.id')),
+    db.Column('data_set_id', db.Integer, db.ForeignKey('data_set.id')))
 
 users_tags = db.Table(
     'users_tags',
@@ -56,9 +57,9 @@ batches_tags = db.Table(
 
 jobs_tags = db.Table(
     'jobs_tags',
-    db.Column('user_id', db.Integer, db.ForeignKey('job.id')),
+    db.Column('job_id', db.Integer, db.ForeignKey('job.id')),
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')))
-"""
+
 """ Entities """
 
 
@@ -71,7 +72,8 @@ class User(db.Model, UserMixin):
                    primary_key=True)
     username = db.Column(db.String(64))
     password = db.Column(db.String(64))
-
+    tags = db.relationship('Tag', secondary=users_tags,
+                           backref=db.backref('users', lazy='dynamic'))
     # relationships
     """
     Moving To Multi-User TODO:
@@ -134,15 +136,15 @@ class Algorithm(db.Model):
                             index=False,
                             unique=False)
 
-    # # Relationships
+    # Relationships
 
-    # implementations = db.relationship('Implementation',
-    #                                   backref='algorithm',
-    #                                   lazy='dynamic')
-    # tags = db.relationship('Tag',
-    #                        secondary=algorithms_tags,
-    #                        backref=db.backref('algorithms',
-    #                                           lazy='dynamic'))
+    implementations = db.relationship('Implementation',
+                                      backref='algorithm',
+                                      lazy='dynamic')
+    tags = db.relationship('Tag',
+                           secondary=algorithms_tags,
+                           backref=db.backref('algorithms',
+                                              lazy='dynamic'))
     """
     Moving To Multi-User TODO:
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -184,21 +186,21 @@ class Implementation(db.Model):
 
     # Relationships
 
-    # algorithm_id = db.Column(db.Integer,
-    #                          db.ForeignKey('algorithm.id'))
+    algorithm_id = db.Column(db.Integer,
+                             db.ForeignKey('algorithm.id'))
 
-    # arguments = db.relationship('Argument',
-    #                             backref='implementation',
-    #                             lazy='dynamic')
+    arguments = db.relationship('Argument',
+                                backref='implementation',
+                                lazy='dynamic')
 
-    # batches = db.relationship('Batch',
-    #                           backref='implementation',
-    #                           lazy='dynamic')
+    batches = db.relationship('Batch',
+                              backref='implementation',
+                              lazy='dynamic')
 
-    # tags = db.relationship('Tag',
-    #                        secondary=implementations_tags,
-    #                        backref=db.backref('implementations',
-    #                                           lazy='dynamic'))
+    tags = db.relationship('Tag',
+                           secondary=implementations_tags,
+                           backref=db.backref('implementations',
+                                              lazy='dynamic'))
 
     """
     Moving To Multi-User TODO:
@@ -248,8 +250,8 @@ class Argument(db.Model):
                          index=True)
 
     # Relationships
-    # implementation_id = db.Column(db.Integer,
-    #                               db.ForeignKey('implementation.id'))
+    implementation_id = db.Column(db.Integer,
+                                  db.ForeignKey('implementation.id'))
 
     def __init__(self, name, data_type, optional):
         super(Argument, self).__init__()
@@ -282,15 +284,15 @@ class DataCollection(db.Model):
                             unique=False)
 
     # Relationships
-    """
-    datasets = db.relationship('DataSet',
-                               backref='data_collection',
-                               lazy='dynamic')
-    """
-    # tags = db.relationship('Tag',
-    #                        secondary=data_collections_tags,
-    #                        backref=db.backref('data_sets',
-    #                                           lazy='dynamic'))
+
+    data_sets = db.relationship('DataSet',
+                                backref='data_collection',
+                                lazy='dynamic')
+
+    tags = db.relationship('Tag',
+                           secondary=data_collections_tags,
+                           backref=db.backref('data_collections',
+                                              lazy='dynamic'))
 
     """
     Moving To Multi-User TODO:
@@ -309,59 +311,7 @@ class DataCollection(db.Model):
             return str(self.id)  # python 3
 
 
-class Experiment(db.Model):
-    """Represents an experiment composed jobs run with a variable number of
-       datasets and algorithms
-    """
-
-    # Fields
-
-    id = db.Column(db.Integer,
-                   primary_key=True)
-
-    name = db.Column(db.String(64),
-                     index=True,
-                     unique=True)
-
-    description = db.Column(db.String(512), index=False, unique=False)
-
-    # Relationships
-    # data_sets = db.relationship('DataSet',
-    #                             secondary=data_sets_experiments,
-    #                             backref=db.backref('experiments',
-    #                                                lazy='dynamic'))
-
-    # implementations = db.relationship('Implementation',
-    #                                   secondary=implementations_experiments,
-    #                                   backref=db.backref('experiments',
-    #                                                      lazy='dynamic'))
-
-    # batches = db.relationship('Batch',
-    #                           backref='experiment',
-    #                           lazy='dynamic')
-
-    # tags = db.relationship('Tag',
-    #                        secondary=experiments_tags,
-    #                        backref=db.backref('experiments',
-    #                                           lazy='dynamic'))
-    """
-    Moving To Multi-User TODO:
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    """
-
-    def __init__(self, name, description):
-        super(Experiment, self).__init__()
-        self.name = name
-        self.description = description
-
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
-
-
-class DataSet(object):
+class DataSet(db.Model):
     """ Represents a single dataset belonging to a data collection
     """
 
@@ -384,20 +334,17 @@ class DataSet(object):
 
     # Relationships
 
-    # data_collection_id = db.Column(
-    #     db.Integer, db.ForeignKey('data_collection.id'))
+    data_collection_id = db.Column(
+        db.Integer, db.ForeignKey('data_collection.id'))
 
-    # data_collection = db.relationship('DataCollection',
-    #                                   backref='data_collection')
+    batches = db.relationship('Batch',
+                              backref='data_set',
+                              lazy='dynamic')
 
-    # batches = db.relationship('Batch',
-    #                           backref='data_set',
-    #                           lazy='dynamic')
-
-    # tags = db.relationship('Tag',
-    #                        secondary=data_sets_tags,
-    #                        backref=db.backref('data_sets',
-    #                                           lazy='dynamic'))
+    tags = db.relationship('Tag',
+                           secondary=data_sets_tags,
+                           backref=db.backref('data_sets',
+                                              lazy='dynamic'))
 
     """
     Moving To Multi-User TODO:
@@ -415,6 +362,59 @@ class DataSet(object):
                 return unicode(self.id)  # python 2
             except NameError:
                 return str(self.id)  # python 3
+
+
+class Experiment(db.Model):
+    """Represents an experiment composed jobs run with a variable number of
+       datasets and algorithms
+    """
+
+    # Fields
+
+    id = db.Column(db.Integer,
+                   primary_key=True)
+
+    name = db.Column(db.String(64),
+                     index=True,
+                     unique=True)
+
+    description = db.Column(db.String(512), index=False, unique=False)
+
+    # Relationships
+
+    data_sets = db.relationship('DataSet',
+                                secondary=data_sets_experiments,
+                                backref=db.backref('experiments',
+                                                   lazy='dynamic'))
+
+    implementations = db.relationship('Implementation',
+                                      secondary=implementations_experiments,
+                                      backref=db.backref('experiments',
+                                                         lazy='dynamic'))
+
+    batches = db.relationship('Batch',
+                              backref='experiment',
+                              lazy='dynamic')
+
+    tags = db.relationship('Tag',
+                           secondary=experiments_tags,
+                           backref=db.backref('experiments',
+                                              lazy='dynamic'))
+    """
+    Moving To Multi-User TODO:
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    """
+
+    def __init__(self, name, description):
+        super(Experiment, self).__init__()
+        self.name = name
+        self.description = description
+
+    def get_id(self):
+        try:
+            return unicode(self.id)  # python 2
+        except NameError:
+            return str(self.id)  # python 3
 
 
 class Batch(db.Model):
@@ -436,23 +436,23 @@ class Batch(db.Model):
 
     # Relationships
 
-    # experiment_id = db.Column(db.Integer,
-    #                           db.ForeignKey('experiment.id'))
+    experiment_id = db.Column(db.Integer,
+                              db.ForeignKey('experiment.id'))
 
-    # data_set_id = db.Column(db.Integer,
-    #                         db.ForeignKey('data_set.id'))
+    data_set_id = db.Column(db.Integer,
+                            db.ForeignKey('data_set.id'))
 
-    # implementation_id = db.Column(db.Integer,
-    #                               db.ForeignKey('implementation.id'))
+    implementation_id = db.Column(db.Integer,
+                                  db.ForeignKey('implementation.id'))
 
-    # jobs = db.relationship('Job',
-    #                        backref='batch',
-    #                        lazy='dynamic')
+    jobs = db.relationship('Job',
+                           backref='batch',
+                           lazy='dynamic')
 
-    # tags = db.relationship('Tag',
-    #                        secondary=batches_tags,
-    #                        backref=db.backref('batches',
-    #                                           lazy='dynamic'))
+    tags = db.relationship('Tag',
+                           secondary=batches_tags,
+                           backref=db.backref('batches',
+                                              lazy='dynamic'))
     """
     Moving To Multi-User TODO:
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -489,17 +489,17 @@ class Job(db.Model):
 
     # Relationships
 
-    # batch_id = db.Column(db.Integer,
-    #                      db.ForeignKey('batch.id'))
+    batch_id = db.Column(db.Integer,
+                         db.ForeignKey('batch.id'))
 
-    # params = db.relationship('Param',
-    #                          backref='job',
-    #                          lazy='dynamic')
+    params = db.relationship('Param',
+                             backref='job',
+                             lazy='dynamic')
 
-    # tags = db.relationship('Tag',
-    #                        secondary=jobs_tags,
-    #                        backref=db.backref('jobs',
-    #                                           lazy='dynamic'))
+    tags = db.relationship('Tag',
+                           secondary=jobs_tags,
+                           backref=db.backref('jobs',
+                                              lazy='dynamic'))
     """
     Moving To Multi-User TODO:
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -537,19 +537,19 @@ class Param(db.Model):
 
     # Relationships
 
-    # job_id = db.Column(db.Integer,
-    #                    db.ForeignKey('job.id'))
+    job_id = db.Column(db.Integer,
+                       db.ForeignKey('job.id'))
 
-    # def __init__(self, name, value):
-    #     super(Param, self).__init__()
-    #     self.name = name
-    #     self.value = value
+    def __init__(self, name, value):
+        super(Param, self).__init__()
+        self.name = name
+        self.value = value
 
-    # def get_id(self):
-    #     try:
-    #         return unicode(self.id)  # python 2
-    #     except NameError:
-    #         return str(self.id)  # python 3
+    def get_id(self):
+        try:
+            return unicode(self.id)  # python 2
+        except NameError:
+            return str(self.id)  # python 3
 
 
 class Tag(db.Model):
