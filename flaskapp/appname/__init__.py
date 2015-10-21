@@ -40,7 +40,6 @@ def create_app(object_name, env="prod"):
 
     # initialize SQLAlchemy
     db.init_app(app)
-
     login_manager.init_app(app)
 
     # Import and register the different asset bundles

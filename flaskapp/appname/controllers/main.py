@@ -16,12 +16,12 @@ def home():
 
 @main.route("/login", methods=["GET", "POST"])
 def login():
+    # if g.user is not None and g.user.is_authenticated:
+        #  return redirect(url_for('restricted'))
     form = LoginForm()
-
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).one()
         login_user(user)
-
         flash("Logged in successfully.", "success")
         return redirect(request.args.get("next") or url_for(".home"))
 

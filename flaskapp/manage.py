@@ -39,7 +39,11 @@ def createdb():
     """
 
     # Create New DB Reflecting SQLAlchemy Data Models
-    db.create_all()
+    db.create_all(app=app)
+    admin = User('admin', 'password')
+    db.session.add(admin)
+    db.session.commit()
+    print 'done'
 
     # Create SQLAlchemy-migrate Versioning Repository If Absent
     if not os.path.exists(app.config['SQLALCHEMY_MIGRATE_REPO']):
