@@ -43,7 +43,6 @@ def createdb():
     admin = User('admin', 'password')
     db.session.add(admin)
     db.session.commit()
-    print 'done'
 
     # Create SQLAlchemy-migrate Versioning Repository If Absent
     if not os.path.exists(app.config['SQLALCHEMY_MIGRATE_REPO']):
