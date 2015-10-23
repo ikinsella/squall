@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %} Algorithms {% endblock %}
+
+{% block body %}
+    <h1 class="text-center">Algorithms</h1>
+
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <form role="form" action="{{ url_for('.save_algorithm') }}" method="post">
+              {{ algorithm_form.hidden_tag() }}
+
+              <div class="form-group">
+                    {{ algorithm_form.name.label }}
+                    {{ algorithm_form.name(class_="form-control") }}
+              </div>
+              <div class="form-group">
+                    {{ algorithm_form.description.label }}
+                    {{ algorithm_form.description(class_="form-control") }}
+                </div>
+
+	      <div class="form-group">
+		{{ algorithm_form.tags.label }}
+                {{ algorithm_form.tags(class_="form-control") }}
+              </div>
+
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+
+    <h1 class="text-center">Implementations</h1>
+
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <form role="form" action="{{ url_for('.save_implementation') }}" method="post">
+              {{ implementation_form.hidden_tag() }}
+
+              <div class="form-group">
+                {{ implementation_form.name.label }}
+                {{ implementation_form.name(class_="form-control") }}
+              </div>
+
+	      <div class="form-group">
+		{{ implementation_form.address.label }}
+                {{ implementation_form.address(class_="form-control") }}
+              </div>
+
+	      <div class="form-group">
+		{{ implementation_form.executable.label }}
+                {{ implementation_form.executable(class_="form-control") }}
+	      </div>
+
+	      <div class="form-group">
+		{{ implementation_form.description.label }}
+                {{ implementation_form.description(class_="form-control") }}
+	      </div>
+
+	      <div class="form-group">
+		{{ implementation_form.tags.label }}
+                {{ implementation_form.tags(class_="form-control") }}
+              </div>
+
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+{% endblock %}

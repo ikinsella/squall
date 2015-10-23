@@ -5,7 +5,12 @@ from webassets.loaders import PythonLoader as PythonAssetsLoader
 
 from appname import assets
 from appname.models import db
-from appname.controllers.main import main
+from appname.controllers import (main,
+                                 algorithms,
+                                 data,
+                                 experiments,
+                                 batches,
+                                 tags)
 
 from appname.extensions import (
     cache,
@@ -50,5 +55,10 @@ def create_app(object_name, env="prod"):
 
     # register our blueprints
     app.register_blueprint(main)
+    app.register_blueprint(algorithms, url_prefix='/algorithms')
+    app.register_blueprint(data, url_prefix='/data')
+    app.register_blueprint(experiments, url_prefix='/experiments')
+    app.register_blueprint(batches, url_prefix='/batches')
+    app.register_blueprint(tags, url_prefix='/tags')
 
     return app

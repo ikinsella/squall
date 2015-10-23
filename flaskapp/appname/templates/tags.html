@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %} Algorithms {% endblock %}
+
+{% block body %}
+    <h1 class="text-center">Tags</h1>
+
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <form role="form" action="{{ url_for('.save_tag') }}" method="post">
+              {{ tag_form.hidden_tag() }}
+
+              <div class="form-group">
+                    {{ tag_form.name.label }}
+                    {{ tag_form.name(class_="form-control") }}
+              </div>
+
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+{% endblock %}

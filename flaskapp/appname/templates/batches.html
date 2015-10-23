@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %} Batches {% endblock %}
+
+{% block body %}
+    <h1 class="text-center">Batches</h1>
+
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <form role="form" action="{{ url_for('.save_batch') }}" method="post">
+              {{ batch_form.hidden_tag() }}
+
+              <div class="form-group">
+                    {{ batch_form.name.label }}
+                    {{ batch_form.name(class_="form-control") }}
+              </div>
+	      
+              <div class="form-group">
+                    {{ batch_form.experiment.label }}
+                    {{ batch_form.experiment(class_="form-control") }}
+              </div>
+
+	      <div class="form-group">
+                    {{ batch_form.data_set.label }}
+                    {{ batch_form.data_set(class_="form-control") }}
+              </div>
+
+	      <div class="form-group">
+                    {{ batch_form.implementation.label }}
+                    {{ batch_form.implementation(class_="form-control") }}
+              </div>
+	      
+              <div class="form-group">
+                    {{ batch_form.params.label }}
+                    {{ batch_form.params(class_="form-control") }}
+              </div>
+
+              <div class="form-group">
+                    {{ batch_form.description.label }}
+                    {{ batch_form.description(class_="form-control") }}
+              </div>
+
+	      <div class="form-group">
+		{{ batch_form.tags.label }}
+                {{ batch_form.tags(class_="form-control") }}
+              </div>
+
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+{% endblock %}

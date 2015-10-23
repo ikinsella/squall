@@ -1,5 +1,8 @@
-from flask import Blueprint, render_template, flash, request, \
-    redirect, url_for
+from flask import (Blueprint,
+                   render_template,
+                   flash, request,
+                   redirect,
+                   url_for)
 from flask.ext.login import login_user, logout_user, login_required
 
 from appname.extensions import cache

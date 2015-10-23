@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %} Data {% endblock %}
+
+{% block body %}
+    <h1 class="text-center">Data Collections</h1>
+
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <form role="form" action="{{ url_for('.save_collection') }}" method="post">
+              {{ collection_form.hidden_tag() }}
+
+              <div class="form-group">
+                {{ collection_form.name.label }}
+                {{ collection_form.name(class_="form-control") }}
+              </div>
+
+	      <div class="form-group">
+		{{ collection_form.description.label }}
+                {{ collection_form.description(class_="form-control") }}
+	      </div>
+
+	      <div class="form-group">
+		{{ collection_form.tags.label }}
+                {{ collection_form.tags(class_="form-control") }}
+              </div>
+
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+
+    <h1 class="text-center">Data Sets</h1>
+
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <form role="form" action="{{ url_for('.save_data_set') }}" method="post">
+              {{ data_set_form.hidden_tag() }}
+
+              <div class="form-group">
+                    {{ data_set_form.name.label }}
+                    {{ data_set_form.name(class_="form-control") }}
+              </div>
+
+	      <div class="form-group">
+		{{ odata_set_form.address.label }}
+                {{ data_set_form.address(class_="form-control") }}
+              </div>
+
+	      <div class="form-group">
+                    {{ data_set_form.description.label }}
+                    {{ data_set_form.description(class_="form-control") }}
+              </div>	      
+
+	      <div class="form-group">
+		{{ data_set_form.tags.label }}
+                {{ data_set_form.tags(class_="form-control") }}
+              </div>
+
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+
+{% endblock %}
