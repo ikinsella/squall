@@ -166,6 +166,14 @@ class Algorithm(db.Model):
         self.name = name
         self.description = description
 
+    @property
+    def serialize(self):
+	return {
+		'id'         : self.id,
+		'name'       : self.name,
+		'description': self.description
+	}
+
     def set_decription(self, description):
         self.description = description
 
@@ -183,7 +191,7 @@ class Algorithm(db.Model):
             return unicode(self.id)  # python 2
         except NameError:
             return str(self.id)  # python 3
-
+ 
 
 class Implementation(db.Model):
     """ Entity representing a single implementation of an algorithm
