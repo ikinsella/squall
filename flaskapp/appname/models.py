@@ -300,10 +300,10 @@ class DataCollection(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     """
 
-    def __init__(self, name, descipription):
+    def __init__(self, name, description):
         super(DataCollection, self).__init__()
         self.name = name
-        self.descipription = descipription
+        self.description = description
 
     def get_id(self):
         try:
@@ -578,3 +578,9 @@ class Tag(db.Model):
     def __init__(self, name):
         super(Tag, self).__init__()
         self.name = name
+
+    def get_id(self):
+        try:
+            return unicode(self.id)  # python 2
+        except NameError:
+            return str(self.id)  # python 3

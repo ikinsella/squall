@@ -7,7 +7,7 @@ from flask import (Blueprint,
 from flask.ext.login import login_required
 from appname.extensions import cache
 from appname.forms import TagForm
-from appname.models import db
+from appname.models import db, Tag
 
 
 tags = Blueprint('tags', __name__)
@@ -26,5 +26,10 @@ def get_tag():
 @cache.cached(timeout=1000)
 @login_required
 def save_tag():
-    flash("The Tag Will Have Been Saved")
+    tag_form = TagForm()
+    if tag_form.validate_on_submit():
+        new_tag = Tag(tag_form.name.data)
+        db.session.add(new_tag)
+        db.session.commit()
+        flash("Tag added successfully.", "success")
     return redirect(url_for("tags.get_tag"))
