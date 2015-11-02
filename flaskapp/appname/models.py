@@ -1,6 +1,7 @@
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.ext.hybrid import hybrid_property
 
 db = SQLAlchemy()
 
@@ -118,14 +119,29 @@ class User(db.Model, UserMixin):
         else:
             return False
 
+    @hybrid_property
+    def usernamex(self):
+       return self.username
+    @usernamex.setter 
+    def usernamex(self, value):
+       self.username = value    
+    @hybrid_property
+    def passwordx(self):
+       return self.password
+    @passwordx.setter 
+    def passwordx(self, value):
+       self.password = generate_password_hash(value)     
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
     def set_password(self, password):
         self.password = generate_password_hash(password)
 
     def check_password(self, value):
         return check_password_hash(self.password, value)
-
-    def get_id(self):
-        return self.id
 
     def __repr__(self):
         return '<User {username}>'.format(username=self.username)
@@ -161,7 +177,13 @@ class Algorithm(db.Model):
     Moving To Multi-User TODO:
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     """
-
+    @property
+    def serialize(self):
+	return {
+		'id'         : self.id,
+		'name'       : self.name,
+		'description': self.description
+	}
     def __init__(self, name, description):
         self.name = name
         self.description = description
@@ -174,24 +196,42 @@ class Algorithm(db.Model):
 		'description': self.description
 	}
 
-    def set_decription(self, description):
-        self.description = description
-
-    def set_name(self, name):
-        self.name = name
-
-    def get_metadata(self):
-        return self.description
-
-    def get_name(self):
-        return self.name
-
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
- 
+    @hybrid_property
+    def namex(self):
+       return self.name
+    @namex.setter 
+    def namex(self, value):
+       self.name = value    
+    @hybrid_property
+    def descriptionx(self):
+       return self.description
+    @descriptionx.setter 
+    def descriptionx(self, value):
+       self.description = value     
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
+#    def set_decription(self, description):
+#        self.description = description
+#
+#    def set_name(self, name):
+#        self.name = name
+#
+#    def get_metadata(self):
+#        return self.description
+#
+#    def get_name(self):
+#        return self.name
+#
+#    def get_id(self):
+#        try:
+#            return unicode(self.id)  # python 2
+#        except NameError:
+#            return str(self.id)  # python 3
+#
 
 class Implementation(db.Model):
     """ Entity representing a single implementation of an algorithm
@@ -245,20 +285,36 @@ class Implementation(db.Model):
 		'description': self.description
 	}
 
-    def set_name(self, name):
-        self.name = name
-
-    def get_description(self):
-        return self.description
-
-    def get_name(self):
-        return self.name
-
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
+    @hybrid_property
+    def namex(self):
+       return self.name
+    @namex.setter 
+    def namex(self, value):
+       self.name = value    
+    @hybrid_property
+    def descriptionx(self):
+       return self.description
+    @descriptionx.setter 
+    def descriptionx(self, value):
+       self.description = value     
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
+    @hybrid_property
+    def addressx(self):
+       return self.address
+    @addressx.setter 
+    def addressx(self, value):
+       self.address = value    
+    @hybrid_property
+    def executablex(self):
+       return self.executable
+    @executablex.setter 
+    def executablex(self, value):
+       self.executable = value     
 
 class Argument(db.Model):
     """ Entity representing a single valid argument belonging to an
@@ -300,12 +356,30 @@ class Argument(db.Model):
 		'optional' : self.optional
 	}
 
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
-
+    @hybrid_property
+    def namex(self):
+       return self.name
+    @namex.setter 
+    def namex(self, value):
+       self.name = value    
+    @hybrid_property
+    def data_typex(self):
+       return self.data_type
+    @data_typex.setter 
+    def data_typex(self, value):
+       self.data_type = value     
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
+    @hybrid_property
+    def optionalx(self):
+       return self.optional
+    @optionalx.setter 
+    def optionalx(self, value):
+       self.optional = value    
 
 class DataCollection(db.Model):
     """ Represents a collection of datasets derived from a common source
@@ -353,12 +427,24 @@ class DataCollection(db.Model):
 		'description': self.description
 	}
 
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
-
+    @hybrid_property
+    def namex(self):
+       return self.name
+    @namex.setter 
+    def namex(self, value):
+       self.name = value    
+    @hybrid_property
+    def descriptionx(self):
+       return self.description
+    @descriptionx.setter 
+    def descriptionx(self, value):
+       self.description = value     
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
 
 class DataSet(db.Model):
     """ Represents a single dataset belonging to a data collection
@@ -416,11 +502,30 @@ class DataSet(db.Model):
 		'description': self.description	
 	}
 
-        def get_id(self):
-            try:
-                return unicode(self.id)  # python 2
-            except NameError:
-                return str(self.id)  # python 3
+    @hybrid_property
+    def namex(self):
+       return self.name
+    @namex.setter 
+    def namex(self, value):
+       self.name = value    
+    @hybrid_property
+    def descriptionx(self):
+       return self.description
+    @descriptionx.setter 
+    def descriptionx(self, value):
+       self.description = value     
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
+    @hybrid_property
+    def addressx(self):
+       return self.address
+    @addressx.setter 
+    def addressx(self, value):
+       self.address = value    
 
 
 class Experiment(db.Model):
@@ -491,12 +596,25 @@ class Experiment(db.Model):
 		'description': self.description
 	}
 
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
 
+    @hybrid_property
+    def namex(self):
+       return self.name
+    @namex.setter 
+    def namex(self, value):
+       self.name = value    
+    @hybrid_property
+    def descriptionx(self):
+       return self.description
+    @descriptionx.setter 
+    def descriptionx(self, value):
+       self.description = value     
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
 
 class Batch(db.Model):
     """ Represents a batch of jobs to be run on HTCondor
@@ -555,12 +673,25 @@ class Batch(db.Model):
 		'description': self.description
 	}
 	
-        def get_id(self):
-            try:
-                return unicode(self.id)  # python 2
-            except NameError:
-                return str(self.id)  # python 3
 
+    @hybrid_property
+    def namex(self):
+       return self.name
+    @namex.setter 
+    def namex(self, value):
+       self.name = value    
+    @hybrid_property
+    def descriptionx(self):
+       return self.description
+    @descriptionx.setter 
+    def descriptionx(self, value):
+       self.description = value     
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
 
 class Job(db.Model):
     """Represents a single job, belonging to a Batch
@@ -610,12 +741,25 @@ class Job(db.Model):
 		'process'    : self.process
 	}
 
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
 
+    @hybrid_property
+    def is_completedx(self):
+       return self.is_completed
+    @is_completedx.setter 
+    def is_completedx(self, value):
+       self.is_completed = value    
+    @hybrid_property
+    def processx(self):
+       return self.process
+    @processx.setter 
+    def processx(self, value):
+       self.process = value     
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
 
 class Param(db.Model):
     """ Represents a single parameter value belonging to a job
@@ -652,12 +796,18 @@ class Param(db.Model):
 		'name': self.name
 	}
 
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
-
+    @hybrid_property
+    def namex(self):
+       return self.name
+    @namex.setter 
+    def namex(self, value):
+       self.name = value    
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
 
 class Tag(db.Model):
     """ Represents a tag which is used to add query-able meta data
@@ -685,14 +835,22 @@ class Tag(db.Model):
         super(Tag, self).__init__()
         self.name = name
 
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
     @property
     def serialize(self):
 	return {
 		'id'  : self.id,
 		'name': self.name
-	]
+	}
+
+    @hybrid_property
+    def namex(self):
+       return self.name
+    @namex.setter 
+    def namex(self, value):
+       self.name = value    
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
