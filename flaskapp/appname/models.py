@@ -504,11 +504,19 @@ class Batch(db.Model):
         self.data_set_id = data_set_id
         self.implementation_id = implementation_id
 
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
+    @property
+    def serialize(self):
+	return {
+		'id'         : self.id,
+		'name'       : self.name,
+		'description': self.description
+	}
+	
+        def get_id(self):
+            try:
+                return unicode(self.id)  # python 2
+            except NameError:
+                return str(self.id)  # python 3
 
 
 class Job(db.Model):
