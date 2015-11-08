@@ -214,6 +214,19 @@ class Algorithm(db.Model):
     @idx.setter 
     def idx(self, value):
        self.id = value    
+    @hybrid_property
+    def implementationsx(self):
+       return self.implementations
+    @implementationsx.setter
+    def implementationsx(self, value):
+       self.implementations.append(value)
+    @hybrid_property
+    def tagsx(self):
+       return self.tags
+    @tagsx.setter
+    def tagsx(self, value):
+       self.tags.append(value)
+
 #    def set_decription(self, description):
 #        self.description = description
 #
@@ -315,6 +328,30 @@ class Implementation(db.Model):
     @executablex.setter 
     def executablex(self, value):
        self.executable = value     
+    @hybrid_property
+    def algorithm_idx(self):
+       return self.algorithm_id
+    @algorithm_idx.setter
+    def algorithm_idx(self, value):
+       self.algorithm_id = value 
+    @hybrid_property
+    def argumentsx(self):
+       return self.arguments
+    @argumentsx.setter
+    def argumentsx(self, value):
+       self.arguments.append(value)
+    @hybrid_property
+    def batchesx(self):
+       return self.batches
+    @batchesx.setter
+    def batchesx(self, value):
+       self.batches.append(value)
+    @hybrid_property
+    def tagsx(self):
+       return self.tags
+    @tagsx.setter
+    def tagsx(self, value):
+       self.tags.append(value)
 
 class Argument(db.Model):
     """ Entity representing a single valid argument belonging to an
@@ -380,6 +417,12 @@ class Argument(db.Model):
     @optionalx.setter 
     def optionalx(self, value):
        self.optional = value    
+    @hybrid_property
+    def implementation_idx(self):
+       return self.implementation_id
+    @implementation_idx.setter
+    def implementation_idx(self, value):
+       self.implementation_id = value
 
 class DataCollection(db.Model):
     """ Represents a collection of datasets derived from a common source
@@ -445,6 +488,18 @@ class DataCollection(db.Model):
     @idx.setter 
     def idx(self, value):
        self.id = value    
+    @hybrid_property
+    def data_setsx(self):
+       return self.data_sets
+    @data_setsx.setter
+    def data_setsx(self, value):
+       self.data_sets.append(value)
+    @hybrid_property
+    def tagsx(self):
+       return self.tags 
+    @tagsx.setter
+    def tagsx(self, value):
+       self.tags.append(value)
 
 class DataSet(db.Model):
     """ Represents a single dataset belonging to a data collection
@@ -526,7 +581,24 @@ class DataSet(db.Model):
     @addressx.setter 
     def addressx(self, value):
        self.address = value    
-
+    @hybrid_property
+    def data_collection_idx(self):
+       return self.data_collection_id
+    @data_collection_idx.setter
+    def data_collection_idx(self, value):
+       self.data_collection_id = value
+    @hybrid_property
+    def batchesx(self):
+       return self.batches
+    @batchesx.setter
+    def batchesx(self, value):
+       self.batches.append(value)
+    @hybrid_property
+    def tagsx(self):
+       return self.tags
+    @tagsx.setter
+    def tagsx(self, value):
+       self.tags.append(value)
 
 class Experiment(db.Model):
     """Represents an experiment composed jobs run with a variable number of
@@ -615,6 +687,30 @@ class Experiment(db.Model):
     @idx.setter 
     def idx(self, value):
        self.id = value    
+    @hybrid_property
+    def data_setsx(self):
+       return self.data_sets
+    @data_setsx.setter
+    def data_setsx(self, value):
+       self.data_sets.append(value)
+    @hybrid_property
+    def implementationsx(self):
+       return self.implementations
+    @implementationsx.setter
+    def implementationsx(self, value):
+       self.implementations.append(value)
+    @hybrid_property
+    def batchesx(self):
+       return self.batches
+    @batchesx.setter
+    def batchesx(self, value):
+       self.batches.append(value)
+    @hybrid_property
+    def tagsx(self):
+       return self.tags
+    @tagsx.setter
+    def tagsx(self, value):
+       self.tags.append(value)
 
 class Batch(db.Model):
     """ Represents a batch of jobs to be run on HTCondor
@@ -692,6 +788,36 @@ class Batch(db.Model):
     @idx.setter 
     def idx(self, value):
        self.id = value    
+    @hybrid_property
+    def experiment_idx(self):
+       return self.experiment_id
+    @experiment_idx.setter
+    def experiment_idx(self, value):
+       self.experiment_id = value
+    @hybrid_property
+    def data_set_idx(self):
+       return self.data_set_id
+    @data_set_idx.setter
+    def data_set_idx(self, value):
+       self.data_set_id = value
+    @hybrid_property
+    def implementation_idx(self):
+       return self.implementation_id
+    @implementation_idx.setter
+    def implementation_idx(self, value):
+       self.implementation_id = value
+    @hybrid_property
+    def jobsx(self):
+       return self.jobs
+    @jobsx.setter
+    def jobsx(self, value):
+       self.jobs.append(value)
+    @hybrid_property
+    def tagsx(self):
+       return self.tags
+    @tagsx.setter
+    def tagsx(self, value):
+       self.tags.append(value)
 
 class Job(db.Model):
     """Represents a single job, belonging to a Batch
@@ -760,6 +886,24 @@ class Job(db.Model):
     @idx.setter 
     def idx(self, value):
        self.id = value    
+    @hybrid_property
+    def batch_idx(self):
+       return self.batch_id
+    @batch_idx.setter
+    def batch_idx(self, value):
+       self.batch_id = value
+    @hybrid_property
+    def paramsx(self):
+       return self.params
+    @paramsx.setter
+    def paramsx(self, value):
+       self.params.append(value)
+    @hybrid_property
+    def tagsx(self):
+       return self.tags
+    @tagsx.setter
+    def tagsx(self, value):
+       self.tags.append(value)
 
 class Param(db.Model):
     """ Represents a single parameter value belonging to a job
@@ -808,6 +952,12 @@ class Param(db.Model):
     @idx.setter 
     def idx(self, value):
        self.id = value    
+    @hybrid_property
+    def job_idx(self):
+       return self.job_id
+    @job_idx.setter
+    def job_idx(self, value):
+       self.job_id = value
 
 class Tag(db.Model):
     """ Represents a tag which is used to add query-able meta data
@@ -854,3 +1004,9 @@ class Tag(db.Model):
     @idx.setter 
     def idx(self, value):
        self.id = value    
+    @hybrid_property
+    def user_idx(self):
+       return self.user_id
+    @user_idx.setter
+    def user_idx(self, value):
+       self.user_id = value
