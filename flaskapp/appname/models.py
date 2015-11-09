@@ -235,6 +235,16 @@ class Implementation(db.Model):
         self.description = description
         self.algorithm_id = algorithm_id
 
+    @property
+    def serialize(self):
+        return {
+		'id'         : self.id,
+		'name'       : self.name,
+		'address'    : self.address, 
+		'executable' : self.executable,
+		'description': self.description
+	}
+
     def set_name(self, name):
         self.name = name
 
@@ -249,7 +259,6 @@ class Implementation(db.Model):
             return unicode(self.id)  # python 2
         except NameError:
             return str(self.id)  # python 3
-
 
 class Argument(db.Model):
     """ Entity representing a single valid argument belonging to an
@@ -281,6 +290,15 @@ class Argument(db.Model):
         self.name = name
         self.data_type = data_type
         self.optional = optional
+
+    @property
+    def serialize(self):
+       return {
+		'id'       : self.id,
+		'name'     : self.name,
+		'data type': self.data_type,
+		'optional' : self.optional
+	}
 
     def get_id(self):
         try:
@@ -326,6 +344,14 @@ class DataCollection(db.Model):
         super(DataCollection, self).__init__()
         self.name = name
         self.description = description
+
+    @property
+    def serialize(self):
+	return {
+		'id'         : self.id,
+		'name'       : self.name,
+		'description': self.description
+	}
 
     def get_id(self):
         try:
@@ -381,11 +407,20 @@ class DataSet(db.Model):
         self.description = description
         self.data_collection_id = data_collection_id
 
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
+    @property
+    def serialize(self):
+	return {
+		'id'         : self.id,
+		'name'       : self.name,
+		'address'    : self.address,
+		'description': self.description	
+	}
+
+        def get_id(self):
+            try:
+                return unicode(self.id)  # python 2
+            except NameError:
+                return str(self.id)  # python 3
 
 
 class Experiment(db.Model):
@@ -447,6 +482,14 @@ class Experiment(db.Model):
         super(Experiment, self).__init__()
         self.name = name
         self.description = description
+
+    @property
+    def serialize(self):
+	return {
+		'id'         : self.id,
+		'name'       : self.name,
+		'description': self.description
+	}
 
     def get_id(self):
         try:
@@ -559,6 +602,14 @@ class Job(db.Model):
         self.process = process
         self.is_completed = False
 
+    @property
+    def serialize(self):
+	return {
+		'id'         : self.id,
+		'is complete': self.is_complete,
+		'process'    : self.process
+	}
+
     def get_id(self):
         try:
             return unicode(self.id)  # python 2
@@ -593,6 +644,13 @@ class Param(db.Model):
         super(Param, self).__init__()
         self.name = name
         self.value = value
+
+    @property
+    def serialize(self):
+	return {
+		'id'  : self.id,
+		'name': self.name
+	}
 
     def get_id(self):
         try:
@@ -632,3 +690,9 @@ class Tag(db.Model):
             return unicode(self.id)  # python 2
         except NameError:
             return str(self.id)  # python 3
+    @property
+    def serialize(self):
+	return {
+		'id'  : self.id,
+		'name': self.name
+	]
