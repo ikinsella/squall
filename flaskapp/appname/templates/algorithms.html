@@ -43,24 +43,29 @@
                 {{ implementation_form.name.label }}
                 {{ implementation_form.name(class_="form-control") }}
               </div>
+              
+              <div class="form-group">
+                {{ implementation_form.algorithm.label }}
+                {{ implementation_form.algorithm(class_="form-control") }}
+              </div>
 
-	      <div class="form-group">
-		{{ implementation_form.address.label }}
+              <div class="form-group">
+		            {{ implementation_form.address.label }}
                 {{ implementation_form.address(class_="form-control") }}
               </div>
 
-	      <div class="form-group">
-		{{ implementation_form.executable.label }}
+              <div class="form-group">
+		            {{ implementation_form.executable.label }}
                 {{ implementation_form.executable(class_="form-control") }}
-	      </div>
-
-	      <div class="form-group">
-		{{ implementation_form.description.label }}
+              </div>
+        
+              <div class="form-group">
+		            {{ implementation_form.description.label }}
                 {{ implementation_form.description(class_="form-control") }}
-	      </div>
+              </div>
 
-	      <div class="form-group">
-		{{ implementation_form.tags.label }}
+              <div class="form-group">
+                {{ implementation_form.tags.label }}
                 {{ implementation_form.tags(class_="form-control") }}
               </div>
 

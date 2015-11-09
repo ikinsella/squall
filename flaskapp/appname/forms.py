@@ -20,6 +20,7 @@ class AlgorithmForm(Form):
 
 
 class ImplementationForm(Form):
+    algorithm = SelectField(u'Algorithm', coerce=int)
     name = TextField(u'Name')
     address = TextField(u'Address')
     executable = TextField(u'Executable')

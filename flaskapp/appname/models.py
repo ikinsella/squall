@@ -140,8 +140,7 @@ class Algorithm(db.Model):
     # Relationships
 
     implementations = db.relationship('Implementation',
-                                      backref='algorithm',
-                                      lazy='dynamic')
+                                      backref=db.backref('algorithm'))
     tags = db.relationship('Tag',
                            secondary=algorithms_tags,
                            backref=db.backref('algorithms',
@@ -190,6 +189,7 @@ class Implementation(db.Model):
     algorithm_id = db.Column(db.Integer,
                              db.ForeignKey('algorithm.id'))
 
+
     arguments = db.relationship('Argument',
                                 backref='implementation',
                                 lazy='dynamic')
@@ -208,10 +208,12 @@ class Implementation(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     """
 
-    def __init__(self, name, number, description):
+    def __init__(self, name, address, executable, description, algorithm_id):
         self.name = name
-        self.number = number
+        self.address = address
+        self.executable = executable
         self.description = description
+        self.algorithm_id = algorithm_id
 
     def set_name(self, name):
         self.name = name
@@ -464,11 +466,11 @@ class Batch(db.Model):
         self.name = name
         self.description = description
 
-        def get_id(self):
-            try:
-                return unicode(self.id)  # python 2
-            except NameError:
-                return str(self.id)  # python 3
+    def get_id(self):
+        try:
+            return unicode(self.id)  # python 2
+        except NameError:
+            return str(self.id)  # python 3
 
 
 class Job(db.Model):
