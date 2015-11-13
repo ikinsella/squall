@@ -262,7 +262,6 @@ class Implementation(db.Model):
     algorithm_id = db.Column(db.Integer,
                              db.ForeignKey('algorithm.id'))
 
-
     arguments = db.relationship('Argument',
                                 backref='implementation',
                                 lazy='dynamic')
@@ -450,6 +449,14 @@ class DataCollection(db.Model):
     tags = db.relationship('Tag',
                            secondary=data_collections_tags,
                            backref=db.backref('data_collections',
+    """
+    datasets = db.relationship('DataSet',
+                               backref='data_collection',
+                               lazy='dynamic')
+    """
+    tags = db.relationship('Tag',
+                           secondary=data_collections_tags,
+                           backref=db.backref('data_sets',
                                               lazy='dynamic'))
 
     """
@@ -939,6 +946,11 @@ class Param(db.Model):
 		'id'  : self.id,
 		'name': self.name
 	}
+
+    def __init__(self, name, value):
+        super(Param, self).__init__()
+        self.name = name
+        self.value = value
 
     @hybrid_property
     def namex(self):
