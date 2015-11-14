@@ -488,10 +488,13 @@ class Batch(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     """
 
-    def __init__(self, name, description):
+    def __init__(self, name, description, experiment_id, data_set_id, implementation_id):
         super(Batch, self).__init__()
         self.name = name
         self.description = description
+        self.experiment_id = experiment_id
+        self.data_set_id = data_set_id
+        self.implementation_id = implementation_id
 
     def get_id(self):
         try:

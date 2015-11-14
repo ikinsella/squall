@@ -14,7 +14,8 @@ from appname.models import (db,
                             experiments_tags,
                             Experiment,
                             collections_experiments,
-                            algorithms_experiments)
+                            algorithms_experiments,
+                            data_sets_experiments)
 
 
 experiments = Blueprint('experiments', __name__)

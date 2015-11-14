@@ -41,7 +41,6 @@ def logout():
 
 
 @main.route("/restricted", methods=["Get", "Post"])
-@login_required
 def create_user():
     form = CreateUserForm()
     if form.validate_on_submit():

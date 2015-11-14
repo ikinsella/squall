@@ -72,9 +72,8 @@ def save_implementation():
         db.session.add(new_impl)
         db.session.commit()
 
-        alg = Algorithm.query.filter_by(id=implementation_form.algorithm.data).first()
-        db.session.commit()
-
+        # alg = Algorithm.query.filter_by(id=implementation_form.algorithm.data).first()
+        # db.session.commit()
         
         selected_tags = implementation_form.tags.data
         for tag in selected_tags:
@@ -83,5 +82,4 @@ def save_implementation():
             db.session.commit()\
 
         flash("New implementation added successfully", "success")
-        # flash(alg.implementations, 'success')
     return redirect(url_for("algorithms.get_algorithm"))
