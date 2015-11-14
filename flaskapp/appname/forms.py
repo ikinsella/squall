@@ -46,15 +46,17 @@ class DataCollectionForm(Form):
 class DataSetForm(Form):
     name = TextField(u'Name')
     address = TextField(u'Address')
+    data_collection = SelectField(u'Data Collection', coerce=int)
     description = TextAreaField(u'Desciption')
     tags = SelectMultipleField(u'Tags', coerce=int)
 
 
 class ExperimentForm(Form):
     name = TextField(u'Name')
+    #description = TextAreaField(u'Desciption')
     algorithms = SelectMultipleField(u'Algorithms', coerce=int)
     collections = SelectMultipleField(u'Collections', coerce=int)
-    description = TextAreaField(u'Desciption')
+    description = TextAreaField(u'Description')
     tags = SelectMultipleField(u'Tags', coerce=int)
 
 
