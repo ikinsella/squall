@@ -140,7 +140,8 @@ class Algorithm(db.Model):
     # Relationships
 
     implementations = db.relationship('Implementation',
-                                      backref=db.backref('algorithm'))
+                                      backref='algorithm',
+                                      lazy='dynamic')
     tags = db.relationship('Tag',
                            secondary=algorithms_tags,
                            backref=db.backref('algorithms',

@@ -62,27 +62,26 @@ def save_algorithm():
 @cache.cached(timeout=1000)
 @login_required
 def save_implementation():
-    flash("The Implementation Will Have Been Saved")
     implementation_form = ImplementationForm()
     implementation_form.tags.choices\
         = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
     implementation_form.algorithm.choices\
         = [(algorithm.id, algorithm.name) for algorithm in Algorithm.query.order_by('name')]
     if implementation_form.validate_on_submit():
-        alg = Algorithm.query.filter_by(id=implementation_form.algorithm.data).first()
-        new_impl = Implementation(implementation_form.name.data, implementation_form.address.data, implementation_form.executable.data, implementation_form.description.data, alg.id)
+        new_impl = Implementation(implementation_form.name.data, implementation_form.address.data, implementation_form.executable.data, implementation_form.description.data, implementation_form.algorithm.data)
         db.session.add(new_impl)
         db.session.commit()
 
+        alg = Algorithm.query.filter_by(id=implementation_form.algorithm.data).first()
+        db.session.commit()
+
         
-        # alg.implementations = new_impl
-        # new_impl.algorithm.append(alg)
-        # new_impl.algorithm_id.append(alg)
-        # alg.implementations.append(new_impl)
         selected_tags = implementation_form.tags.data
         for tag in selected_tags:
             new_tag = Tag.query.filter_by(id=tag).first()
             new_impl.tags.append(new_tag)
-            db.session.commit()
-        flash(alg.implementations, 'success')
+            db.session.commit()\
+
+        flash("New implementation added successfully", "success")
+        # flash(alg.implementations, 'success')
     return redirect(url_for("algorithms.get_algorithm"))
