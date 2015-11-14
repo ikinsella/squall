@@ -8,7 +8,7 @@ from flask.ext.login import login_required
 from appname.extensions import cache
 from appname.forms import (AlgorithmForm,
                            ImplementationForm)
-from appname.models import (db, Tag, Algorithm, algorithms_tags)
+from appname.models import (db, Tag, Algorithm, algorithms_tags, Implementation, implementations_tags)
 
 
 algorithms = Blueprint('algorithms', __name__)
@@ -24,6 +24,8 @@ def get_algorithm():
     implementation_form = ImplementationForm()
     implementation_form.tags.choices\
         = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
+    implementation_form.algorithm.choices\
+        = [(algorithm.id, algorithm.name) for algorithm in Algorithm.query.order_by('name')]
     return render_template('algorithms.html',
                            algorithm_form=algorithm_form,
                            implementation_form=implementation_form)
@@ -60,5 +62,26 @@ def save_algorithm():
 @cache.cached(timeout=1000)
 @login_required
 def save_implementation():
-    flash("The Implementation Will Have Been Saved")
-    return redirect(url_for("algs.get_algorithm"))
+    implementation_form = ImplementationForm()
+    implementation_form.tags.choices\
+        = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
+    implementation_form.algorithm.choices\
+        = [(algorithm.id, algorithm.name) for algorithm in Algorithm.query.order_by('name')]
+    if implementation_form.validate_on_submit():
+        new_impl = Implementation(implementation_form.name.data, implementation_form.address.data, implementation_form.executable.data, implementation_form.description.data, implementation_form.algorithm.data)
+        db.session.add(new_impl)
+        db.session.commit()
+
+        alg = Algorithm.query.filter_by(id=implementation_form.algorithm.data).first()
+        db.session.commit()
+
+        
+        selected_tags = implementation_form.tags.data
+        for tag in selected_tags:
+            new_tag = Tag.query.filter_by(id=tag).first()
+            new_impl.tags.append(new_tag)
+            db.session.commit()\
+
+        flash("New implementation added successfully", "success")
+        # flash(alg.implementations, 'success')
+    return redirect(url_for("algorithms.get_algorithm"))
