@@ -7,16 +7,29 @@ db = SQLAlchemy()
 
 """ Tables For Many To Many Relationships """
 
+# not currently in use
 implementations_experiments = db.Table(
     'implementations_experiments',
-    db.Column(
-        'implementation_id', db.Integer, db.ForeignKey('implementation.id')),
+    db.Column('implementation_id', db.Integer, db.ForeignKey('implementation.id')),
     db.Column('experiment_id', db.Integer, db.ForeignKey('experiment.id')))
 
+# not currently in use
 data_sets_experiments = db.Table(
     'data_sets_experiments',
     db.Column('experiment_id', db.Integer, db.ForeignKey('experiment.id')),
     db.Column('data_set_id', db.Integer, db.ForeignKey('data_set.id')))
+
+# Elliott added
+collections_experiments = db.Table(
+    'collections_experiments',
+    db.Column('experiment_id', db.Integer, db.ForeignKey('experiment.id')),
+    db.Column('collection_id', db.Integer, db.ForeignKey('data_collection.id')))
+
+# Elliott added
+algorithms_experiments = db.Table(
+    'algorithms_experiments',
+    db.Column('experiment_id', db.Integer, db.ForeignKey('experiment.id')),
+    db.Column('algorithm_id', db.Integer, db.ForeignKey('algorithm.id')))
 
 users_tags = db.Table(
     'users_tags',
@@ -30,14 +43,12 @@ algorithms_tags = db.Table(
 
 implementations_tags = db.Table(
     'implementations_tags',
-    db.Column(
-        'implementation_id', db.Integer, db.ForeignKey('implementation.id')),
+    db.Column('implementation_id', db.Integer, db.ForeignKey('implementation.id')),
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')))
 
 data_collections_tags = db.Table(
     'data_collections_tags',
-    db.Column(
-        'data_collection_id', db.Integer, db.ForeignKey('data_collection.id')),
+    db.Column('data_collection_id', db.Integer, db.ForeignKey('data_collection.id')),
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')))
 
 data_sets_tags = db.Table(
@@ -352,17 +363,18 @@ class DataSet(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     """
 
-    def __init__(self, name, address, description):
+    def __init__(self, name, address, description, data_collection_id):
         super(DataSet, self).__init__()
         self.name = name
         self.address = address
         self.description = description
+        self.data_collection_id = data_collection_id
 
-        def get_id(self):
-            try:
-                return unicode(self.id)  # python 2
-            except NameError:
-                return str(self.id)  # python 3
+    def get_id(self):
+        try:
+            return unicode(self.id)  # python 2
+        except NameError:
+            return str(self.id)  # python 3
 
 
 class Experiment(db.Model):
@@ -383,14 +395,28 @@ class Experiment(db.Model):
 
     # Relationships
 
+    # not currently in use
     data_sets = db.relationship('DataSet',
                                 secondary=data_sets_experiments,
                                 backref=db.backref('experiments',
-                                                   lazy='dynamic'))
+                                                lazy='dynamic'))
 
+    # not currently in use
     implementations = db.relationship('Implementation',
-                                      secondary=implementations_experiments,
-                                      backref=db.backref('experiments',
+                                secondary=implementations_experiments,
+                                backref=db.backref('experiments',
+                                                lazy='dynamic'))
+    
+    # Elliott added
+    collections = db.relationship('DataCollection', 
+                                      secondary=collections_experiments, 
+                                      backref=db.backref('experiments', 
+                                                         lazy='dynamic'))
+
+    # Elliott added
+    algorithms = db.relationship('Algorithm', 
+                                      secondary=algorithms_experiments, 
+                                      backref=db.backref('experiments', 
                                                          lazy='dynamic'))
 
     batches = db.relationship('Batch',
@@ -464,11 +490,11 @@ class Batch(db.Model):
         self.name = name
         self.description = description
 
-        def get_id(self):
-            try:
-                return unicode(self.id)  # python 2
-            except NameError:
-                return str(self.id)  # python 3
+    def get_id(self):
+        try:
+            return unicode(self.id)  # python 2
+        except NameError:
+            return str(self.id)  # python 3
 
 
 class Job(db.Model):
