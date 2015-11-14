@@ -940,6 +940,34 @@ class Param(db.Model):
         self.name = name
         self.value = value
 
+    @hybrid_property
+    def namex(self):
+	return self.name
+
+    @namex.setter
+    def namex(self, value):
+	self.name = value
+
+    @hybrid_property
+    def idx(self):
+	return self.id
+
+    @hybrid_property
+    def valuex(self):
+	return self.value
+
+    @valuex.setter
+    def valuex(self, value2):
+	self.value = value2
+
+    @hybrid_property
+    def job_idx(self):
+	return self.job_id
+
+    @job_idx.setter
+    def job_idx(self, value):
+	self.job_id = value
+
     @property
     def serialize(self):
 	return {
