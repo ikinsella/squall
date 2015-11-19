@@ -177,13 +177,6 @@ class Algorithm(db.Model):
     Moving To Multi-User TODO:
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     """
-    @property
-    def serialize(self):
-	return {
-		'id'         : self.id,
-		'name'       : self.name,
-		'description': self.description
-	}
     def __init__(self, name, description):
         self.name = name
         self.description = description
@@ -226,25 +219,6 @@ class Algorithm(db.Model):
     @tagsx.setter
     def tagsx(self, value):
        self.tags.append(value)
-
-#    def set_decription(self, description):
-#        self.description = description
-#
-#    def set_name(self, name):
-#        self.name = name
-#
-#    def get_metadata(self):
-#        return self.description
-#
-#    def get_name(self):
-#        return self.name
-#
-#    def get_id(self):
-#        try:
-#            return unicode(self.id)  # python 2
-#        except NameError:
-#            return str(self.id)  # python 3
-#
 
 class Implementation(db.Model):
     """ Entity representing a single implementation of an algorithm
@@ -449,15 +423,7 @@ class DataCollection(db.Model):
     tags = db.relationship('Tag',
                            secondary=data_collections_tags,
                            backref=db.backref('data_collections',
-    """
-    datasets = db.relationship('DataSet',
-                               backref='data_collection',
                                lazy='dynamic')
-    """
-    tags = db.relationship('Tag',
-                           secondary=data_collections_tags,
-                           backref=db.backref('data_sets',
-                                              lazy='dynamic'))
 
     """
     Moving To Multi-User TODO:
@@ -530,7 +496,6 @@ class DataSet(db.Model):
                             unique=False)
 
     # Relationships
-
     data_collection_id = db.Column(
         db.Integer, db.ForeignKey('data_collection.id'))
 
@@ -630,7 +595,6 @@ class Experiment(db.Model):
                                 secondary=data_sets_experiments,
                                 backref=db.backref('experiments',
                                                 lazy='dynamic'))
-
     # not currently in use
     implementations = db.relationship('Implementation',
                                 secondary=implementations_experiments,
@@ -718,6 +682,249 @@ class Experiment(db.Model):
     @tagsx.setter
     def tagsx(self, value):
        self.tags.append(value)
+
+class Batch(db.Model):
+    """ Represents a batch of jobs to be run on HTCondor
+    """
+
+    # Fields
+
+    id = db.Column(db.Integer,
+                   primary_key=True)
+
+    name = db.Column(db.String(64),
+                     index=True,
+                     unique=True)
+
+    description = db.Column(db.String(512),
+                            index=False,
+                            unique=False)
+
+    # Relationships
+
+    experiment_id = db.Column(db.Integer,
+                              db.ForeignKey('experiment.id'))
+
+    data_set_id = db.Column(db.Integer,
+                            db.ForeignKey('data_set.id'))
+
+    implementation_id = db.Column(db.Integer,
+                                  db.ForeignKey('implementation.id'))
+
+    jobs = db.relationship('Job',
+                           backref='batch',
+                           lazy='dynamic')
+
+    tags = db.relationship('Tag',
+                           secondary=batches_tags,
+                           backref=db.backref('batches',
+                                              lazy='dynamic'))
+    """
+    Moving To Multi-User TODO:
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    """
+
+    def __init__(self, name, description):
+        super(Batch, self).__init__()
+        self.name = name
+        self.description = description
+
+    @property
+    def serialize(self):
+	return {
+		'id'         : self.id,
+		'name'       : self.name,
+		'description': self.description
+	}
+	
+
+    @hybrid_property
+    def namex(self):
+       return self.name
+    @namex.setter 
+    def namex(self, value):
+       self.name = value    
+    @hybrid_property
+    def descriptionx(self):
+       return self.description
+    @descriptionx.setter 
+    def descriptionx(self, value):
+       self.description = value     
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
+    @hybrid_property
+    def experiment_idx(self):
+       return self.experiment_id
+    @experiment_idx.setter
+    def experiment_idx(self, value):
+       self.experiment_id = value
+    @hybrid_property
+    def data_set_idx(self):
+       return self.data_set_id
+    @data_set_idx.setter
+    def data_set_idx(self, value):
+       self.data_set_id = value
+    @hybrid_property
+    def implementation_idx(self):
+       return self.implementation_id
+    @implementation_idx.setter
+    def implementation_idx(self, value):
+       self.implementation_id = value
+    @hybrid_property
+    def jobsx(self):
+       return self.jobs
+    @jobsx.setter
+    def jobsx(self, value):
+       self.jobs.append(value)
+    @hybrid_property
+    def tagsx(self):
+       return self.tags
+    @tagsx.setter
+    def tagsx(self, value):
+       self.tags.append(value)
+
+class Job(db.Model):
+    """Represents a single job, belonging to a Batch
+    """
+
+    # Fields
+
+    id = db.Column(db.Integer,
+                   primary_key=True)
+
+    is_completed = db.Column(db.Boolean,
+                             index=True,
+                             unique=False)
+
+    process = db.Column(db.Integer,
+                        index=True,
+                        unique=True)
+
+    # Relationships
+
+    batch_id = db.Column(db.Integer,
+                         db.ForeignKey('batch.id'))
+
+    params = db.relationship('Param',
+                             backref='job',
+                             lazy='dynamic')
+
+    tags = db.relationship('Tag',
+                           secondary=jobs_tags,
+                           backref=db.backref('jobs',
+                                              lazy='dynamic'))
+    """
+    Moving To Multi-User TODO:
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    """
+
+    def __init__(self, process):
+        super(Job, self).__init__()
+        self.process = process
+        self.is_completed = False
+
+    @property
+    def serialize(self):
+	return {
+		'id'         : self.id,
+		'is complete': self.is_complete,
+		'process'    : self.process
+	}
+
+    @hybrid_property
+    def is_completedx(self):
+       return self.is_completed
+    @is_completedx.setter 
+    def is_completedx(self, value):
+       self.is_completed = value    
+    @hybrid_property
+    def processx(self):
+       return self.process
+    @processx.setter 
+    def processx(self, value):
+       self.process = value     
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
+    @hybrid_property
+    def batch_idx(self):
+       return self.batch_id
+    @batch_idx.setter
+    def batch_idx(self, value):
+       self.batch_id = value
+    @hybrid_property
+    def paramsx(self):
+       return self.params
+    @paramsx.setter
+    def paramsx(self, value):
+       self.params.append(value)
+    @hybrid_property
+    def tagsx(self):
+       return self.tags
+    @tagsx.setter
+    def tagsx(self, value):
+       self.tags.append(value)
+
+class Param(db.Model):
+    """ Represents a single parameter value belonging to a job
+    """
+
+    # Fields
+
+    id = db.Column(db.Integer,
+                   primary_key=True)
+
+    name = db.Column(db.String(64),
+                     index=True,
+                     unique=True)
+
+    # TODO: make value data-type flexible
+    value = db.Column(db.String(64),
+                      index=True,
+                      unique=True)
+
+    # Relationships
+
+    job_id = db.Column(db.Integer,
+                       db.ForeignKey('job.id'))
+
+    def __init__(self, name, value):
+        super(Param, self).__init__()
+        self.name = name
+        self.value = value
+
+    @property
+    def serialize(self):
+	return {
+		'id'  : self.id,
+		'name': self.name
+	}
+
+    @hybrid_property
+    def namex(self):
+       return self.name
+    @namex.setter 
+    def namex(self, value):
+       self.name = value    
+    @hybrid_property
+    def idx(self):
+       return self.id
+    @idx.setter 
+    def idx(self, value):
+       self.id = value    
+    @hybrid_property
+    def job_idx(self):
+       return self.job_id
+    @job_idx.setter
+    def job_idx(self, value):
+       self.job_id = value
 
 class Batch(db.Model):
     """ Represents a batch of jobs to be run on HTCondor
@@ -940,45 +1147,12 @@ class Param(db.Model):
         self.name = name
         self.value = value
 
-    @hybrid_property
-    def namex(self):
-	return self.name
-
-    @namex.setter
-    def namex(self, value):
-	self.name = value
-
-    @hybrid_property
-    def idx(self):
-	return self.id
-
-    @hybrid_property
-    def valuex(self):
-	return self.value
-
-    @valuex.setter
-    def valuex(self, value2):
-	self.value = value2
-
-    @hybrid_property
-    def job_idx(self):
-	return self.job_id
-
-    @job_idx.setter
-    def job_idx(self, value):
-	self.job_id = value
-
     @property
     def serialize(self):
 	return {
 		'id'  : self.id,
 		'name': self.name
 	}
-
-    def __init__(self, name, value):
-        super(Param, self).__init__()
-        self.name = name
-        self.value = value
 
     @hybrid_property
     def namex(self):
