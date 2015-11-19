@@ -737,7 +737,6 @@ class Batch(db.Model):
 		'description': self.description
 	}
 	
-
     @hybrid_property
     def namex(self):
        return self.name
@@ -1080,7 +1079,6 @@ class Job(db.Model):
 		'is complete': self.is_complete,
 		'process'    : self.process
 	}
-
 
     @hybrid_property
     def is_completedx(self):
