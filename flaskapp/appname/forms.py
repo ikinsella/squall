@@ -30,18 +30,32 @@ class AlgorithmForm(Form):
         if not algorithm:
             return True
 
-        self.name.errors.append('Algorithm name unavailable')
+        self.name.errors.append('Algorithm name unavailable') # not functional yet
         flash('Algorithm name unavailable', 'danger')
         return False
 
 
 class ImplementationForm(Form):
-    algorithm = SelectField(u'Algorithm', coerce=int)
-    name = TextField(u'Name')
-    address = TextField(u'Address')
-    executable = TextField(u'Executable')
-    description = TextAreaField(u'Desciption')
-    tags = SelectMultipleField(u'Tags', coerce=int)
+    algorithm = SelectField(u'Algorithm', coerce=int,validators=[validators.required()])
+    name = TextField(u'Name',validators=[validators.required()])
+    address = TextField(u'Address',validators=[validators.required()])
+    executable = TextField(u'Executable',validators=[validators.required()])
+    description = TextAreaField(u'Desciption',validators=[validators.optional()])
+    tags = SelectMultipleField(u'Tags', coerce=int,validators=[validators.optional()])
+
+    def validate(self):
+        check_validate = super(ImplementationForm, self).validate()
+        # if our validators do not pass
+        if not check_validate:
+            return False
+        # Does our the exist
+        implementation = Implementation.query.filter_by(name=self.name.data).first()
+        if not implementation:
+            return True
+
+        self.name.errors.append('Implementation name unavailable') # not funcitonal yet
+        flash('Implementation name unavailable', 'danger')
+        return False
 
 
 class ArgumentForm(Form):

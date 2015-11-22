@@ -46,21 +46,41 @@
 
               <div class="form-group">
                 {{ implementation_form.name.label }}
+                {% if implementation_form.name.errors %}
+                        {% for e in implementation_form.name.errors %}
+                            <p class="help-block">{{ e }}</p>
+                        {% endfor %}
+                    {% endif %}
                 {{ implementation_form.name(class_="form-control") }}
               </div>
               
               <div class="form-group">
                 {{ implementation_form.algorithm.label }}
+                {% if implementation_form.algorithm.errors %}
+                        {% for e in implementation_form.algorithm.errors %}
+                            <p class="help-block">{{ e }}</p>
+                        {% endfor %}
+                    {% endif %}
                 {{ implementation_form.algorithm(class_="form-control") }}
               </div>
 
               <div class="form-group">
 		            {{ implementation_form.address.label }}
+                {% if implementation_form.address.errors %}
+                        {% for e in implementation_form.address.errors %}
+                            <p class="help-block">{{ e }}</p>
+                        {% endfor %}
+                    {% endif %}
                 {{ implementation_form.address(class_="form-control") }}
               </div>
 
               <div class="form-group">
 		            {{ implementation_form.executable.label }}
+                {% if implementation_form.executable.errors %}
+                        {% for e in implementation_form.executable.errors %}
+                            <p class="help-block">{{ e }}</p>
+                        {% endfor %}
+                    {% endif %}
                 {{ implementation_form.executable(class_="form-control") }}
               </div>
         
