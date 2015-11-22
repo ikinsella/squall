@@ -72,6 +72,10 @@ jobs_tags = db.Table(
     db.Column('job_id', db.Integer, db.ForeignKey('job.id')),
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')))
 
+results_tags = db.Table(
+    'results_tags',
+    db.Column('blob_id', db.Integer, db.ForeignKey('blob.id'))
+    )
 """ Entities """
 
 
@@ -1222,3 +1226,40 @@ class Tag(db.Model):
     @user_idx.setter
     def user_idx(self, value):
        self.user_id = value
+
+class Result(db.Model):
+    
+    #fields
+
+    id = db.Column(db.Integer,
+                   primary_key=True)
+    batch_id = db.Column(db.Integer,
+                    index=True,
+                    unique=True)
+    blob = db.Column(db.Binary,
+                     index=True,
+                    unique=True)
+    #relationships
+    #none for now?
+
+    def __init__(self, batch_id, blob):
+        self.batch_id = batch_id
+        self.blob = blob
+    
+    #properties
+        
+    @hybrid_property
+    def batch_idx(self):
+	    return self.batch_id
+    
+    @batch_idx.setter
+    def batch_idx(self, value):
+	    self.batch_id = value
+
+    @hybrid_property
+    def blobx(self):
+	    return self.blob
+
+    @blobx.setter
+    def blobx(self, value):
+        self.blob = value
