@@ -1,5 +1,7 @@
 from flask_wtf import Form
 
+from flask import flash
+
 from wtforms import (TextField,
                      PasswordField,
                      BooleanField,
@@ -10,13 +12,27 @@ from wtforms import (TextField,
 
 from wtforms import validators
 
-from appname.models import User
+from appname.models import User, Algorithm, Implementation
 
 
 class AlgorithmForm(Form):
-    name = TextField(u'Name')
-    description = TextAreaField(u'Desciption')
-    tags = SelectMultipleField(u'Tags', coerce=int)
+    name = TextField(u'Name',validators=[validators.required()])
+    description = TextAreaField(u'Desciption',validators=[validators.optional()])
+    tags = SelectMultipleField(u'Tags', coerce=int,validators=[validators.optional()])
+
+    def validate(self):
+        check_validate = super(AlgorithmForm, self).validate()
+        # if our validators do not pass
+        if not check_validate:
+            return False
+        # Does our the exist
+        algorithm = Algorithm.query.filter_by(name=self.name.data).first()
+        if not algorithm:
+            return True
+
+        self.name.errors.append('Algorithm name unavailable')
+        flash('Algorithm name unavailable', 'danger')
+        return False
 
 
 class ImplementationForm(Form):
