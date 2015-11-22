@@ -1,28 +1,46 @@
 from flask import Flask, jsonify, abort, request, session, Blueprint
 from flask_restful import Resource, Api
-from appname.models import (db, Batch)
+from appname.models import (db, Batch, Result, DataSet, Implementation, Algorithm, Arguments)
 from flask.ext.restless import APIManager
 from flask.ext.sqlalchemy import SQLAlchemy
 
 batchAPI = Blueprint('batchAPI', __name__)
 
-@batchAPI.route('/addBatch', methods = ['POST'])
+@batchAPI.route('/addBatch/<int:id>/', methods = ['POST'])
 
 def add_batch():
 
-        if not request.json or not 'name' in request.json:
-                abort(400)
+        if not request.json:
+               return "File must be json to be submitted to database"
 
-        b = Batch(request.json["name"], request.json["description"])
+	temp = Batch.query.get(id)  
 
-        db.session.add(b)
+	if temp is None:
+		return "Batch " + id + " was not found in the database"
+
+	results = Result(id, json.request) 
+
+        db.session.add(results)
 
         db.session.commit()
 
-        return jsonify( {'batch': b.serialize } ), 201
+        return "Success!" 
 
-@batchAPI.route('/getBatch', methods = ['GET'])
+@batchAPI.route('/getBatch/<int:id>/', methods = ['GET'])
 
 def getBatch():
-	return jsonify( json_list = [bt.serialize for bt in Batch.query.all()] )
+	b = Batch.query.get(id)
+	if b is None:
+		return "Batch " + id " was not found in database"
 
+	d = DataSet.query.get(b.data_set_idx)	
+	
+	i = Implementation.query.get(b.implementation_idx)
+
+	a = Algorithm.query.get(i.algorithm_idx)
+
+	args = [arg.serialize for arg in i.argumentsx]
+
+	final_b = b.serialize + d.serialize + i.serialize + a.serialize + args 
+
+	return jsonify(final_b)
