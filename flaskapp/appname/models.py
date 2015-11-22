@@ -735,10 +735,19 @@ class Batch(db.Model):
 
     @property
     def serialize(self):
+
+	jobsB = self.jobs
+
+	if jobsB is None:
+		return "Batch must have associated jobs"
+	
+	jobs_list = [job.serialize for job in jobsB]
+
 	return {
 		'id'         : self.id,
 		'name'       : self.name,
-		'description': self.description
+		'description': self.description,
+		'jobs'       : jobs_list 
 	}
 	
     @hybrid_property
@@ -832,10 +841,19 @@ class Job(db.Model):
 
     @property
     def serialize(self):
+	
+	paramsJ = self.params
+
+	if paramsJ is None:
+		return "Job must have associated parameters"
+
+	params_list = [par.serialize for par in paramsJ]
+
 	return {
 		'id'         : self.id,
 		'is complete': self.is_complete,
-		'process'    : self.process
+		'process'    : self.process,
+		'parameters' : params_list 
 	}
 
     @hybrid_property
@@ -1152,8 +1170,9 @@ class Param(db.Model):
     @property
     def serialize(self):
 	return {
-		'id'  : self.id,
-		'name': self.name
+		'id'   : self.id,
+		'name' : self.name
+		'value': self.value
 	}
 
     @hybrid_property
