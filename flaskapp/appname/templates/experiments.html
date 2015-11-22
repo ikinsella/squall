@@ -13,6 +13,11 @@
 
               <div class="form-group">
                     {{ experiment_form.name.label }}
+                    {% if experiment_form.name.errors %}
+                        {% for e in experiment_form.name.errors %}
+                            <p class="help-block">{{ e }}</p>
+                        {% endfor %}
+                    {% endif %}
                     {{ experiment_form.name(class_="form-control") }}
               </div>
 

@@ -12,7 +12,7 @@ from wtforms import (TextField,
 
 from wtforms import validators
 
-from appname.models import User, Algorithm, Implementation
+from appname.models import User, Algorithm, Implementation, DataCollection, DataSet, Experiment, Batch
 
 
 class AlgorithmForm(Form):
@@ -69,36 +69,92 @@ class ArgumentForm(Form):
 
 
 class DataCollectionForm(Form):
-    name = TextField(u'Name')
-    description = TextAreaField(u'Desciption')
-    tags = SelectMultipleField(u'Tags', coerce=int)
+    name = TextField(u'Name',validators=[validators.required()])
+    description = TextAreaField(u'Desciption',validators=[validators.optional()])
+    tags = SelectMultipleField(u'Tags', coerce=int,validators=[validators.optional()])
+
+    def validate(self):
+        check_validate = super(DataCollectionForm, self).validate()
+        # if our validators do not pass
+        if not check_validate:
+            return False
+        # Does our the exist
+        data_collection = DataCollection.query.filter_by(name=self.name.data).first()
+        if not data_collection:
+            return True
+
+        self.name.errors.append('Data collection name unavailable') # not funcitonal yet
+        flash('Data collection name unavailable', 'danger')
+        return False
 
 
 class DataSetForm(Form):
-    name = TextField(u'Name')
-    address = TextField(u'Address')
-    data_collection = SelectField(u'Data Collection', coerce=int)
-    description = TextAreaField(u'Desciption')
-    tags = SelectMultipleField(u'Tags', coerce=int)
+    name = TextField(u'Name',validators=[validators.required()])
+    address = TextField(u'Address',validators=[validators.required()])
+    data_collection = SelectField(u'Data Collection', coerce=int,validators=[validators.required()])
+    description = TextAreaField(u'Desciption',validators=[validators.optional()])
+    tags = SelectMultipleField(u'Tags', coerce=int,validators=[validators.optional()])
+
+    def validate(self):
+        check_validate = super(DataSetForm, self).validate()
+        # if our validators do not pass
+        if not check_validate:
+            return False
+        # Does our the exist
+        data_set = DataSet.query.filter_by(name=self.name.data).first()
+        if not data_set:
+            return True
+
+        self.name.errors.append('Data set name unavailable') # not funcitonal yet
+        flash('Data set name unavailable', 'danger')
+        return False
 
 
 class ExperimentForm(Form):
-    name = TextField(u'Name')
+    name = TextField(u'Name',validators=[validators.required()])
     #description = TextAreaField(u'Desciption')
-    algorithms = SelectMultipleField(u'Algorithms', coerce=int)
-    collections = SelectMultipleField(u'Collections', coerce=int)
-    description = TextAreaField(u'Description')
-    tags = SelectMultipleField(u'Tags', coerce=int)
+    algorithms = SelectMultipleField(u'Algorithms', coerce=int,validators=[validators.required()])
+    collections = SelectMultipleField(u'Collections', coerce=int,validators=[validators.required()])
+    description = TextAreaField(u'Description',validators=[validators.optional()])
+    tags = SelectMultipleField(u'Tags', coerce=int,validators=[validators.optional()])
+
+    def validate(self):
+        check_validate = super(ExperimentForm, self).validate()
+        # if our validators do not pass
+        if not check_validate:
+            return False
+        # Does our the exist
+        experiment = Experiment.query.filter_by(name=self.name.data).first()
+        if not experiment:
+            return True
+
+        self.name.errors.append('Experiment name unavailable') # not funcitonal yet
+        flash('Experiment name unavailable', 'danger')
+        return False
 
 
 class BatchForm(Form):
-    name = TextField(u'Name')
-    experiment = SelectField(u'Experiment', coerce=int)
-    data_set = SelectField(u'Data Set', coerce=int)
-    implementation = SelectField(u'Implementation', coerce=int)
-    description = TextAreaField(u'Desciption')
-    params = FileField(u'Parameter File')
-    tags = SelectMultipleField(u'Tags', coerce=int)
+    name = TextField(u'Name',validators=[validators.required()])
+    experiment = SelectField(u'Experiment', coerce=int,validators=[validators.required()])
+    data_set = SelectField(u'Data Set', coerce=int,validators=[validators.required()])
+    implementation = SelectField(u'Implementation', coerce=int,validators=[validators.required()])
+    description = TextAreaField(u'Desciption',validators=[validators.optional()])
+    params = FileField(u'Parameter File',validators=[validators.required()])
+    tags = SelectMultipleField(u'Tags', coerce=int,validators=[validators.optional()])
+
+    def validate(self):
+        check_validate = super(BatchForm, self).validate()
+        # if our validators do not pass
+        if not check_validate:
+            return False
+        # Does our the exist
+        batch = Batch.query.filter_by(name=self.name.data).first()
+        if not batch:
+            return True
+
+        self.name.errors.append('Batch name unavailable') # not funcitonal yet
+        flash('Batch name unavailable', 'danger')
+        return False
 
 
 class TagForm(Form):

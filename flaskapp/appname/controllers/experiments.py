@@ -75,4 +75,7 @@ def save_experiment():
             db.session.commit()
 
         flash("New experiment added successfully.", "success")
+    else:
+        flash('Failed validation', 'danger')
+
     return redirect(url_for("experiments.get_experiment"))

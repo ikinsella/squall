@@ -54,6 +54,9 @@ def save_collection():
             db.session.commit()
 
         flash("New data collection added successfully.", "success")
+    else:
+        flash('Failed validation', 'danger')
+
     return redirect(url_for("data.get_collection"))
 
 
@@ -85,4 +88,7 @@ def save_data_set():
             db.session.commit()
 
         flash("New data set added successfully.", "success")
+    else:
+        flash('Failed validation', 'danger')
+        
     return redirect(url_for("data.get_collection"))

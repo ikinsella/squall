@@ -54,6 +54,8 @@ def save_algorithm():
             db.session.commit()
 
         flash("New algorithm added successfully.", "success")
+    else:
+        flash('Failed validation', 'danger')
 
     return redirect(url_for("algorithms.get_algorithm"))
 
@@ -82,4 +84,7 @@ def save_implementation():
             db.session.commit()\
 
         flash("New implementation added successfully", "success")
+    else:
+        flash('Failed validation', 'danger')
+        
     return redirect(url_for("algorithms.get_algorithm"))

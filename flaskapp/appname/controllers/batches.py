@@ -61,4 +61,7 @@ def save_batch():
             new_batch.tags.append(new_tag)
             db.session.commit()
         flash("New batch added successfully", "success")
+    else:
+        flash('Failed validation', 'danger')
+        
     return redirect(url_for("batches.get_batch"))
