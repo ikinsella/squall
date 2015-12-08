@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, abort, request, session, Blueprint
 from flask_restful import Resource, Api
-from appname.models import (db, Batch, Result, DataSet, Implementation, Algorithm, Arguments)
+from appname.models import (db, Batch, Result, DataSet, Implementation, Algorithm, Argument)
 from flask.ext.restless import APIManager
 from flask.ext.sqlalchemy import SQLAlchemy
 
@@ -8,7 +8,7 @@ batchAPI = Blueprint('batchAPI', __name__)
 
 @batchAPI.route('/addBatch/<int:id>/', methods = ['POST'])
 
-def add_batch():
+def add_batch(id):
 
         if not request.json:
                return "File must be json to be submitted to database"
@@ -28,10 +28,10 @@ def add_batch():
 
 @batchAPI.route('/getBatch/<int:id>/', methods = ['GET'])
 
-def getBatch():
+def getBatch(id):
 	b = Batch.query.get(id)
 	if b is None:
-		return "Batch " + id " was not found in database"
+		return "Batch " + id + " was not found in database"
 
 	d = DataSet.query.get(b.data_set_idx)	
 	
@@ -39,8 +39,8 @@ def getBatch():
 
 	a = Algorithm.query.get(i.algorithm_idx)
 
-	args = [arg.serialize for arg in i.argumentsx]
+#	args = [arg.serialize for arg in i.argumentsx]
 
-	final_b = b.serialize + d.serialize + i.serialize + a.serialize + args 
+	#final_b = {b.serialize, d.serialize, i.serialize, a.serialize}
 
-	return jsonify(final_b)
+	return jsonify(b.serialize)
