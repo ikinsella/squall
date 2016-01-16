@@ -59,5 +59,4 @@ target/
 # Database file
 *.db
 
-# test batches
-*/test_batch/*
+

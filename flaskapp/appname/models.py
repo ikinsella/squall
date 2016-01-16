@@ -11,7 +11,8 @@ db = SQLAlchemy()
 # not currently in use
 implementations_experiments = db.Table(
     'implementations_experiments',
-    db.Column('implementation_id', db.Integer, db.ForeignKey('implementation.id')),
+    db.Column('implementation_id', db.Integer,
+              db.ForeignKey('implementation.id')),
     db.Column('experiment_id', db.Integer, db.ForeignKey('experiment.id')))
 
 # not currently in use
@@ -24,7 +25,8 @@ data_sets_experiments = db.Table(
 collections_experiments = db.Table(
     'collections_experiments',
     db.Column('experiment_id', db.Integer, db.ForeignKey('experiment.id')),
-    db.Column('collection_id', db.Integer, db.ForeignKey('data_collection.id')))
+    db.Column('collection_id', db.Integer,
+              db.ForeignKey('data_collection.id')))
 
 # Elliott added
 algorithms_experiments = db.Table(
@@ -44,12 +46,14 @@ algorithms_tags = db.Table(
 
 implementations_tags = db.Table(
     'implementations_tags',
-    db.Column('implementation_id', db.Integer, db.ForeignKey('implementation.id')),
+    db.Column('implementation_id', db.Integer,
+              db.ForeignKey('implementation.id')),
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')))
 
 data_collections_tags = db.Table(
     'data_collections_tags',
-    db.Column('data_collection_id', db.Integer, db.ForeignKey('data_collection.id')),
+    db.Column('data_collection_id', db.Integer,
+              db.ForeignKey('data_collection.id')),
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')))
 
 data_sets_tags = db.Table(
@@ -134,27 +138,27 @@ class User(db.Model, UserMixin):
 
     @hybrid_property
     def usernamex(self):
-       return self.username
-    @usernamex.setter 
+        return self.username
+
+    @usernamex.setter
     def usernamex(self, value):
-       self.username = value    
+        self.username = value
+
     @hybrid_property
     def passwordx(self):
-       return self.password
-    @passwordx.setter 
+        return self.password
+
+    @passwordx.setter
     def passwordx(self, value):
-       self.password = generate_password_hash(value)     
+        self.password = generate_password_hash(value)
+
     @hybrid_property
     def idx(self):
-       return self.id
-    @idx.setter 
-    def idx(self, value):
-       self.id = value    
-    def set_password(self, password):
-        self.password = generate_password_hash(password)
+        return self.id
 
-    def check_password(self, value):
-        return check_password_hash(self.password, value)
+    @idx.setter
+    def idx(self, value):
+        self.id = value
 
     def __repr__(self):
         return '<User {username}>'.format(username=self.username)
@@ -196,11 +200,9 @@ class Algorithm(db.Model):
 
     @property
     def serialize(self):
-	return {
-		'id'         : self.id,
-		'name'       : self.name,
-		'description': self.description
-	}
+        return {'id': self.id,
+                'name': self.name,
+                'description': self.description}
 
     def set_decription(self, description):
         self.description = description
@@ -222,34 +224,44 @@ class Algorithm(db.Model):
 
     @hybrid_property
     def namex(self):
-       return self.name
-    @namex.setter 
+        return self.name
+
+    @namex.setter
     def namex(self, value):
-       self.name = value    
+        self.name = value
+
     @hybrid_property
     def descriptionx(self):
-       return self.description
-    @descriptionx.setter 
+        return self.description
+
+    @descriptionx.setter
     def descriptionx(self, value):
-       self.description = value     
+        self.description = value
+
     @hybrid_property
     def idx(self):
-       return self.id
-    @idx.setter 
+        return self.id
+
+    @idx.setter
     def idx(self, value):
-       self.id = value    
+        self.id = value
+
     @hybrid_property
     def implementationsx(self):
-       return self.implementations
+        return self.implementations
+
     @implementationsx.setter
     def implementationsx(self, value):
-       self.implementations.append(value)
+        self.implementations.append(value)
+
     @hybrid_property
     def tagsx(self):
-       return self.tags
+        return self.tags
+
     @tagsx.setter
     def tagsx(self, value):
-       self.tags.append(value)
+        self.tags.append(value)
+
 
 class Implementation(db.Model):
     """ Entity representing a single implementation of an algorithm
@@ -294,13 +306,11 @@ class Implementation(db.Model):
 
     @property
     def serialize(self):
-        return {
-		'id'         : self.id,
-		'name'       : self.name,
-		'address'    : self.address, 
-		'executable' : self.executable,
-		'description': self.description
-	}
+        return {'id': self.id,
+                'name': self.name,
+                'address': self.address,
+                'executable': self.executable,
+                'description': self.description}
 
     def set_name(self, name):
         self.name = name
@@ -319,58 +329,76 @@ class Implementation(db.Model):
 
     @hybrid_property
     def namex(self):
-       return self.name
-    @namex.setter 
+        return self.name
+
+    @namex.setter
     def namex(self, value):
-       self.name = value    
+        self.name = value
+
     @hybrid_property
     def descriptionx(self):
-       return self.description
-    @descriptionx.setter 
+        return self.description
+
+    @descriptionx.setter
     def descriptionx(self, value):
-       self.description = value     
+        self.description = value
+
     @hybrid_property
     def idx(self):
-       return self.id
-    @idx.setter 
+        return self.id
+
+    @idx.setter
     def idx(self, value):
-       self.id = value    
+        self.id = value
+
     @hybrid_property
     def addressx(self):
-       return self.address
-    @addressx.setter 
+        return self.address
+
+    @addressx.setter
     def addressx(self, value):
-       self.address = value    
+        self.address = value
+
     @hybrid_property
     def executablex(self):
-       return self.executable
-    @executablex.setter 
+        return self.executable
+
+    @executablex.setter
     def executablex(self, value):
-       self.executable = value     
+        self.executable = value
+
     @hybrid_property
     def algorithm_idx(self):
-       return self.algorithm_id
+        return self.algorithm_id
+
     @algorithm_idx.setter
     def algorithm_idx(self, value):
-       self.algorithm_id = value 
+        self.algorithm_id = value
+
     @hybrid_property
     def argumentsx(self):
-       return self.arguments
+        return self.arguments
+
     @argumentsx.setter
     def argumentsx(self, value):
-       self.arguments.append(value)
+        self.arguments.append(value)
+
     @hybrid_property
     def batchesx(self):
-       return self.batches
+        return self.batches
+
     @batchesx.setter
     def batchesx(self, value):
-       self.batches.append(value)
+        self.batches.append(value)
+
     @hybrid_property
     def tagsx(self):
-       return self.tags
+        return self.tags
+
     @tagsx.setter
     def tagsx(self, value):
-       self.tags.append(value)
+        self.tags.append(value)
+
 
 class Argument(db.Model):
     """ Entity representing a single valid argument belonging to an
@@ -405,12 +433,10 @@ class Argument(db.Model):
 
     @property
     def serialize(self):
-       return {
-		'id'       : self.id,
-		'name'     : self.name,
-		'data type': self.data_type,
-		'optional' : self.optional
-	}
+        return {'id': self.id,
+                'name': self.name,
+                'data type': self.data_type,
+                'optional': self.optional}
 
     def get_id(self):
         try:
@@ -420,34 +446,44 @@ class Argument(db.Model):
 
     @hybrid_property
     def namex(self):
-       return self.name
-    @namex.setter 
+        return self.name
+
+    @namex.setter
     def namex(self, value):
-       self.name = value    
+        self.name = value
+
     @hybrid_property
     def data_typex(self):
-       return self.data_type
-    @data_typex.setter 
+        return self.data_type
+
+    @data_typex.setter
     def data_typex(self, value):
-       self.data_type = value     
+        self.data_type = value
+
     @hybrid_property
     def idx(self):
-       return self.id
-    @idx.setter 
+        return self.id
+
+    @idx.setter
     def idx(self, value):
-       self.id = value    
+        self.id = value
+
     @hybrid_property
     def optionalx(self):
-       return self.optional
-    @optionalx.setter 
+        return self.optional
+
+    @optionalx.setter
     def optionalx(self, value):
-       self.optional = value    
+        self.optional = value
+
     @hybrid_property
     def implementation_idx(self):
-       return self.implementation_id
+        return self.implementation_id
+
     @implementation_idx.setter
     def implementation_idx(self, value):
-       self.implementation_id = value
+        self.implementation_id = value
+
 
 class DataCollection(db.Model):
     """ Represents a collection of datasets derived from a common source
@@ -489,11 +525,9 @@ class DataCollection(db.Model):
 
     @property
     def serialize(self):
-	return {
-		'id'         : self.id,
-		'name'       : self.name,
-		'description': self.description
-	}
+        return {'id': self.id,
+                'name': self.name,
+                'description': self.description}
 
     def get_id(self):
         try:
@@ -503,34 +537,44 @@ class DataCollection(db.Model):
 
     @hybrid_property
     def namex(self):
-       return self.name
-    @namex.setter 
+        return self.name
+
+    @namex.setter
     def namex(self, value):
-       self.name = value    
+        self.name = value
+
     @hybrid_property
     def descriptionx(self):
-       return self.description
-    @descriptionx.setter 
+        return self.description
+
+    @descriptionx.setter
     def descriptionx(self, value):
-       self.description = value     
+        self.description = value
+
     @hybrid_property
     def idx(self):
-       return self.id
-    @idx.setter 
+        return self.id
+
+    @idx.setter
     def idx(self, value):
-       self.id = value    
+        self.id = value
+
     @hybrid_property
     def data_setsx(self):
-       return self.data_sets
+        return self.data_sets
+
     @data_setsx.setter
     def data_setsx(self, value):
-       self.data_sets.append(value)
+        self.data_sets.append(value)
+
     @hybrid_property
     def tagsx(self):
-       return self.tags 
+        return self.tags
+
     @tagsx.setter
     def tagsx(self, value):
-       self.tags.append(value)
+        self.tags.append(value)
+
 
 class DataSet(db.Model):
     """ Represents a single dataset belonging to a data collection
@@ -586,55 +630,67 @@ class DataSet(db.Model):
 
     @property
     def serialize(self):
-	return {
-		'id'         : self.id,
-		'name'       : self.name,
-		'address'    : self.address,
-		'description': self.description	
-	}
+        return {'id': self.id,
+                'name': self.name,
+                'address': self.address,
+                'description': self.description}
 
     @hybrid_property
     def namex(self):
-       return self.name
-    @namex.setter 
+        return self.name
+
+    @namex.setter
     def namex(self, value):
-       self.name = value    
+        self.name = value
+
     @hybrid_property
     def descriptionx(self):
-       return self.description
-    @descriptionx.setter 
+        return self.description
+
+    @descriptionx.setter
     def descriptionx(self, value):
-       self.description = value     
+        self.description = value
+
     @hybrid_property
     def idx(self):
-       return self.id
-    @idx.setter 
+        return self.id
+
+    @idx.setter
     def idx(self, value):
-       self.id = value    
+        self.id = value
+
     @hybrid_property
     def addressx(self):
-       return self.address
-    @addressx.setter 
+        return self.address
+
+    @addressx.setter
     def addressx(self, value):
-       self.address = value    
+        self.address = value
+
     @hybrid_property
     def data_collection_idx(self):
-       return self.data_collection_id
+        return self.data_collection_id
+
     @data_collection_idx.setter
     def data_collection_idx(self, value):
-       self.data_collection_id = value
+        self.data_collection_id = value
+
     @hybrid_property
     def batchesx(self):
-       return self.batches
+        return self.batches
+
     @batchesx.setter
     def batchesx(self, value):
-       self.batches.append(value)
+        self.batches.append(value)
+
     @hybrid_property
     def tagsx(self):
-       return self.tags
+        return self.tags
+
     @tagsx.setter
     def tagsx(self, value):
-       self.tags.append(value)
+        self.tags.append(value)
+
 
 class Experiment(db.Model):
     """Represents an experiment composed jobs run with a variable number of
@@ -658,24 +714,24 @@ class Experiment(db.Model):
     data_sets = db.relationship('DataSet',
                                 secondary=data_sets_experiments,
                                 backref=db.backref('experiments',
-                                                lazy='dynamic'))
+                                                   lazy='dynamic'))
     # not currently in use
     implementations = db.relationship('Implementation',
-                                secondary=implementations_experiments,
-                                backref=db.backref('experiments',
-                                                lazy='dynamic'))
-    
-    # Elliott added
-    collections = db.relationship('DataCollection', 
-                                      secondary=collections_experiments, 
-                                      backref=db.backref('experiments', 
+                                      secondary=implementations_experiments,
+                                      backref=db.backref('experiments',
                                                          lazy='dynamic'))
 
     # Elliott added
-    algorithms = db.relationship('Algorithm', 
-                                      secondary=algorithms_experiments, 
-                                      backref=db.backref('experiments', 
-                                                         lazy='dynamic'))
+    collections = db.relationship('DataCollection',
+                                  secondary=collections_experiments,
+                                  backref=db.backref('experiments',
+                                                     lazy='dynamic'))
+
+    # Elliott added
+    algorithms = db.relationship('Algorithm',
+                                 secondary=algorithms_experiments,
+                                 backref=db.backref('experiments',
+                                                    lazy='dynamic'))
 
     batches = db.relationship('Batch',
                               backref='experiment',
@@ -703,55 +759,66 @@ class Experiment(db.Model):
 
     @property
     def serialize(self):
-	return {
-		'id'         : self.id,
-		'name'       : self.name,
-		'description': self.description
-	}
-
+        return {'id': self.id,
+                'name': self.name,
+                'description': self.description}
 
     @hybrid_property
     def namex(self):
-       return self.name
-    @namex.setter 
+        return self.name
+
+    @namex.setter
     def namex(self, value):
-       self.name = value    
+        self.name = value
+
     @hybrid_property
     def descriptionx(self):
-       return self.description
-    @descriptionx.setter 
+        return self.description
+
+    @descriptionx.setter
     def descriptionx(self, value):
-       self.description = value     
+        self.description = value
+
     @hybrid_property
     def idx(self):
-       return self.id
-    @idx.setter 
+        return self.id
+
+    @idx.setter
     def idx(self, value):
-       self.id = value    
+        self.id = value
+
     @hybrid_property
     def data_setsx(self):
-       return self.data_sets
+        return self.data_sets
+
     @data_setsx.setter
     def data_setsx(self, value):
-       self.data_sets.append(value)
+        self.data_sets.append(value)
+
     @hybrid_property
     def implementationsx(self):
-       return self.implementations
+        return self.implementations
+
     @implementationsx.setter
     def implementationsx(self, value):
-       self.implementations.append(value)
+        self.implementations.append(value)
+
     @hybrid_property
     def batchesx(self):
-       return self.batches
+        return self.batches
+
     @batchesx.setter
     def batchesx(self, value):
-       self.batches.append(value)
+        self.batches.append(value)
+
     @hybrid_property
     def tagsx(self):
-       return self.tags
+        return self.tags
+
     @tagsx.setter
     def tagsx(self, value):
-       self.tags.append(value)
+        self.tags.append(value)
+
 
 class Batch(db.Model):
     """ Represents a batch of jobs to be run on HTCondor
@@ -794,8 +861,8 @@ class Batch(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     """
 
-
-    def __init__(self, name, description, experiment_id, data_set_id, implementation_id):
+    def __init__(self, name, description, experiment_id,
+                 data_set_id, implementation_id):
         super(Batch, self).__init__()
         self.name = name
         self.description = description
@@ -811,69 +878,79 @@ class Batch(db.Model):
 
     @property
     def serialize(self):
+        jobs = self.jobs
+        if jobs is None:
+            return "Batch must have associated jobs"
+        serial_jobs = [job.serialize for job in jobs]
+        return {'id': self.id,
+                'name': self.name,
+                'description': self.description,
+                'jobs': serial_jobs}
 
-	jobsB = self.jobs
-
-	if jobsB is None:
-		return "Batch must have associated jobs"
-	
-	jobs_list = [job.serialize for job in jobsB]
-
-	return {
-		'id'         : self.id,
-		'name'       : self.name,
-		'description': self.description,
-		'jobs'       : jobs_list 
-	}
-	
     @hybrid_property
     def namex(self):
-       return self.name
-    @namex.setter 
+        return self.name
+
+    @namex.setter
     def namex(self, value):
-       self.name = value    
+        self.name = value
+
     @hybrid_property
     def descriptionx(self):
-       return self.description
-    @descriptionx.setter 
+        return self.description
+
+    @descriptionx.setter
     def descriptionx(self, value):
-       self.description = value     
+        self.description = value
+
     @hybrid_property
     def idx(self):
-       return self.id
-    @idx.setter 
+        return self.id
+
+    @idx.setter
     def idx(self, value):
-       self.id = value    
+        self.id = value
+
     @hybrid_property
     def experiment_idx(self):
-       return self.experiment_id
+        return self.experiment_id
+
     @experiment_idx.setter
     def experiment_idx(self, value):
-       self.experiment_id = value
+        self.experiment_id = value
+
     @hybrid_property
     def data_set_idx(self):
-       return self.data_set_id
+        return self.data_set_id
+
     @data_set_idx.setter
     def data_set_idx(self, value):
-       self.data_set_id = value
+        self.data_set_id = value
+
     @hybrid_property
     def implementation_idx(self):
-       return self.implementation_id
+        return self.implementation_id
+
     @implementation_idx.setter
     def implementation_idx(self, value):
-       self.implementation_id = value
+        self.implementation_id = value
+
     @hybrid_property
     def jobsx(self):
-       return self.jobs
+        return self.jobs
+
     @jobsx.setter
     def jobsx(self, value):
-       self.jobs.append(value)
+        self.jobs.append(value)
+
     @hybrid_property
     def tagsx(self):
-       return self.tags
+        return self.tags
+
     @tagsx.setter
     def tagsx(self, value):
-       self.tags.append(value)
+        self.tags.append(value)
+
 
 class Job(db.Model):
     """Represents a single job, belonging to a Batch
@@ -923,20 +1000,14 @@ class Job(db.Model):
 
     @property
     def serialize(self):
-	
-	paramsJ = self.params
-
-	if paramsJ is None:
-		return "Job must have associated parameters"
-
-	params_list = [par.serialize for par in paramsJ]
-
-	return {
-		'id'         : self.id,
-		'is complete': self.is_completed,
-		'process'    : self.process,
-		'parameters' : params_list 
-	}
+        params = self.params
+        if self.params is None:
+            return "Job must have associated parameters"
+        params_list = [par.serialize for par in params]
+        return {'id': self.id,
+                'is complete': self.is_completed,
+                'process': self.process,
+                'parameters': params_list}
 
     @hybrid_property
     def is_completedx(self):
