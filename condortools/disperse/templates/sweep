@@ -1,4 +1,0 @@
-{% for job in batch.jobs %}SPLICE {{ job.uid }} {{ job.launch_dir }}/{{ job.uid }}/{{ job.uid }}.dag
-{% endfor %}
-{% if batch.pre %}SCRIPT PRE pre{{ batch.name }} {{ batch.launch_dir }}/{{ batch.share_dir }}/{{ batch.pre }}{% endif %}
-{% if batch.post %}SCRIPT POST post{{ batch.name }} {{ batch.launch_dir }}/{{ batch.share_dir }}/{{ batch.post }}{% endif %}

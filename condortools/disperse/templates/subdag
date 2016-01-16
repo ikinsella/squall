@@ -1,4 +1,0 @@
-JOB {{ job.uid }} {{ job.launch_dir }}/{{ job.uid }}/{{ job.submit_file }} dir {{ job.launch_dir }}/{{ job.uid }}
-{% if job.pre %}SCRIPT PRE pre{{ job.uid }} {{ job.launch_dir }}/{{ job.uid }}/{{ job.pre }}{% endif %}
-{% if job.post %}SCRIPT POST post{{ job.uid }} {{ job.launch_dir }}/{{ job.uid }}/{{ job.post }}{% endif %}
-RETRY {{ job.uid }} 10
