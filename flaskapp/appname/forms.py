@@ -1,16 +1,20 @@
 from flask_wtf import Form
 
-from flask import flash
-
 from wtforms import (TextField,
                      PasswordField,
                      BooleanField,
                      TextAreaField,
                      SelectField,
                      SelectMultipleField,
-                     FileField)
+                     FileField,
+                     IntegerField,
+                     ValidationError)
 
-from wtforms import validators
+from wtforms.validators import (DataRequired,
+                                Optional,
+                                Length,
+                                NumberRange,
+                                URL)
 
 from appname.models import (User,
                             Algorithm,
@@ -18,197 +22,174 @@ from appname.models import (User,
                             DataCollection,
                             DataSet,
                             Experiment,
-                            Batch)
+                            Batch,
+                            Tag)
+
+
+class UniqueName(object):
+    """ Validates An Objects Selected Name to Ensure It Has A Unique Name """
+    def __init__(self, cls, message=None):
+        self.cls = cls
+        if not message:
+            message = "{} Name Unavailable".format(self.cls.__name__)
+        self.message = message
+
+    def __call__(self, form, field):
+        """ Function Used To Validate Form Field """
+        if self.cls.query.filter_by(_name=field.data).first() is not None:
+            raise ValidationError(self.message)
 
 
 class AlgorithmForm(Form):
-    name = TextField(u'Name', validators=[validators.required()])
-    description = TextAreaField(u'Desciption',
-                                validators=[validators.optional()])
-    tags = SelectMultipleField(u'Tags', coerce=int,
-                               validators=[validators.optional()])
+    name = TextField(u'Name', [DataRequired(),
+                               UniqueName(Algorithm),
+                               Length(max=64)])
+    description = TextAreaField(u'Desciption', [Optional(),
+                                                Length(max=512)])
+    tags = SelectMultipleField(u'Tags', [Optional()],
+                               coerce=int)
 
     def validate(self):
-        check_validate = super(AlgorithmForm, self).validate()
-        # if our validators do not pass
-        if not check_validate:
-            return False
-        # Does our the exist
-        algorithm = Algorithm.query.filter_by(name=self.name.data).first()
-        if not algorithm:
-            return True
-
-        # not funcitonal yet
-        self.name.errors.append('Algorithm name unavailable')
-        flash('Algorithm name unavailable', 'danger')
+        if super(AlgorithmForm, self).validate():
+            return True  # If Our Validators Pass
         return False
 
 
 class ImplementationForm(Form):
-    algorithm = SelectField(u'Algorithm', coerce=int,
-                            validators=[validators.required()])
-    name = TextField(u'Name',
-                     validators=[validators.required()])
-    address = TextField(u'Address',
-                        validators=[validators.required()])
-    executable = TextField(u'Executable',
-                           validators=[validators.required()])
-    description = TextAreaField(u'Desciption',
-                                validators=[validators.optional()])
-    tags = SelectMultipleField(u'Tags', coerce=int,
-                               validators=[validators.optional()])
+    algorithm = SelectField(u'Algorithm', [DataRequired()], coerce=int)
+    name = TextField(u'Name', [DataRequired(),
+                               UniqueName(Implementation),
+                               Length(max=64)])
+    address = TextField(u'Address', [DataRequired(),  # TODO
+                                     URL(),
+                                     Length(max=256)])
+    executable = TextField(u'Executable', [DataRequired(),
+                                           Length(max=64)])
+    description = TextAreaField(u'Desciption', [Optional(),
+                                                Length(max=512)])
+    tags = SelectMultipleField(u'Tags', [Optional()],
+                               coerce=int)
 
     def validate(self):
-        check_validate = super(ImplementationForm, self).validate()
-        # if our validators do not pass
-        if not check_validate:
-            return False
-        # Does our the exist
-        implementation = Implementation.query.filter_by(
-            name=self.name.data).first()
-        if not implementation:
-            return True
-
-        # not funcitonal yet
-        self.name.errors.append('Implementation name unavailable')
-        flash('Implementation name unavailable', 'danger')
+        if super(ImplementationForm, self).validate():
+            return True  # If Our Validators Pass
         return False
 
 
 class ArgumentForm(Form):
-    name = TextField(u'Name')
-    data_type = SelectField(u'Data Type', choices=[(0, 'Int'),
-                                                   (1, 'Float'),
-                                                   (2, 'Array'),
-                                                   (3, 'String'),
-                                                   (4, 'Boolean')])
-    optional = BooleanField(u'Optional')
+    name = TextField(u'Name', [DataRequired(),
+                               Length(max=64)])
+    data_type = SelectField(u'Data Type', [DataRequired()],
+                            choices=[(0, 'Int'),
+                                     (1, 'Float'),
+                                     (2, 'Array'),
+                                     (3, 'String'),
+                                     (4, 'Boolean')])
+    optional = BooleanField(u'Optional', [DataRequired()])
+
+    def validate(self):
+        if super(ArgumentForm, self).validate():
+            return True  # If Our Validators Pass
+        return False
 
 
 class DataCollectionForm(Form):
-    name = TextField(u'Name', validators=[validators.required()])
-    description = TextAreaField(u'Desciption',
-                                validators=[validators.optional()])
-    tags = SelectMultipleField(u'Tags', coerce=int,
-                               validators=[validators.optional()])
+    name = TextField(u'Name', [DataRequired(),
+                               UniqueName(DataCollection),
+                               Length(max=64)])
+    description = TextAreaField(u'Desciption', [Optional(),
+                                                Length(max=512)])
+    tags = SelectMultipleField(u'Tags', [Optional()],
+                               coerce=int)
 
     def validate(self):
-        check_validate = super(DataCollectionForm, self).validate()
-        # if our validators do not pass
-        if not check_validate:
-            return False
-        # Does our the exist
-        data_collection = DataCollection.query.filter_by(
-            name=self.name.data).first()
-        if not data_collection:
-            return True
-
-        # not funcitonal yet
-        self.name.errors.append('Data collection name unavailable')
-        flash('Data collection name unavailable', 'danger')
+        if super(DataCollectionForm, self).validate():
+            return True  # If Our Validators Pass
         return False
 
 
 class DataSetForm(Form):
-    name = TextField(u'Name', validators=[validators.required()])
-    address = TextField(u'Address', validators=[validators.required()])
-    data_collection = SelectField(u'Data Collection', coerce=int,
-                                  validators=[validators.required()])
-    description = TextAreaField(u'Desciption',
-                                validators=[validators.optional()])
-    tags = SelectMultipleField(u'Tags', coerce=int,
-                               validators=[validators.optional()])
+    name = TextField(u'Name', [DataRequired(),
+                               UniqueName(DataSet),
+                               Length(max=64)])
+    address = TextField(u'Address', [DataRequired(),  # TODO
+                                     URL(),
+                                     Length(max=256)])
+    description = TextAreaField(u'Desciption', [Optional(),
+                                                Length(max=512)])
+    tags = SelectMultipleField(u'Tags', [Optional()],
+                               coerce=int)
+    data_collection = SelectField(u'Data Collection', [DataRequired()],
+                                  coerce=int)
 
     def validate(self):
-        check_validate = super(DataSetForm, self).validate()
-        # if our validators do not pass
-        if not check_validate:
-            return False
-        # Does our the exist
-        data_set = DataSet.query.filter_by(name=self.name.data).first()
-        if not data_set:
-            return True
-
-        # not funcitonal yet
-        self.name.errors.append('Data set name unavailable')
-        flash('Data set name unavailable', 'danger')
+        if super(DataSetForm, self).validate():
+            return True  # If Our Validators Pass
         return False
 
 
 class ExperimentForm(Form):
-    name = TextField(u'Name', validators=[validators.required()])
-    description = TextAreaField(u'Desciption',
-                                validators=[validators.optional()])
-    algorithms = SelectMultipleField(u'Algorithms', coerce=int,
-                                     validators=[validators.required()])
-    collections = SelectMultipleField(u'Collections', coerce=int,
-                                      validators=[validators.required()])
-    description = TextAreaField(u'Description',
-                                validators=[validators.optional()])
-    tags = SelectMultipleField(u'Tags', coerce=int,
-                               validators=[validators.optional()])
+    name = TextField(u'Name', [DataRequired(),
+                               UniqueName(Experiment),
+                               Length(max=64)])
+    description = TextAreaField(u'Desciption', [Optional(),
+                                                Length(max=512)])
+    tags = SelectMultipleField(u'Tags', [Optional()],
+                               coerce=int)
+    algorithms = SelectMultipleField(u'Algorithms', [DataRequired()],
+                                     coerce=int)
+    collections = SelectMultipleField(u'Collections', [DataRequired()],
+                                      coerce=int)
 
     def validate(self):
-        check_validate = super(ExperimentForm, self).validate()
-        # if our validators do not pass
-        if not check_validate:
-            return False
-        # Does our the exist
-        experiment = Experiment.query.filter_by(name=self.name.data).first()
-        if not experiment:
-            return True
-
-        # not funcitonal yet
-        self.name.errors.append('Experiment name unavailable')
-        flash('Experiment name unavailable', 'danger')
+        if super(ExperimentForm, self).validate():
+            return True  # If Our Validators Pass
         return False
 
 
 class BatchForm(Form):
-    name = TextField(u'Name', validators=[validators.required()])
-    description = TextAreaField(u'Desciption',
-                                validators=[validators.optional()])
-    experiment = SelectField(u'Experiment', coerce=int,
-                             validators=[validators.required()])
-    data_set = SelectField(u'Data Set', coerce=int,
-                           validators=[validators.required()])
-    implementation = SelectField(u'Implementation', coerce=int,
-                                 validators=[validators.required()])
-    # Launch Directory
-    params = FileField(u'Parameter File', validators=[validators.required()])
-    # memory
-    # disk
-    flock = BooleanField(u'Flock')  # flock
-    glide = BooleanField(u'Glide')  # glide
-    # setup_scripts?
-    # other uploads? (data, pre, post, ect.)
-    tags = SelectMultipleField(u'Tags', coerce=int,
-                               validators=[validators.optional()])
+    name = TextField(u'Name', [DataRequired(),
+                               UniqueName(Batch),
+                               Length(max=64)])
+    description = TextAreaField(u'Desciption', [Optional(),
+                                                Length(max=512)])
+    experiment = SelectField(u'Experiment', [DataRequired()],
+                             coerce=int)
+    data_set = SelectField(u'Data Set', [DataRequired()],
+                           coerce=int)
+    implementation = SelectField(u'Implementation', [DataRequired()],
+                                 coerce=int)
+    params = FileField(u'Parameter File', [DataRequired()])
+    memory = IntegerField(u'Requested Memory', [DataRequired()])
+    disk = IntegerField(u'Requested Memory', [DataRequired()])
+    flock = BooleanField(u'Flock', [DataRequired()])
+    glide = BooleanField(u'Glide', [DataRequired()])
+    tags = SelectMultipleField(u'Tags', [Optional()],
+                               coerce=int)
 
-    def validate(self):
-        check_validate = super(BatchForm, self).validate()
-        # if our validators do not pass
-        if not check_validate:
-            return False
-        # Does our the exist
-        batch = Batch.query.filter_by(name=self.name.data).first()
-        if not batch:
-            return True
-
-        # not funcitonal yet
-        self.name.errors.append('Batch name unavailable')
-        flash('Batch name unavailable', 'danger')
+    def validate(self):  # TODO Validate Successful Job Creation
+        if super(BatchForm, self).validate():
+            return True  # If Our Validators Pass
         return False
 
 
 class TagForm(Form):
     """ User will create new tags used to add metadata to other entities """
-    name = TextField(u'Name')
+    name = TextField(u'Name', [DataRequired(),
+                               UniqueName(Tag),
+                               Length(max=64)])
+
+    def validate(self):
+        if super(TagForm, self).validate():
+            return True  # If Our Validators Pass
+        return False
 
 
 class LoginForm(Form):
-    username = TextField(u'Username', validators=[validators.required()])
-    password = PasswordField(u'Password', validators=[validators.optional()])
+    username = TextField(u'Username', [DataRequired(),
+                                       Length(max=64)])
+    password = PasswordField(u'Password', [Optional(),
+                                           Length(max=64)])
 
     def validate(self):
         check_validate = super(LoginForm, self).validate()
@@ -216,8 +197,10 @@ class LoginForm(Form):
         # if our validators do not pass
         if not check_validate:
             return False
+            self.username.errors.append()
+            return False
 
-        # Does our the exist
+        # Does the username exist
         user = User.query.filter_by(username=self.username.data).first()
         if not user:
             self.username.errors.append('Invalid username or password')
@@ -232,8 +215,8 @@ class LoginForm(Form):
 
 
 class CreateUserForm(Form):
-    username = TextField(u'Username', validators=[validators.required()])
-    password = PasswordField(u'Password', validators=[validators.required()])
+    username = TextField(u'Username', [DataRequired(), Length(max=64)])
+    password = PasswordField(u'Password', [DataRequired(), Length(max=64)])
 
     def validate(self):
         check_validate = super(CreateUserForm, self).validate()

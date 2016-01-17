@@ -49,19 +49,16 @@ def save_batch():
     batch_form.data_set.choices\
         = [(ds.id, ds.name) for ds in DataSet.query.order_by('name')]
     if batch_form.validate_on_submit():
-        new_batch = Batch(batch_form.name.data,
-                          batch_form.description.data,
-                          batch_form.experiment.data,
-                          batch_form.data_set.data,
-                          batch_form.implementation.data)
-        db.session.add(new_batch)
+        batch = Batch(batch_form.name.data,
+                      batch_form.description.data,
+                      batch_form.experiment.data,
+                      batch_form.data_set.data,
+                      batch_form.implementation.data)
+        db.session.add(batch)
         db.session.commit()
-
-        selected_tags = batch_form.tags.data
-        for tag in selected_tags:
-            new_tag = Tag.query.filter_by(id=tag).first()
-            new_batch.tags.append(new_tag)
-            db.session.commit()
+        tag_ids = batch_form.tags.data
+        batch.tags = [Tag.query.filter_by(id=tag).first() for tag in tag_ids]
+        db.session.commit()
         flash("New batch added successfully", "success")
     else:
         flash('Failed validation', 'danger')
