@@ -72,7 +72,7 @@ periodic_release = (JobStatus == 5) && ((CurrentTime - EnteredCurrentStatus) > 1
 notification = never
 
 # This line is completed for you
-transfer_input_files = {{ job.launch_dir }}/{{ job.uid }}/,{{ job.launch_dir }}/{{ job.share_dir }}/
+transfer_input_files = {{ launch_dir }}/{{ job.uid }}/,{{ launch_dir }}/{{ job.share_dir }}/
 
 # Leave the below line commented, unless you have a specific need for
 # indicating a group that is not your default.

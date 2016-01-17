@@ -1,3 +1,9 @@
+import os
+import yaml
+import json
+import copy
+import numpy as np
+
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -71,15 +77,6 @@ batches_tags = db.Table(
     db.Column('batch_id', db.Integer, db.ForeignKey('batch.id')),
     db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')))
 
-jobs_tags = db.Table(
-    'jobs_tags',
-    db.Column('job_id', db.Integer, db.ForeignKey('job.id')),
-    db.Column('tag_id', db.Integer, db.ForeignKey('tag.id')))
-
-#results_tags = db.Table(
-#    'results_tags',
-#    db.Column('blob_id', db.Integer, db.ForeignKey('blob.id'))
-#    )
 """ Entities """
 
 
@@ -511,7 +508,7 @@ class DataCollection(db.Model):
     tags = db.relationship('Tag',
                            secondary=data_collections_tags,
                            backref=db.backref('data_collections',
-                               lazy='dynamic'))
+                                              lazy='dynamic'))
 
     """
     Moving To Multi-User TODO:
@@ -829,13 +826,13 @@ class Batch(db.Model):
     id = db.Column(db.Integer,
                    primary_key=True)
 
-    name = db.Column(db.String(64),
-                     index=True,
-                     unique=True)
+    _name = db.Column(db.String(64),
+                      index=True,
+                      unique=True)
 
-    description = db.Column(db.String(512),
-                            index=False,
-                            unique=False)
+    _description = db.Column(db.String(512),
+                             index=False,
+                             unique=False)
 
     # Relationships
 
@@ -848,27 +845,116 @@ class Batch(db.Model):
     implementation_id = db.Column(db.Integer,
                                   db.ForeignKey('implementation.id'))
 
-    jobs = db.relationship('Job',
-                           backref='batch',
-                           lazy='dynamic')
+    _jobs = db.relationship('Job',
+                            backref='batch',
+                            lazy='dynamic')
 
-    tags = db.relationship('Tag',
-                           secondary=batches_tags,
-                           backref=db.backref('batches',
-                                              lazy='dynamic'))
+    _tags = db.relationship('Tag',
+                            secondary=batches_tags,
+                            backref=db.backref('batches',
+                                               lazy='dynamic'))
     """
     Moving To Multi-User TODO:
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     """
 
-    def __init__(self, name, description, experiment_id,
-                 data_set_id, implementation_id):
+    # TODO
+    def __init__(self,
+                 name,
+                 description,
+                 experiment_id,
+                 data_set_id,
+                 implementation_id,
+                 params,
+                 memory,
+                 disk,
+                 flock,
+                 glide,
+                 arguments=None,
+                 keyword_arguments=None,
+                 setup_scripts=None,
+                 sweep='sweep.dag',
+                 wrapper='wrapper.sh',
+                 submit_file='process.sub',
+                 params_file='params.json',
+                 share_directory='share',
+                 pre_script=None,
+                 job_pre_script=None,
+                 post_script='batch_post.py',
+                 job_post_script='job_post.py'):
         super(Batch, self).__init__()
-        self.name = name
-        self.description = description
+        """ Assign Fields """
+        # Relationships
         self.experiment_id = experiment_id
         self.data_set_id = data_set_id
         self.implementation_id = implementation_id
+        # Mandatory
+        self._name = name
+        self._description = description
+        self._params = params
+        self._memory = memory  # Marked Share
+        self._disk = disk  # Marked Share
+        self._flock = flock
+        self._glide = glide
+        # Optional Arguments
+        self._args = arguments  # Marked Share
+        self._kwargs = keyword_arguments  # Marked Share
+        self._setup_scripts = setup_scripts
+        self._sweep = sweep
+        self._wrapper = wrapper  # Marked Share
+        self._submit_file = submit_file  # Marked Share
+        self._share_dir = share_directory  # Marked Share
+        self._pre = pre_script
+        self._post = post_script
+        self._job_pre = job_pre_script  # Marked Share
+        self._job_post = job_post_script  # Marked Share
+
+        """ Make Jobs """
+        enum_params = self._enumerate_params()
+        self.size = len(enum_params)  # Replace With Func
+        self.jobs = [Job(batch_id=self.id, uid=uid, params=enum_param)
+                     for uid, enum_param in enumerate(enum_params)]
+
+    def _enumerate_params(self):
+        """ Expands Yaml Fields List Of Param Files For Each Job"""
+
+        try:  # If Expand Fields Doesn't Exist, Nothing To Be Done
+            expand_fields = self.params['ExpandFields']
+            del self.params['ExpandFields']
+        except KeyError:
+            return self.params
+
+        # Copy Only Static Fields
+        static_data = copy.copy(self.params)
+        for field in [key for key in expand_fields]:
+            del static_data[field]
+
+        # Count Number Of Values Per Expand Field
+        field_lengths = np.zeros(len(expand_fields))
+        for idx, field in enumerate(expand_fields):
+            if isinstance(field, list) or isinstance(field, tuple):
+                subfields = [len(self.params[key]) for key in field]
+                if not all(map(lambda x: x is subfields[0], subfields)):
+                    raise RuntimeError('Incompatible Length: ExpandFields')
+                field_lengths[idx] = len(subfields[0])
+            else:
+                field_lengths[idx] = len(self.params[field])
+
+        enum_params = [static_data for _ in xrange(int(field_lengths.prod()))]
+
+        # Enumerate Expand Fields
+        for cdx, enum_param in enumerate(enum_params):
+            for idx, field in zip(
+                    np.unravel_index(cdx, field_lengths), expand_fields):
+                if isinstance(field, list) or isinstance(field, tuple):
+                    for k in field:
+                        enum_param[k] = self.params[k][idx]
+                    else:
+                        enum_param[field] = self.params[field][idx]
+        return enum_params
+
+    def _create_jobs(self, enum_params):
+        """ Creates Jobs Associated With Batch From Enumerated Parameters """
 
     def get_id(self):
         try:
@@ -878,78 +964,201 @@ class Batch(db.Model):
 
     @property
     def serialize(self):
-        jobs = self.jobs
-        if jobs is None:
-            return "Batch must have associated jobs"
-        serial_jobs = [job.serialize for job in jobs]
+        serial_jobs = [job.serialize for job in self.jobs]  # Make dict
+        serial_tags = [tag.serialize for tag in self.tags]  # Propogate
         return {'id': self.id,
                 'name': self.name,
                 'description': self.description,
-                'jobs': serial_jobs}
+                'params': self.params,
+                'memory': self.memory,
+                'disk': self.disk,
+                'flock': self.flock,
+                'glide': self.glide,
+                'tags': serial_tags,
+                'jobs': serial_jobs,
+                'args': self.args,
+                'kwargs': self.kwargs,
+                'sweep': self.sweep,
+                'setup_scripts': self.setup_scripts,
+                'wrapper': self.wrapper,
+                'submit_file': self.submit_file,
+                'share_dir': self.share_dir,
+                'pre': self.pre,
+                'post': self.post,
+                'job_pre': self.job_pre,
+                'job_post': self.job_post}
 
     @hybrid_property
-    def namex(self):
-        return self.name
+    def name(self):
+        return self._name
 
-    @namex.setter
-    def namex(self, value):
-        self.name = value
-
-    @hybrid_property
-    def descriptionx(self):
-        return self.description
-
-    @descriptionx.setter
-    def descriptionx(self, value):
-        self.description = value
+    @name.setter
+    def name(self, value):
+        self._name = value
 
     @hybrid_property
-    def idx(self):
-        return self.id
+    def description(self):
+        return self._description
 
-    @idx.setter
-    def idx(self, value):
-        self.id = value
-
-    @hybrid_property
-    def experiment_idx(self):
-        return self.experiment_id
-
-    @experiment_idx.setter
-    def experiment_idx(self, value):
-        self.experiment_id = value
+    @description.setter
+    def description(self, value):
+        self._description = value
 
     @hybrid_property
-    def data_set_idx(self):
-        return self.data_set_id
+    def jobs(self):
+        return self._jobs
 
-    @data_set_idx.setter
-    def data_set_idx(self, value):
-        self.data_set_id = value
-
-    @hybrid_property
-    def implementation_idx(self):
-        return self.implementation_id
-
-    @implementation_idx.setter
-    def implementation_idx(self, value):
-        self.implementation_id = value
+    @jobs.setter
+    def jobs(self, value):
+        self._jobs.append(value)
 
     @hybrid_property
-    def jobsx(self):
-        return self.jobs
+    def tags(self):  # TODO propogate
+        return self._tags
 
-    @jobsx.setter
-    def jobsx(self, value):
-        self.jobs.append(value)
+    @tags.setter
+    def tags(self, value):
+        self._tags.append(value)
 
     @hybrid_property
-    def tagsx(self):
-        return self.tags
+    def memory(self):
+        return self._memory
 
-    @tagsx.setter
-    def tagsx(self, value):
-        self.tags.append(value)
+    @memory.setter
+    def memory(self, value):
+        self._memory = value
+
+    @hybrid_property
+    def disk(self):
+        return self._disk
+
+    @disk.setter
+    def disk(self, value):
+        self._disk = value
+
+    @hybrid_property
+    def flock(self):
+        return self._flock
+
+    @flock.setter
+    def flock(self, value):
+        self._flock = value
+
+    @hybrid_property
+    def glide(self):
+        return self._glide
+
+    @hybrid_property
+    def args(self):
+        return self.batch.args
+
+    @args.setter
+    def args(self, value):
+        self._args = value
+
+    @hybrid_property
+    def kwargs(self):
+        return self._kwargs
+
+    @kwargs.setter
+    def kwargs(self, value):
+        self._kwargs = value
+
+    @hybrid_property
+    def sweep(self):
+        return self._sweep
+
+    @sweep.setter
+    def sweep(self, value):
+        self._sweep = value
+
+    @hybrid_property
+    def setup_scripts(self):
+        return self._setup_scripts
+
+    @setup_scripts.setter
+    def setup_scripts(self, value):
+        self._setup_scripts.append(value)
+
+    @hybrid_property
+    def wrapper(self):
+        return self._wrapper
+
+    @wrapper.setter
+    def wrapper(self, value):
+        self._wrapper = value
+
+    @hybrid_property
+    def submit_file(self):
+        return self._submit_file
+
+    @submit_file.setter
+    def submit_file(self, value):
+        self._submit_file = value
+
+    @hybrid_property
+    def share_dir(self):
+        return self._share_dir
+
+    @share_dir.setter
+    def share_dir(self, value):
+        self._share_dir = value
+
+    @hybrid_property
+    def pre(self):
+        return self._pre
+
+    @pre.setter
+    def pre(self, value):
+        self._pre = value
+
+    @hybrid_property
+    def post(self):
+        return self._post
+
+    @post.setter
+    def post(self, value):
+        self._post = value
+
+    @hybrid_property
+    def pre(self):
+        return self._job_pre
+
+    @pre.setter
+    def pre(self, value):
+        self._job_pre = value
+
+    @hybrid_property
+    def job_pre(self, value):
+        self._job_pre = value
+
+    @job_pre.setter
+    def job_pre(self, value):
+        self._job_pre = value
+
+    @hybrid_property
+    def job_post(self):
+        return self._job_post
+
+    @job_post.setter
+    def job_post(self, value):
+        self._job_post = value
+
+    @hybrid_property
+    def exe(self):
+        return self.implementation.executable
+
+    @hybrid_property
+    def code_urls(self):
+        return self.implementation.url
+
+    @hybrid_property
+    def data_urls(self):
+        return self.data_set.url
+
+    @hybrid_property
+    def size(self):
+        return len(self._jobs)
 
 
 class Job(db.Model):
@@ -961,36 +1170,28 @@ class Job(db.Model):
     id = db.Column(db.Integer,
                    primary_key=True)
 
-    is_completed = db.Column(db.Boolean,
-                             index=True,
-                             unique=False)
-
-    process = db.Column(db.Integer,
-                        index=True,
-                        unique=True)
+    _uid = db.Column(db.Integer,
+                     index=True,
+                     unique=True)
 
     # Relationships
 
     batch_id = db.Column(db.Integer,
                          db.ForeignKey('batch.id'))
 
-    params = db.relationship('Param',
-                             backref='job',
-                             lazy='dynamic')
-
-    tags = db.relationship('Tag',
-                           secondary=jobs_tags,
-                           backref=db.backref('jobs',
-                                              lazy='dynamic'))
     """
     Moving To Multi-User TODO:
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     """
 
-    def __init__(self, process):
+    def __init__(self,
+                 batch_id,
+                 uid,
+                 params):
         super(Job, self).__init__()
-        self.process = process
-        self.is_completed = False
+        self.batch_id = batch_id
+        self._params = params
+        self._uid = str(uid).zfill(len(str(self.batch.size-1)))
 
     def get_id(self):
         try:
@@ -998,53 +1199,80 @@ class Job(db.Model):
         except NameError:
             return str(self.id)  # python 3
 
-    @property
+    @hybrid_property
     def serialize(self):
-        params = self.params
-        if self.params is None:
-            return "Job must have associated parameters"
-        params_list = [par.serialize for par in params]
         return {'id': self.id,
-                'is complete': self.is_completed,
-                'process': self.process,
-                'parameters': params_list}
+                'uid': self.uid,
+                'params': self.params}
 
     @hybrid_property
-    def is_completedx(self):
-       return self.is_completed
-    @is_completedx.setter 
-    def is_completedx(self, value):
-       self.is_completed = value    
+    def uid(self):
+        return self._uid
+
+    @uid.setter
+    def uid(self, value):
+        self._uid = str(value).zfill(len(str(self.batch.size-1)))
+
     @hybrid_property
-    def processx(self):
-       return self.process
-    @processx.setter 
-    def processx(self, value):
-       self.process = value     
+    def params(self):
+        return self._params
+
+    @params.setter
+    def params(self, value):
+        self._params = value
+
     @hybrid_property
-    def idx(self):
-       return self.id
-    @idx.setter 
-    def idx(self, value):
-       self.id = value    
+    def exe(self):
+        return self.batch.exe
+
     @hybrid_property
-    def batch_idx(self):
-       return self.batch_id
-    @batch_idx.setter
-    def batch_idx(self, value):
-       self.batch_id = value
+    def memory(self):
+        return self.batch.memory
+
     @hybrid_property
-    def paramsx(self):
-       return self.params
-    @paramsx.setter
-    def paramsx(self, value):
-       self.params.append(value)
+    def disk(self):
+        return self.batch.disk
+
     @hybrid_property
-    def tagsx(self):
-       return self.tags
-    @tagsx.setter
-    def tagsx(self, value):
-       self.tags.append(value)
+    def flock(self):
+        return self.batch.flock
+
+    @hybrid_property
+    def glide(self):
+        return self.batch.glide
+
+    @hybrid_property
+    def args(self):
+        return self.batch.args
+
+    @hybrid_property
+    def kwargs(self):
+        return self.batch.kwargs
+
+    @hybrid_property
+    def wrapper(self):
+        return self.batch.wrapper
+
+    @hybrid_property
+    def submit_file(self):
+        return self.batch.submit_file
+
+    @hybrid_property
+    def share_dir(self):
+        return self.batch.share_dir
+
+    @hybrid_property
+    def pre(self):
+        return self.batch.job_pre
+
+    @hybrid_property
+    def post(self):
+        return self.batch.job_post
+
+    @hybrid_property
+    def tags(self):
+        return self.batch.tags
+
 
 class Param(db.Model):
     """ Represents a single parameter value belonging to a job
@@ -1055,24 +1283,22 @@ class Param(db.Model):
     id = db.Column(db.Integer,
                    primary_key=True)
 
-    name = db.Column(db.String(64),
-                     index=True,
-                     unique=True)
-
-    # TODO: make value data-type flexible
-    value = db.Column(db.String(64),
+    _name = db.Column(db.String(64),
                       index=True,
                       unique=True)
 
+    # TODO: make value enumerated instead of string
+    _data_type = db.Column(db.String(64),
+                           index=True,
+                           unique=True)
+
     # Relationships
+    # Add relationship to a particular implemetation
 
-    job_id = db.Column(db.Integer,
-                       db.ForeignKey('job.id'))
-
-    def __init__(self, name, value):
+    def __init__(self, name, data_type):
         super(Param, self).__init__()
-        self.name = name
-        self.value = value
+        self._name = name
+        self._data_type = data_type
 
     def get_id(self):
         try:
@@ -1082,29 +1308,24 @@ class Param(db.Model):
 
     @property
     def serialize(self):
-	return {
-		'id'  : self.id,
-		'name': self.name
-	}
+        return {'id': self.id,
+                'name': self.name}
 
     @hybrid_property
-    def namex(self):
-       return self.name
-    @namex.setter 
-    def namex(self, value):
-       self.name = value    
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
     @hybrid_property
-    def idx(self):
-       return self.id
-    @idx.setter 
-    def idx(self, value):
-       self.id = value    
-    @hybrid_property
-    def job_idx(self):
-       return self.job_id
-    @job_idx.setter
-    def job_idx(self, value):
-       self.job_id = value
+    def data_type(self):
+        return self._data_type
+
+    @data_type.setter
+    def data_type(self, value):
+        self._data_type = value
 
 
 class Tag(db.Model):
@@ -1119,9 +1340,9 @@ class Tag(db.Model):
     id = db.Column(db.Integer,
                    primary_key=True)
 
-    name = db.Column(db.String(64),
-                     index=True,
-                     unique=True)
+    _name = db.Column(db.String(64),
+                      index=True,
+                      unique=True)
 
     # Relationships
     """
@@ -1131,7 +1352,7 @@ class Tag(db.Model):
 
     def __init__(self, name):
         super(Tag, self).__init__()
-        self.name = name
+        self._name = name
 
     def get_id(self):
         try:
@@ -1141,63 +1362,43 @@ class Tag(db.Model):
 
     @property
     def serialize(self):
-	return {
-		'id'  : self.id,
-		'name': self.name
-	}
+        return {'id': self.id,
+                'name': self._name}
 
     @hybrid_property
-    def namex(self):
-       return self.name
-    @namex.setter 
-    def namex(self, value):
-       self.name = value    
-    @hybrid_property
-    def idx(self):
-       return self.id
-    @idx.setter 
-    def idx(self, value):
-       self.id = value    
-    @hybrid_property
-    def user_idx(self):
-       return self.user_id
-    @user_idx.setter
-    def user_idx(self, value):
-       self.user_id = value
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
 
 class Result(db.Model):
-    
-    #fields
+
+    # fields
 
     id = db.Column(db.Integer,
                    primary_key=True)
     batch_id = db.Column(db.Integer,
-                    index=True,
-                    unique=True)
-    blob = db.Column(db.Binary,
-                     index=True,
-                    unique=True)
-    #relationships
-    #none for now?
+                         index=True,
+                         unique=True)
+    _blob = db.Column(db.LargeBinary,
+                      index=True,
+                      unique=True)
+    # relationships
+    # none for now?
 
     def __init__(self, batch_id, blob):
         self.batch_id = batch_id
-        self.blob = blob
-    
-    #properties
-        
-    @hybrid_property
-    def batch_idx(self):
-	    return self.batch_id
-    
-    @batch_idx.setter
-    def batch_idx(self, value):
-	    self.batch_id = value
+        self._blob = blob
+
+    # properties
 
     @hybrid_property
-    def blobx(self):
-	    return self.blob
+    def blob(self):
+        return self._blob
 
-    @blobx.setter
+    @blob.setter
     def blobx(self, value):
-        self.blob = value
+        self._blob = value
