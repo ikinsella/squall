@@ -1,14 +1,16 @@
 from flask import (Blueprint,
                    render_template,
                    flash,
-                   request,
                    redirect,
                    url_for)
 from flask.ext.login import login_required
 from appname.extensions import cache
 from appname.forms import (AlgorithmForm,
                            ImplementationForm)
-from appname.models import (db, Tag, Algorithm, algorithms_tags, Implementation, implementations_tags)
+from appname.models import (db,
+                            Tag,
+                            Algorithm,
+                            Implementation)
 
 
 algorithms = Blueprint('algorithms', __name__)
@@ -18,14 +20,17 @@ algorithms = Blueprint('algorithms', __name__)
 @cache.cached(timeout=1000)
 @login_required
 def get_algorithm():
+    # Algorithm Form
     algorithm_form = AlgorithmForm()
     algorithm_form.tags.choices\
         = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
+    # Implementation Form
     implementation_form = ImplementationForm()
+    implementation_form.algorithm.choices\
+        = [(algorithm.id, algorithm.name)
+           for algorithm in Algorithm.query.order_by('name')]
     implementation_form.tags.choices\
         = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
-    implementation_form.algorithm.choices\
-        = [(algorithm.id, algorithm.name) for algorithm in Algorithm.query.order_by('name')]
     return render_template('algorithms.html',
                            algorithm_form=algorithm_form,
                            implementation_form=implementation_form)
@@ -35,28 +40,20 @@ def get_algorithm():
 @cache.cached(timeout=1000)
 @login_required
 def save_algorithm():
-    """Save The New Algorithm"""
-    # store algorithm name and description
     algorithm_form = AlgorithmForm()
     algorithm_form.tags.choices\
         = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
     if algorithm_form.validate_on_submit():
-        new_alg = Algorithm(algorithm_form.name.data, algorithm_form.description.data)
-        db.session.add(new_alg)
+        tags = [Tag.query.filter_by(id=_id).first()
+                for _id in algorithm_form.tags.data]
+        algorithm = Algorithm(name=algorithm_form.name.data,
+                              description=algorithm_form.description.data,
+                              tags=tags)
+        db.session.add(algorithm)
         db.session.commit()
-
-        # store algorithm tags
-        alg_id = Algorithm.get_id(new_alg)
-        selected_tags = algorithm_form.tags.data
-        for tag in selected_tags:
-            new_tag = Tag.query.filter_by(id=tag).first()
-            new_alg.tags.append(new_tag)
-            db.session.commit()
-
         flash("New algorithm added successfully.", "success")
     else:
         flash('Failed validation', 'danger')
-
     return redirect(url_for("algorithms.get_algorithm"))
 
 
@@ -68,23 +65,22 @@ def save_implementation():
     implementation_form.tags.choices\
         = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
     implementation_form.algorithm.choices\
-        = [(algorithm.id, algorithm.name) for algorithm in Algorithm.query.order_by('name')]
+        = [(algorithm.id, algorithm.name)
+           for algorithm in Algorithm.query.order_by('name')]
     if implementation_form.validate_on_submit():
-        new_impl = Implementation(implementation_form.name.data, implementation_form.address.data, implementation_form.executable.data, implementation_form.description.data, implementation_form.algorithm.data)
-        db.session.add(new_impl)
+        tags = [Tag.query.filter_by(id=_id).first()
+                for _id in implementation_form.tags.data]
+        implementation = Implementation(
+            algorithm_id=implementation_form.algorithm.data,
+            name=implementation_form.name.data,
+            description=implementation_form.description.data,
+            tags=tags,
+            urls=implementation_form.executable.data,
+            setup_scripts=implementation_form.setup_scripts.data,
+            executable=implementation_form.urls.data)
+        db.session.add(implementation)
         db.session.commit()
-
-        # alg = Algorithm.query.filter_by(id=implementation_form.algorithm.data).first()
-        # db.session.commit()
-        
-        selected_tags = implementation_form.tags.data
-        for tag in selected_tags:
-            new_tag = Tag.query.filter_by(id=tag).first()
-            new_impl.tags.append(new_tag)
-            db.session.commit()\
-
         flash("New implementation added successfully", "success")
     else:
         flash('Failed validation', 'danger')
-        
     return redirect(url_for("algorithms.get_algorithm"))

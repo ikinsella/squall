@@ -37,6 +37,16 @@
               </div>
 
               <div class="form-group">
+                    {{ batch_form.memory.label }}
+                    {{ batch_form.memory(class_="form-control") }}
+              </div>
+
+              <div class="form-group">
+                    {{ batch_form.disk.label }}
+                    {{ batch_form.disk(class_="form-control") }}
+              </div>
+
+              <div class="form-group">
                     {{ batch_form.flock.label }}
                     {{ batch_form.flock(class_="form-control") }}
               </div>

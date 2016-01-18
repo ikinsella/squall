@@ -8,6 +8,7 @@ from wtforms import (TextField,
                      SelectMultipleField,
                      FileField,
                      IntegerField,
+                     FieldList,
                      ValidationError)
 
 from wtforms.validators import (DataRequired,
@@ -25,9 +26,11 @@ from appname.models import (User,
                             Batch,
                             Tag)
 
+import yaml
+
 
 class UniqueName(object):
-    """ Validates An Objects Selected Name to Ensure It Has A Unique Name """
+    """Validates An Objects Selected Name to Ensure It Has A Unique Name"""
     def __init__(self, cls, message=None):
         self.cls = cls
         if not message:
@@ -38,6 +41,21 @@ class UniqueName(object):
         """ Function Used To Validate Form Field """
         if self.cls.query.filter_by(_name=field.data).first() is not None:
             raise ValidationError(self.message)
+
+
+class ValidParamFile(object):
+    """Validates An Uploaded Parameter File To Enforce Proper Formating"""
+    def __init__(self, message="Uploaded Parameter File Improperly Formatted"):
+        self.message = message
+
+    def __call__(self, form, field):
+        try:  # Can be read by yaml.load
+            yamldata = yaml.load(field.data)
+            assert isinstance(yamldata, dict)
+        except IOError:  # Cannot be read by parser
+            ValidationError(self.message)
+        except AssertionError:  # Is not properly formatted
+            ValidationError(self.message)
 
 
 class AlgorithmForm(Form):
@@ -60,15 +78,17 @@ class ImplementationForm(Form):
     name = TextField(u'Name', [DataRequired(),
                                UniqueName(Implementation),
                                Length(max=64)])
-    address = TextField(u'Address', [DataRequired(),  # TODO
-                                     URL(),
-                                     Length(max=256)])
-    executable = TextField(u'Executable', [DataRequired(),
-                                           Length(max=64)])
     description = TextAreaField(u'Desciption', [Optional(),
                                                 Length(max=512)])
     tags = SelectMultipleField(u'Tags', [Optional()],
                                coerce=int)
+    urls = FieldList(u'URLs', [DataRequired(), URL(), Length(max=256)],
+                     min_entries=1, max_entries=10)
+    setup_scripts = FieldList(u'Setup Scripts',
+                              [DataRequired(), URL(), Length(max=256)],
+                              min_entries=1, max_entries=10)
+    executable = TextField(u'Executable', [DataRequired(),
+                                           Length(max=64)])
 
     def validate(self):
         if super(ImplementationForm, self).validate():
@@ -109,18 +129,17 @@ class DataCollectionForm(Form):
 
 
 class DataSetForm(Form):
+    data_collection = SelectField(u'Data Collection', [DataRequired()],
+                                  coerce=int)
     name = TextField(u'Name', [DataRequired(),
                                UniqueName(DataSet),
                                Length(max=64)])
-    address = TextField(u'Address', [DataRequired(),  # TODO
-                                     URL(),
-                                     Length(max=256)])
     description = TextAreaField(u'Desciption', [Optional(),
                                                 Length(max=512)])
     tags = SelectMultipleField(u'Tags', [Optional()],
                                coerce=int)
-    data_collection = SelectField(u'Data Collection', [DataRequired()],
-                                  coerce=int)
+    urls = FieldList(u'URLs', [DataRequired(), URL(), Length(max=256)],
+                     min_entries=1, max_entries=10)
 
     def validate(self):
         if super(DataSetForm, self).validate():
@@ -159,9 +178,12 @@ class BatchForm(Form):
                            coerce=int)
     implementation = SelectField(u'Implementation', [DataRequired()],
                                  coerce=int)
-    params = FileField(u'Parameter File', [DataRequired()])
-    memory = IntegerField(u'Requested Memory', [DataRequired()])
-    disk = IntegerField(u'Requested Memory', [DataRequired()])
+    params = FileField(u'Parameter File', [DataRequired(),
+                                           ValidParamFile()])
+    memory = IntegerField(u'Memory(MB)', [DataRequired(),
+                                          NumberRange()])
+    disk = IntegerField(u'Disk Space(KB)', [DataRequired(),
+                                            NumberRange()])
     flock = BooleanField(u'Flock', [DataRequired()])
     glide = BooleanField(u'Glide', [DataRequired()])
     tags = SelectMultipleField(u'Tags', [Optional()],

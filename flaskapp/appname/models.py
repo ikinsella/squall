@@ -256,8 +256,8 @@ class Implementation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     _name = db.Column(db.String(64), index=True, unique=True)
     _description = db.Column(db.String(512), index=False, unique=False)
-    _urls = db.Column(db.String(256), index=False, unique=False)
-    # _setup_scripts =  # TODO: Setup Scripts
+    _urls = db.Column(db.PickleType(), index=False, unique=False)
+    _setup_scripts = db.Column(db.PickleType(), index=False, unique=False)
     _executable = db.Column(db.String(64), index=False, unique=False)
 
     # Relationships
@@ -282,13 +282,14 @@ class Implementation(db.Model):
                  description,
                  tags,
                  urls,
+                 setup_scripts,
                  executable):
         self.algorithm_id = algorithm_id
         self._name = name
         self._description = description
         self._tags = tags
         self._urls = urls
-        # self._setup_scripts  # TODO: Setup Scripts
+        self._setup_scripts
         self._executable = executable
         # self._arguments = arguments  # TODO: Parameter Validation
 
@@ -341,7 +342,7 @@ class Implementation(db.Model):
     @urls.setter
     def urls(self, value):
         self._urls.append(value)
-    """ TODO: Setup Scripts
+
     @hybrid_property
     def setup_scripts(self):
         return self._setup_scripts
@@ -349,7 +350,7 @@ class Implementation(db.Model):
     @setup_scripts.setter
     def setup_scripts(self, value):
         self._setup_scripts.append(value)
-    """
+
     @hybrid_property
     def executable(self):
         return self._executable
@@ -456,7 +457,7 @@ class DataSet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     _name = db.Column(db.String(64), index=True, unique=True)
     _description = db.Column(db.String(512), index=False, unique=False)
-    _urls = db.Column(db.String(256), index=False, unique=False)
+    _urls = db.Column(db.PickleType(), index=False, unique=False)
 
     # Relationships
     """ TODO: Moving To Multi-User
@@ -682,7 +683,6 @@ class Batch(db.Model):
                  glide,
                  arguments=None,
                  keyword_arguments=None,
-                 setup_script=None,
                  sweep='sweep.dag',
                  wrapper='wrapper.sh',
                  submit_file='process.sub',
@@ -716,7 +716,6 @@ class Batch(db.Model):
         self._job_post = job_post_script
         self._args = arguments
         self._kwargs = keyword_arguments
-        self._setup_script = setup_script
         self._sweep = sweep
         self._wrapper = wrapper
         self._submit_file = submit_file
