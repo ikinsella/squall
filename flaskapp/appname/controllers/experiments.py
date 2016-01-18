@@ -22,11 +22,11 @@ experiments = Blueprint('experiments', __name__)
 def get_experiment():
     experiment_form = ExperimentForm()
     experiment_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
+        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
     experiment_form.algorithms.choices\
-        = [(a.id, a.name) for a in Algorithm.query.order_by('name')]
+        = [(a.id, a.name) for a in Algorithm.query.order_by('_name')]
     experiment_form.collections.choices\
-        = [(dc.id, dc.name) for dc in DataCollection.query.order_by('name')]
+        = [(dc.id, dc.name) for dc in DataCollection.query.order_by('_name')]
     return render_template('experiments.html',
                            experiment_form=experiment_form)
 
@@ -37,11 +37,11 @@ def get_experiment():
 def save_experiment():
     experiment_form = ExperimentForm()
     experiment_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
+        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
     experiment_form.collections.choices\
-        = [(dc.id, dc.name) for dc in DataCollection.query.order_by('name')]
+        = [(dc.id, dc.name) for dc in DataCollection.query.order_by('_name')]
     experiment_form.algorithms.choices\
-        = [(a.id, a.name) for a in Algorithm.query.order_by('name')]
+        = [(a.id, a.name) for a in Algorithm.query.order_by('_name')]
     if experiment_form.validate_on_submit():
         tags = [Tag.query.filter_by(id=_id).first()
                 for _id in experiment_form.tags.data]

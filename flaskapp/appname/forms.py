@@ -82,10 +82,12 @@ class ImplementationForm(Form):
                                                 Length(max=512)])
     tags = SelectMultipleField(u'Tags', [Optional()],
                                coerce=int)
-    urls = FieldList(u'URLs', [DataRequired(), URL(), Length(max=256)],
+    urls = FieldList(TextField(u'URLs', [DataRequired(),
+                                         URL(),
+                                         Length(max=256)]),
                      min_entries=1, max_entries=10)
-    setup_scripts = FieldList(u'Setup Scripts',
-                              [DataRequired(), URL(), Length(max=256)],
+    setup_scripts = FieldList(TextField(u'Setup Scripts', [DataRequired(),
+                                                           Length(max=256)]),
                               min_entries=1, max_entries=10)
     executable = TextField(u'Executable', [DataRequired(),
                                            Length(max=64)])
@@ -138,7 +140,9 @@ class DataSetForm(Form):
                                                 Length(max=512)])
     tags = SelectMultipleField(u'Tags', [Optional()],
                                coerce=int)
-    urls = FieldList(u'URLs', [DataRequired(), URL(), Length(max=256)],
+    urls = FieldList(TextField(u'URLs', [DataRequired(),
+                                         URL(),
+                                         Length(max=256)]),
                      min_entries=1, max_entries=10)
 
     def validate(self):

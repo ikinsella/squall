@@ -66,10 +66,9 @@ class User(db.Model, UserMixin):
     """Represents a single User who has access to the application"""
 
     # Fields
-    id = db.Column(db.Integer(),
-                   primary_key=True)
-    _username = db.Column(db.String(64))
-    _password = db.Column(db.String(64))
+    id = db.Column(db.Integer(), primary_key=True)
+    username = db.Column(db.String(64))
+    password = db.Column(db.String(64))
     """ TODO: Multi-User
     _tags = db.relationship('Tag', secondary=users_tags,
                             backref=db.backref('users',
@@ -85,7 +84,7 @@ class User(db.Model, UserMixin):
     """
 
     def __init__(self, username, password):
-        self._username = username
+        self.username = username
         self.set_password(password)
 
     def __repr__(self):
@@ -119,22 +118,6 @@ class User(db.Model, UserMixin):
             return True
         else:
             return False
-
-    @hybrid_property
-    def username(self):
-        return self._username
-
-    @username.setter
-    def username(self, value):
-        self._username = value
-
-    @hybrid_property
-    def password(self):
-        return self._password
-
-    @password.setter
-    def password(self, value):
-        self._password = generate_password_hash(value)
 
 
 class Tag(db.Model):
@@ -289,7 +272,7 @@ class Implementation(db.Model):
         self._description = description
         self._tags = tags
         self._urls = urls
-        self._setup_scripts
+        self._setup_scripts = setup_scripts
         self._executable = executable
         # self._arguments = arguments  # TODO: Parameter Validation
 
@@ -733,6 +716,7 @@ class Batch(db.Model):
         """ Expands Yaml Fields List Of Param Files For Each Job"""
 
         try:  # If Expand Fields Doesn't Exist, Nothing To Be Done
+            assert len(self.params) == 9
             expand_fields = self.params['ExpandFields']
             del self.params['ExpandFields']
         except KeyError:
@@ -825,6 +809,14 @@ class Batch(db.Model):
     @jobs.setter
     def jobs(self, value):
         self._jobs.append(value)
+
+    @hybrid_property
+    def params(self):
+        return self._params
+
+    @params.setter
+    def params(self, value):
+        self._params = value
 
     @hybrid_property
     def memory(self):

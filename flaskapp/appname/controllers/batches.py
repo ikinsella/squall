@@ -23,13 +23,13 @@ batches = Blueprint('batches', __name__)
 def get_batch():
     batch_form = BatchForm()
     batch_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
+        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
     batch_form.experiment.choices\
-        = [(e.id, e.name) for e in Experiment.query.order_by('name')]
+        = [(e.id, e.name) for e in Experiment.query.order_by('_name')]
     batch_form.implementation.choices\
-        = [(i.id, i.name) for i in Implementation.query.order_by('name')]
+        = [(i.id, i.name) for i in Implementation.query.order_by('_name')]
     batch_form.data_set.choices\
-        = [(ds.id, ds.name) for ds in DataSet.query.order_by('name')]
+        = [(ds.id, ds.name) for ds in DataSet.query.order_by('_name')]
     return render_template('batches.html',
                            batch_form=batch_form)
 
@@ -40,13 +40,13 @@ def get_batch():
 def save_batch():
     batch_form = BatchForm()
     batch_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
+        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
     batch_form.experiment.choices\
-        = [(e.id, e.name) for e in Experiment.query.order_by('name')]
+        = [(e.id, e.name) for e in Experiment.query.order_by('_name')]
     batch_form.implementation.choices\
-        = [(i.id, i.name) for i in Implementation.query.order_by('name')]
+        = [(i.id, i.name) for i in Implementation.query.order_by('_name')]
     batch_form.data_set.choices\
-        = [(ds.id, ds.name) for ds in DataSet.query.order_by('name')]
+        = [(ds.id, ds.name) for ds in DataSet.query.order_by('_name')]
     if batch_form.validate_on_submit():
         tags = [Tag.query.filter_by(id=_id).first()
                 for _id in batch_form.tags.data]

@@ -22,12 +22,12 @@ data = Blueprint('data', __name__)
 def get_collection():
     collection_form = DataCollectionForm()
     collection_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
+        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
     data_set_form = DataSetForm()
     data_set_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
+        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
     data_set_form.data_collection.choices\
-        = [(dc.id, dc.name) for dc in DataCollection.query.order_by('name')]
+        = [(dc.id, dc.name) for dc in DataCollection.query.order_by('_name')]
     return render_template('data.html',
                            collection_form=collection_form,
                            data_set_form=data_set_form)
@@ -39,7 +39,7 @@ def get_collection():
 def save_collection():
     data_collection_form = DataCollectionForm()
     data_collection_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
+        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
     if data_collection_form.validate_on_submit():
         tags = [Tag.query.filter_by(id=_id).first()
                 for _id in data_collection_form.tags.data]
@@ -61,9 +61,9 @@ def save_collection():
 def save_data_set():
     data_set_form = DataSetForm()
     data_set_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('name')]
+        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
     data_set_form.data_collection.choices\
-        = [(dc.id, dc.name) for dc in DataCollection.query.order_by('name')]
+        = [(dc.id, dc.name) for dc in DataCollection.query.order_by('_name')]
     if data_set_form.validate_on_submit():
         tags = [Tag.query.filter_by(id=_id).first()
                 for _id in data_set_form.tags.data]
