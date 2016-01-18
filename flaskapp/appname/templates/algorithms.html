@@ -12,18 +12,19 @@
               {{ algorithm_form.hidden_tag() }}
 
               <div class="form-group">
-                    {{ algorithm_form.name.label }}
-                    {% if algorithm_form.name.errors %}
-                        {% for e in algorithm_form.name.errors %}
-                            <p class="help-block">{{ e }}</p>
-                        {% endfor %}
-                    {% endif %}
-                    {{ algorithm_form.name(class_="form-control") }}
+                {{ algorithm_form.name.label }}
+                {% if algorithm_form.name.errors %}
+                {% for e in algorithm_form.name.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}
+                {% endif %}
+                {{ algorithm_form.name(class_="form-control") }}
               </div>
-              <div class="form-group">
-                    {{ algorithm_form.description.label }}
-                    {{ algorithm_form.description(class_="form-control") }}
-                </div>
+
+	      <div class="form-group">
+                {{ algorithm_form.description.label }}
+                {{ algorithm_form.description(class_="form-control") }}
+              </div>
 
 	      <div class="form-group">
 		{{ algorithm_form.tags.label }}
@@ -47,45 +48,55 @@
               <div class="form-group">
                 {{ implementation_form.name.label }}
                 {% if implementation_form.name.errors %}
-                        {% for e in implementation_form.name.errors %}
-                            <p class="help-block">{{ e }}</p>
-                        {% endfor %}
-                    {% endif %}
+                {% for e in implementation_form.name.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}
+                {% endif %}
                 {{ implementation_form.name(class_="form-control") }}
               </div>
               
               <div class="form-group">
                 {{ implementation_form.algorithm.label }}
                 {% if implementation_form.algorithm.errors %}
-                        {% for e in implementation_form.algorithm.errors %}
-                            <p class="help-block">{{ e }}</p>
-                        {% endfor %}
-                    {% endif %}
+                {% for e in implementation_form.algorithm.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}
+                {% endif %}
                 {{ implementation_form.algorithm(class_="form-control") }}
               </div>
 
               <div class="form-group">
-		            {{ implementation_form.address.label }}
-                {% if implementation_form.address.errors %}
-                        {% for e in implementation_form.address.errors %}
-                            <p class="help-block">{{ e }}</p>
-                        {% endfor %}
-                    {% endif %}
-                {{ implementation_form.address(class_="form-control") }}
+		{{ implementation_form.urls.label }}
+                {% if implementation_form.urls.errors %}
+                {% for e in implementation_form.urls.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}
+                {% endif %}
+                {{ implementation_form.urls(class_="form-control") }}
+              </div>
+
+	      <div class="form-group">
+		{{ implementation_form.setup_scripts.label }}
+                {% if implementation_form.setup_scripts.errors %}
+                {% for e in implementation_form.setup_scripts.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}
+                {% endif %}
+                {{ implementation_form.setup_scripts(class_="form-control") }}
               </div>
 
               <div class="form-group">
-		            {{ implementation_form.executable.label }}
+		{{ implementation_form.executable.label }}
                 {% if implementation_form.executable.errors %}
-                        {% for e in implementation_form.executable.errors %}
-                            <p class="help-block">{{ e }}</p>
-                        {% endfor %}
-                    {% endif %}
+                {% for e in implementation_form.executable.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}
+                {% endif %}
                 {{ implementation_form.executable(class_="form-control") }}
               </div>
         
               <div class="form-group">
-		            {{ implementation_form.description.label }}
+		{{ implementation_form.description.label }}
                 {{ implementation_form.description(class_="form-control") }}
               </div>
 

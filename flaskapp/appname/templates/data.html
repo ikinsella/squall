@@ -16,14 +16,14 @@
                     {{ collection_form.name(class_="form-control") }}
               </div>
 
-	            <div class="form-group">
-		                {{ collection_form.description.label }}
-                    {{ collection_form.description(class_="form-control") }}
-	            </div>
+	      <div class="form-group">
+		{{ collection_form.description.label }}
+                {{ collection_form.description(class_="form-control") }}
+	      </div>
 
-	            <div class="form-group">
-		                {{ collection_form.tags.label }}
-                    {{ collection_form.tags(class_="form-control") }}
+	      <div class="form-group">
+		{{ collection_form.tags.label }}
+                {{ collection_form.tags(class_="form-control") }}
               </div>
 
               <button type="submit" class="btn btn-primary">Submit</button>
@@ -41,28 +41,28 @@
               {{ data_set_form.hidden_tag() }}
 
               <div class="form-group">
-                    {{ data_set_form.name.label }}
-                    {{ data_set_form.name(class_="form-control") }}
-              </div>
-
-	            <div class="form-group">
-		                {{ data_set_form.address.label }}
-                    {{ data_set_form.address(class_="form-control") }}
+                {{ data_set_form.name.label }}
+                {{ data_set_form.name(class_="form-control") }}
               </div>
 
               <div class="form-group">
-                    {{ data_set_form.data_collection.label }}
-                    {{ data_set_form.data_collection(class_="form-control") }}
+                {{ data_set_form.data_collection.label }}
+                {{ data_set_form.data_collection(class_="form-control") }}
               </div>
 
-	            <div class="form-group">
-                    {{ data_set_form.description.label }}
-                    {{ data_set_form.description(class_="form-control") }}
+	      <div class="form-group">
+		{{ data_set_form.urls.label }}
+                {{ data_set_form.urls(class_="form-control") }}
+              </div>
+
+	      <div class="form-group">
+                {{ data_set_form.description.label }}
+                {{ data_set_form.description(class_="form-control") }}
               </div>	      
 
-	            <div class="form-group">
-		                {{ data_set_form.tags.label }}
-                    {{ data_set_form.tags(class_="form-control") }}
+	      <div class="form-group">
+		{{ data_set_form.tags.label }}
+                {{ data_set_form.tags(class_="form-control") }}
               </div>
 
               <button type="submit" class="btn btn-primary">Submit</button>

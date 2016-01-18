@@ -648,14 +648,14 @@ class Batch(db.Model):
     _glide = db.Column(db.Boolean(), index=True)
     _arguments = db.Column(db.PickleType(), index=True, unique=True)
     _kwargs = db.Column(db.PickleType(), index=True, unique=True)
-    _sweep = db.column(db.string(64), index=True, unique=True)
-    _submit_file = db.column(db.string(64), index=True, unique=True)
-    _params_file = db.column(db.string(64), index=True, unique=True)
-    _share_dir = db.column(db.string(64), index=True, unique=True)
-    _pre = db.column(db.string(64), index=True, unique=True)
-    _post = db.column(db.string(64), index=True, unique=True)
-    _job_pre = db.column(db.string(64), index=True, unique=True)
-    _job_post = db.column(db.string(64), index=True, unique=True)
+    _sweep = db.Column(db.String(64), index=True, unique=True)
+    _submit_file = db.Column(db.String(64), index=True, unique=True)
+    _params_file = db.Column(db.String(64), index=True, unique=True)
+    _share_dir = db.Column(db.String(64), index=True, unique=True)
+    _pre = db.Column(db.String(64), index=True, unique=True)
+    _post = db.Column(db.String(64), index=True, unique=True)
+    _job_pre = db.Column(db.String(64), index=True, unique=True)
+    _job_post = db.Column(db.String(64), index=True, unique=True)
 
     # Relationships
     """ TODO: Multi-User
