@@ -8,21 +8,33 @@
     <div class="row">
         <div class="col-md-4"></div>
         <div class="col-md-4">
-            <form role="form" action="{{ url_for('.save_collection') }}" method="post">
+            <form role="form" action="{{ url_for('.submit_collection') }}" method="post">
               {{ collection_form.hidden_tag() }}
 
               <div class="form-group">
-                    {{ collection_form.name.label }}
-                    {{ collection_form.name(class_="form-control") }}
+                {{ collection_form.name.label }}
+                {% if collection_form.name.errors %}
+                {% for e in collection_form.name.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ collection_form.name(class_="form-control") }}
               </div>
 
 	      <div class="form-group">
 		{{ collection_form.description.label }}
+		{% if collection_form.description.errors %}
+                {% for e in collection_form.description.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}		
                 {{ collection_form.description(class_="form-control") }}
 	      </div>
 
 	      <div class="form-group">
 		{{ collection_form.tags.label }}
+		{% if collection_form.tags.errors %}
+                {% for e in collection_form.tags.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}		
                 {{ collection_form.tags(class_="form-control") }}
               </div>
 
@@ -37,31 +49,51 @@
     <div class="row">
         <div class="col-md-4"></div>
         <div class="col-md-4">
-            <form role="form" action="{{ url_for('.save_data_set') }}" method="post">
+            <form role="form" action="{{ url_for('.submit_data_set') }}" method="post">
               {{ data_set_form.hidden_tag() }}
 
               <div class="form-group">
-                {{ data_set_form.name.label }}
+                {{ data_set_form.name.label }}	
+		{% if data_set_form.name.errors %}
+                {% for e in data_set_form.name.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}	
                 {{ data_set_form.name(class_="form-control") }}
               </div>
 
               <div class="form-group">
                 {{ data_set_form.data_collection.label }}
+		{% if data_set_form.data_collection.errors %}
+                {% for e in data_set_form.data_collection.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}		
                 {{ data_set_form.data_collection(class_="form-control") }}
               </div>
 
 	      <div class="form-group">
 		{{ data_set_form.urls.label }}
+		{% if data_set_form.urls.errors %}
+                {% for e in data_set_form.urls.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
                 {{ data_set_form.urls(class_="form-control") }}
               </div>
 
 	      <div class="form-group">
                 {{ data_set_form.description.label }}
+		{% if data_set_form.description.errors %}
+                {% for e in data_set_form.description.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
                 {{ data_set_form.description(class_="form-control") }}
               </div>	      
 
 	      <div class="form-group">
 		{{ data_set_form.tags.label }}
+		{% if data_set_form.tags.errors %}
+                {% for e in data_set_form.tags.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
                 {{ data_set_form.tags(class_="form-control") }}
               </div>
 

@@ -8,37 +8,47 @@
     <div class="row">
         <div class="col-md-4"></div>
         <div class="col-md-4">
-            <form role="form" action="{{ url_for('.save_experiment') }}" method="post">
+            <form role="form" action="{{ url_for('.submit_experiment') }}" method="post">
               {{ experiment_form.hidden_tag() }}
 
               <div class="form-group">
                 {{ experiment_form.name.label }}
-                {% if experiment_form.name.errors %}
-                {% for e in experiment_form.name.errors %}
+                {% if experiment_form.name.errors %}{% for e in experiment_form.name.errors %}
                 <p class="help-block">{{ e }}</p>
-                {% endfor %}
-                {% endif %}
+                {% endfor %}{% endif %}
                 {{ experiment_form.name(class_="form-control") }}
               </div>
 
 	      <div class="form-group">
                 {{ experiment_form.collections.label }}
+                {% if experiment_form.collections.errors %}{% for e in experiment_form.collections.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
                 {{ experiment_form.collections(class_="form-control") }}
               </div>
 
 	      <div class="form-group">
                 {{ experiment_form.algorithms.label }}
-                {{ experiment_form.algorithms(class_="form-control") }}
+                {% if experiment_form.algorithms.errors %}{% for e in experiment_form.algorithms.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+		{{ experiment_form.algorithms(class_="form-control") }}
               </div>
 	      
               <div class="form-group">
                 {{ experiment_form.description.label }}
+		{% if experiment_form.description.errors %}{% for e in experiment_form.description.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
                 {{ experiment_form.description(class_="form-control") }}
               </div>
 
 	      <div class="form-group">
 		{{ experiment_form.tags.label }}
-                {{ experiment_form.tags(class_="form-control") }}
+                {% if experiment_form.tags.errors %}{% for e in experiment_form.tags.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+		{{ experiment_form.tags(class_="form-control") }}
               </div>
 
               <button type="submit" class="btn btn-primary">Submit</button>

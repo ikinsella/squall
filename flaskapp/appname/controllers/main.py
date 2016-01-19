@@ -3,7 +3,9 @@ from flask import (Blueprint,
                    flash, request,
                    redirect,
                    url_for)
-from flask.ext.login import login_user, logout_user, login_required
+from flask.ext.login import (login_user,
+                             logout_user,
+                             login_required)
 
 from appname.extensions import cache
 from appname.forms import LoginForm, CreateUserForm
@@ -28,7 +30,7 @@ def login():
         login_user(user)
         flash("Logged in successfully.", "success")
         return redirect(request.args.get("next") or url_for(".home"))
-
+    flash("Failed validation", "danger")
     return render_template("login.html", form=form)
 
 
@@ -36,20 +38,18 @@ def login():
 def logout():
     logout_user()
     flash("You have been logged out.", "success")
-
     return redirect(url_for(".home"))
 
 
 @main.route("/restricted", methods=["Get", "Post"])
+@login_required
 def create_user():
     form = CreateUserForm()
     if form.validate_on_submit():
-
-        # TODO: Create Method for db.session.add & commit
-        new_user = User(form.username.data, form.password.data)
-        db.session.add(new_user)
+        user = User(form.username.data, form.password.data)
+        db.session.add(user)
         db.session.commit()
-
         flash("New user created successfully.", "success")
         return redirect(url_for(".home"))
+    flash("Failed validation", "danger")
     return render_template("create_user.html", form=form)

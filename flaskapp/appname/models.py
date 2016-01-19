@@ -624,21 +624,21 @@ class Batch(db.Model):
                    primary_key=True)
     _name = db.Column(db.String(64), index=True, unique=True)
     _description = db.Column(db.String(512), index=False, unique=False)
-    _params = db.Column(db.PickleType(), index=True, unique=True)
-    _memory = db.Column(db.Integer, index=True, unique=True)
-    _disk = db.Column(db.Integer, index=True, unique=True)
-    _flock = db.Column(db.Boolean(), index=True)
-    _glide = db.Column(db.Boolean(), index=True)
-    _arguments = db.Column(db.PickleType(), index=True, unique=True)
-    _kwargs = db.Column(db.PickleType(), index=True, unique=True)
-    _sweep = db.Column(db.String(64), index=True, unique=True)
-    _submit_file = db.Column(db.String(64), index=True, unique=True)
-    _params_file = db.Column(db.String(64), index=True, unique=True)
-    _share_dir = db.Column(db.String(64), index=True, unique=True)
-    _pre = db.Column(db.String(64), index=True, unique=True)
-    _post = db.Column(db.String(64), index=True, unique=True)
-    _job_pre = db.Column(db.String(64), index=True, unique=True)
-    _job_post = db.Column(db.String(64), index=True, unique=True)
+    _params = db.Column(db.PickleType(), index=True, unique=False)
+    _memory = db.Column(db.Integer, index=True, unique=False)
+    _disk = db.Column(db.Integer, index=True, unique=False)
+    _flock = db.Column(db.Boolean(), index=False)
+    _glide = db.Column(db.Boolean(), index=False)
+    _arguments = db.Column(db.PickleType(), index=True, unique=False)
+    _kwargs = db.Column(db.PickleType(), index=True, unique=False)
+    _sweep = db.Column(db.String(64), index=True, unique=False)
+    _submit_file = db.Column(db.String(64), index=True, unique=False)
+    _params_file = db.Column(db.String(64), index=True, unique=False)
+    _share_dir = db.Column(db.String(64), index=True, unique=False)
+    _pre = db.Column(db.String(64), index=True, unique=False)
+    _post = db.Column(db.String(64), index=True, unique=False)
+    _job_pre = db.Column(db.String(64), index=True, unique=False)
+    _job_post = db.Column(db.String(64), index=True, unique=False)
 
     # Relationships
     """ TODO: Multi-User
@@ -686,8 +686,8 @@ class Batch(db.Model):
         self._tags = tags
         self._params = params
         enum_params = self._enumerate_params()
-        self.jobs = [Job(batch_id=self.id, uid=uid, params=enum_param)
-                     for uid, enum_param in enumerate(enum_params)]
+        self._jobs = [Job(batch_id=self.id, uid=uid, params=enum_param)
+                      for uid, enum_param in enumerate(enum_params)]
         self._memory = memory
         self._disk = disk
         self._flock = flock
@@ -716,7 +716,6 @@ class Batch(db.Model):
         """ Expands Yaml Fields List Of Param Files For Each Job"""
 
         try:  # If Expand Fields Doesn't Exist, Nothing To Be Done
-            assert len(self.params) == 9
             expand_fields = self.params['ExpandFields']
             del self.params['ExpandFields']
         except KeyError:
@@ -724,8 +723,12 @@ class Batch(db.Model):
 
         # Copy Only Static Fields
         static_data = copy.copy(self.params)
-        for field in [key for key in expand_fields]:
-            del static_data[field]
+        for field in expand_fields:
+            if isinstance(field, list):  # TODO: Make More Robust/Elegant
+                for subfield in field:
+                    del static_data[subfield]
+            else:
+                del static_data[field]
 
         # Count Number Of Values Per Expand Field
         field_lengths = np.zeros(len(expand_fields))
@@ -734,7 +737,7 @@ class Batch(db.Model):
                 subfields = [len(self.params[key]) for key in field]
                 if not all(map(lambda x: x is subfields[0], subfields)):
                     raise RuntimeError('Incompatible Length: ExpandFields')
-                field_lengths[idx] = len(subfields[0])
+                field_lengths[idx] = subfields[0]
             else:
                 field_lengths[idx] = len(self.params[field])
 
@@ -747,9 +750,13 @@ class Batch(db.Model):
                 if isinstance(field, list) or isinstance(field, tuple):
                     for k in field:
                         enum_param[k] = self.params[k][idx]
-                    else:
-                        enum_param[field] = self.params[field][idx]
+                else:
+                    enum_param[field] = self.params[field][idx]
         return enum_params
+
+    def package(self, launch_dir):
+        """Packages The Batch Into An Archive"""
+        return None
 
     # Properties
     @hybrid_property
@@ -960,7 +967,7 @@ class Job(db.Model):
 
     # Fields
     id = db.Column(db.Integer, primary_key=True)
-    _uid = db.Column(db.Integer, index=True, unique=True)
+    _uid = db.Column(db.Integer, index=True, unique=False)
 
     # Relationships
     batch_id = db.Column(db.Integer, db.ForeignKey('batch.id'))
@@ -971,7 +978,7 @@ class Job(db.Model):
     def __init__(self, batch_id, uid, params):
         super(Job, self).__init__()
         self.batch_id = batch_id
-        self._uid = str(uid).zfill(len(str(self.batch.size-1)))
+        self._uid = uid
         self._params = params
 
     # Functions
@@ -990,11 +997,11 @@ class Job(db.Model):
 
     @hybrid_property
     def uid(self):
-        return self._uid
+        return str(self._uid).zfill(len(str(self.batch.size-1)))
 
     @uid.setter
     def uid(self, value):
-        self._uid = str(value).zfill(len(str(self.batch.size-1)))
+        self._uid = value
 
     @hybrid_property
     def params(self):
@@ -1133,7 +1140,7 @@ class Result(db.Model):
     # fields
     id = db.Column(db.Integer, primary_key=True)
     batch_id = db.Column(db.Integer, index=True, unique=True)
-    _blob = db.Column(db.PickleType, index=True, unique=True)
+    _blob = db.Column(db.PickleType, index=True, unique=False)
 
     # relationships
     # TODO: Link To Batch/Job

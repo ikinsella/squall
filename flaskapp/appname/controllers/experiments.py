@@ -19,10 +19,10 @@ experiments = Blueprint('experiments', __name__)
 @experiments.route('/')
 @cache.cached(timeout=1000)
 @login_required
-def get_experiment():
+def experiment():
     experiment_form = ExperimentForm()
     experiment_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
+        = [(t.id, t.name) for t in Tag.query.order_by('_name')]
     experiment_form.algorithms.choices\
         = [(a.id, a.name) for a in Algorithm.query.order_by('_name')]
     experiment_form.collections.choices\
@@ -31,13 +31,13 @@ def get_experiment():
                            experiment_form=experiment_form)
 
 
-@experiments.route('/save_experiment', methods=["Post"])
+@experiments.route('/submit_experiment', methods=["Post"])
 @cache.cached(timeout=1000)
 @login_required
-def save_experiment():
+def submit_experiment():
     experiment_form = ExperimentForm()
     experiment_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
+        = [(t.id, t.name) for t in Tag.query.order_by('_name')]
     experiment_form.collections.choices\
         = [(dc.id, dc.name) for dc in DataCollection.query.order_by('_name')]
     experiment_form.algorithms.choices\
@@ -57,7 +57,7 @@ def save_experiment():
         db.session.add(experiment)
         db.session.commit()
         flash("New experiment added successfully.", "success")
-    else:
-        flash('Failed validation', 'danger')
-
-    return redirect(url_for("experiments.get_experiment"))
+        return redirect(url_for("experiments.experiment"))
+    flash('Failed validation', 'danger')
+    return render_template('experiments.html',
+                           experiment_form=experiment_form)

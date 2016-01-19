@@ -37,11 +37,11 @@
             <div class="collapse navbar-collapse">
                 <ul class="nav navbar-nav">
                   <li><a href="{{ url_for('main.home') }}">Home</a></li>
-		  <li><a href="{{ url_for('algorithms.get_algorithm') }}">Algorithms</a></li>
-		  <li><a href="{{ url_for('data.get_collection') }}">Data</a></li>
-		  <li><a href="{{ url_for('experiments.get_experiment') }}">Experiments</a></li>
-		  <li><a href="{{ url_for('batches.get_batch') }}">Batches</a></li>
-		  <li><a href="{{ url_for('tags.get_tag') }}">Tags</a></li>		  
+		  <li><a href="{{ url_for('algorithms.algorithm') }}">Algorithms</a></li>
+		  <li><a href="{{ url_for('data.collection') }}">Data</a></li>
+		  <li><a href="{{ url_for('experiments.experiment') }}">Experiments</a></li>
+		  <li><a href="{{ url_for('batches.batch') }}">Batches</a></li>
+		  <li><a href="{{ url_for('tags.tag') }}">Tags</a></li>		  
                     {% if not current_user.is_authenticated %}
                         <li><a href="{{ url_for('main.login') }}">Login</a></li>
                     {% else %}

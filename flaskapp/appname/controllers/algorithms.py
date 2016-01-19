@@ -11,6 +11,7 @@ from appname.models import (db,
                             Tag,
                             Algorithm,
                             Implementation)
+from appname.controllers.constants import URLS
 
 
 algorithms = Blueprint('algorithms', __name__)
@@ -19,30 +20,32 @@ algorithms = Blueprint('algorithms', __name__)
 @algorithms.route('/')
 @cache.cached(timeout=1000)
 @login_required
-def get_algorithm():
-    # Algorithm Form
+def algorithm():
     algorithm_form = AlgorithmForm()
-    algorithm_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
-    # Implementation Form
-    implementation_form = ImplementationForm()
-    implementation_form.algorithm.choices\
-        = [(algorithm.id, algorithm.name)
-           for algorithm in Algorithm.query.order_by('_name')]
-    implementation_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
+    algorithm_form.tags.choices = [(t.id, t.name) for t in
+                                   Tag.query.order_by('_name')]
+    implementation_form = ImplementationForm(urls=URLS)
+    implementation_form.algorithm.choices = [(a.id, a.name) for a in
+                                             Algorithm.query.order_by('_name')]
+    implementation_form.tags.choices = [(t.id, t.name) for t in
+                                        Tag.query.order_by('_name')]
     return render_template('algorithms.html',
                            algorithm_form=algorithm_form,
                            implementation_form=implementation_form)
 
 
-@algorithms.route('/save_algorithm', methods=["Post"])
+@algorithms.route('/submit_algorithm', methods=["Post"])
 @cache.cached(timeout=1000)
 @login_required
-def save_algorithm():
+def submit_algorithm():
     algorithm_form = AlgorithmForm()
-    algorithm_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
+    algorithm_form.tags.choices = [(t.id, t.name) for t in
+                                   Tag.query.order_by('_name')]
+    implementation_form = ImplementationForm(urls=URLS)
+    implementation_form.algorithm.choices = [(a.id, a.name) for a in
+                                             Algorithm.query.order_by('_name')]
+    implementation_form.tags.choices = [(t.id, t.name) for t in
+                                        Tag.query.order_by('_name')]
     if algorithm_form.validate_on_submit():
         tags = [Tag.query.filter_by(id=_id).first()
                 for _id in algorithm_form.tags.data]
@@ -52,21 +55,25 @@ def save_algorithm():
         db.session.add(algorithm)
         db.session.commit()
         flash("New algorithm added successfully.", "success")
-    else:
-        flash('Failed validation', 'danger')
-    return redirect(url_for("algorithms.get_algorithm"))
+        return redirect(url_for("algorithms.algorithm"))
+    flash('Failed validation', 'danger')
+    return render_template('algorithms.html',
+                           algorithm_form=algorithm_form,
+                           implementation_form=implementation_form)
 
 
-@algorithms.route('/save_implementation', methods=["Post"])
+@algorithms.route('/submit_implementation', methods=["Post"])
 @cache.cached(timeout=1000)
 @login_required
-def save_implementation():
-    implementation_form = ImplementationForm()
-    implementation_form.tags.choices\
-        = [(tag.id, tag.name) for tag in Tag.query.order_by('_name')]
-    implementation_form.algorithm.choices\
-        = [(algorithm.id, algorithm.name)
-           for algorithm in Algorithm.query.order_by('_name')]
+def submit_implementation():
+    algorithm_form = AlgorithmForm()
+    algorithm_form.tags.choices = [(t.id, t.name) for t in
+                                   Tag.query.order_by('_name')]
+    implementation_form = ImplementationForm(urls=URLS)
+    implementation_form.algorithm.choices = [(a.id, a.name) for a in
+                                             Algorithm.query.order_by('_name')]
+    implementation_form.tags.choices = [(t.id, t.name) for t in
+                                        Tag.query.order_by('_name')]
     if implementation_form.validate_on_submit():
         tags = [Tag.query.filter_by(id=_id).first()
                 for _id in implementation_form.tags.data]
@@ -81,6 +88,8 @@ def save_implementation():
         db.session.add(implementation)
         db.session.commit()
         flash("New implementation added successfully", "success")
-    else:
-        flash('Failed validation', 'danger')
-    return redirect(url_for("algorithms.get_algorithm"))
+        return redirect(url_for("algorithms.algorithm"))
+    flash('Failed validation', 'danger')
+    return render_template('algorithms.html',
+                           algorithm_form=algorithm_form,
+                           implementation_form=implementation_form)

@@ -6,7 +6,6 @@ from wtforms import (TextField,
                      TextAreaField,
                      SelectField,
                      SelectMultipleField,
-                     FileField,
                      IntegerField,
                      FieldList,
                      ValidationError)
@@ -17,6 +16,9 @@ from wtforms.validators import (DataRequired,
                                 NumberRange,
                                 URL)
 
+from flask_wtf.file import (FileField,
+                            FileRequired)
+
 from appname.models import (User,
                             Algorithm,
                             Implementation,
@@ -25,8 +27,6 @@ from appname.models import (User,
                             Experiment,
                             Batch,
                             Tag)
-
-import yaml
 
 
 class UniqueName(object):
@@ -45,17 +45,21 @@ class UniqueName(object):
 
 class ValidParamFile(object):
     """Validates An Uploaded Parameter File To Enforce Proper Formating"""
-    def __init__(self, message="Uploaded Parameter File Improperly Formatted"):
+    def __init__(self, message='Valid file extensions: ".yaml" or ".yml"'):
         self.message = message
 
-    def __call__(self, form, field):
+    def __call__(self, form, field):  # TODO: Assert Data Is Valid
         try:  # Can be read by yaml.load
-            yamldata = yaml.load(field.data)
-            assert isinstance(yamldata, dict)
+            # yamldata = yaml.load(field.data)
+            # assert isinstance(yamldata, dict)
+            filename = field.data.filename
+            assert '.' in filename
+            assert filename.rsplit('.', 1)[1] in set(['yaml', 'yml'])
+            assert field.has_file()
         except IOError:  # Cannot be read by parser
-            ValidationError(self.message)
+            raise ValidationError(self.message)
         except AssertionError:  # Is not properly formatted
-            ValidationError(self.message)
+            raise ValidationError(self.message)
 
 
 class AlgorithmForm(Form):
@@ -107,7 +111,7 @@ class ArgumentForm(Form):
                                      (2, 'Array'),
                                      (3, 'String'),
                                      (4, 'Boolean')])
-    optional = BooleanField(u'Optional', [DataRequired()])
+    optional = BooleanField(u'Optional')
 
     def validate(self):
         if super(ArgumentForm, self).validate():
@@ -182,14 +186,14 @@ class BatchForm(Form):
                            coerce=int)
     implementation = SelectField(u'Implementation', [DataRequired()],
                                  coerce=int)
-    params = FileField(u'Parameter File', [DataRequired(),
+    params = FileField(u'Parameter File', [FileRequired(),
                                            ValidParamFile()])
-    memory = IntegerField(u'Memory(MB)', [DataRequired(),
-                                          NumberRange()])
-    disk = IntegerField(u'Disk Space(KB)', [DataRequired(),
-                                            NumberRange()])
-    flock = BooleanField(u'Flock', [DataRequired()])
-    glide = BooleanField(u'Glide', [DataRequired()])
+    memory = IntegerField(u'Memory (MB)', [DataRequired(),
+                                           NumberRange()])
+    disk = IntegerField(u'Disk Space (KB)', [DataRequired(),
+                                             NumberRange()])
+    flock = BooleanField(u'Flock')
+    glide = BooleanField(u'Glide')
     tags = SelectMultipleField(u'Tags', [Optional()],
                                coerce=int)
 
@@ -218,12 +222,9 @@ class LoginForm(Form):
                                            Length(max=64)])
 
     def validate(self):
-        check_validate = super(LoginForm, self).validate()
 
         # if our validators do not pass
-        if not check_validate:
-            return False
-            self.username.errors.append()
+        if not super(LoginForm, self).validate():
             return False
 
         # Does the username exist
@@ -245,11 +246,12 @@ class CreateUserForm(Form):
     password = PasswordField(u'Password', [DataRequired(), Length(max=64)])
 
     def validate(self):
-        check_validate = super(CreateUserForm, self).validate()
+
         # if our validators do not pass
-        if not check_validate:
+        if not super(CreateUserForm, self).validate():
             return False
-        # Does our the exist
+
+        # Does the user exist
         user = User.query.filter_by(username=self.username.data).first()
         if not user:
             return True

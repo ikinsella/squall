@@ -8,12 +8,16 @@
     <div class="row">
         <div class="col-md-4"></div>
         <div class="col-md-4">
-            <form role="form" action="{{ url_for('.save_tag') }}" method="post">
+            <form role="form" action="{{ url_for('.submit_tag') }}" method="post">
               {{ tag_form.hidden_tag() }}
 
               <div class="form-group">
-                    {{ tag_form.name.label }}
-                    {{ tag_form.name(class_="form-control") }}
+                {{ tag_form.name.label }}
+		{% if tag_form.name.errors %}
+                {% for e in tag_form.name.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ tag_form.name(class_="form-control") }}
               </div>
 
               <button type="submit" class="btn btn-primary">Submit</button>
