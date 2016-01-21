@@ -59,6 +59,5 @@ target/
 # Database file
 *.db
 flaskapp/db_repository/*
+flaskapp/assembly/*
 
-# Assembled Jobs
-flaskapp/assembly
