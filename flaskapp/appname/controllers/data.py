@@ -85,7 +85,7 @@ def submit_data_set():
             name=data_set_form.name.data,
             description=data_set_form.description.data,
             tags=tags,
-            urls=data_set_form.urls.data)
+            urls=[url.data for url in data_set_form.urls.entries])
         db.session.add(data_set)
         db.session.commit()
         flash("New data set added successfully.", "success")

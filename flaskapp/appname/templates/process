@@ -15,7 +15,7 @@
 # Tell Condor how many CPUs (cores), how much memory (MB) and how much 
 # disk space (KB) each job will need:
 request_cpus = 1
-request_memory = {{ job.mem }}
+request_memory = {{ job.memory }}
 request_disk = {{ job.disk }}
 
 
@@ -58,7 +58,7 @@ log = process.log
 # Arguments to the wrapper script.  Of note is the last one, --, anything
 # after this goes direct to your R, Matlab or Other code.
 # This gets augmented for you by mkdag.pl. Choose R or Matlab
-arguments = {{ job.exe }} {{ job.uid }} --{% for arg in job.args %} {{ arg }}{% endfor %}{% for key, arg in job.kwargs %} -{{ key }} {{ arg }}{% endfor %}
+arguments = {{ job.exe }} {{ job.uid }} --{% if job.args %}{% for arg in job.args %} {{ arg }}{% endfor %}{% endif %}{% if job.kwargs %}{% for key, arg in job.kwargs %} -{{ key }} {{ arg }}{% endfor %}{% endif %}
 
 # Release a job from being on hold hold after half an hour (1800 seconds), up to 4 times,
 # as long as the executable could be started, the input files and initial directory
@@ -72,7 +72,7 @@ periodic_release = (JobStatus == 5) && ((CurrentTime - EnteredCurrentStatus) > 1
 notification = never
 
 # This line is completed for you
-transfer_input_files = {{ launch_dir }}/{{ job.uid }}/,{{ launch_dir }}/{{ job.share_dir }}/
+transfer_input_files = {{ user.launch_directory }}/{{ job.uid }}/,{{ user.launch_directory }}/{{ job.share_dir }}/
 
 # Leave the below line commented, unless you have a specific need for
 # indicating a group that is not your default.

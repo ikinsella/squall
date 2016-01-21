@@ -1,9 +1,13 @@
 import copy
 import numpy as np
+import os
+import json
+import yaml  # TODO: Check for params errors in __init__
 
+from flask import (render_template, current_app)
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import UserMixin, AnonymousUserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask.ext.login import (UserMixin, AnonymousUserMixin, current_user)
+from werkzeug.security import (generate_password_hash, check_password_hash)
 from sqlalchemy.ext.hybrid import hybrid_property
 
 db = SQLAlchemy()
@@ -67,6 +71,7 @@ class User(db.Model, UserMixin):
 
     # Fields
     id = db.Column(db.Integer(), primary_key=True)
+    _launch_directory = db.Column(db.String(128))
     username = db.Column(db.String(64))
     password = db.Column(db.String(64))
     """ TODO: Multi-User
@@ -83,14 +88,14 @@ class User(db.Model, UserMixin):
     tags = db.relationship()
     """
 
-    def __init__(self, username, password):
+    def __init__(self, username, launch_directory, password):
         self.username = username
+        self._launch_directory = launch_directory
         self.set_password(password)
 
     def __repr__(self):
         return '<User {username}>'.format(username=self.username)
 
-    # Functions
     def set_password(self, password):
         self.password = generate_password_hash(password)
 
@@ -98,9 +103,8 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password, value)
 
     def get_id(self):
-        return self.id
+        return unicode(self.id)
 
-    # Properties
     @property
     def is_authenticated(self):
         if isinstance(self, AnonymousUserMixin):
@@ -118,6 +122,14 @@ class User(db.Model, UserMixin):
             return True
         else:
             return False
+
+    @hybrid_property
+    def launch_directory(self):
+        return self._launch_directory
+
+    @launch_directory.setter
+    def launch_directory(self, value):
+        self._launch_directory = value
 
 
 class Tag(db.Model):
@@ -139,14 +151,6 @@ class Tag(db.Model):
         super(Tag, self).__init__()
         self._name = name
 
-    # Functions
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
-
-    # Properties
     @hybrid_property
     def serialize(self):  # TODO: Hierarchy
         return {'id': self.id,
@@ -183,14 +187,6 @@ class Algorithm(db.Model):
         self._description = description
         self._tags = tags
 
-    # Functions
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
-
-    # Properties
     @hybrid_property
     def serialize(self):  # TODO: Hierarchy
         serial_tags = [tag.serialize for tag in self.tags]  # Propogate
@@ -239,7 +235,6 @@ class Implementation(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     _name = db.Column(db.String(64), index=True, unique=True)
     _description = db.Column(db.String(512), index=False, unique=False)
-    _urls = db.Column(db.PickleType(), index=False, unique=False)
     _setup_scripts = db.Column(db.PickleType(), index=False, unique=False)
     _executable = db.Column(db.String(64), index=False, unique=False)
 
@@ -251,8 +246,9 @@ class Implementation(db.Model):
     _tags = db.relationship('Tag', secondary=implementations_tags,
                             backref=db.backref('implementations',
                                                lazy='dynamic'))
+    _urls = db.relationship('URL', backref='implementation', lazy='select')
     _batches = db.relationship('Batch', backref='implementation',
-                               lazy='dynamic')
+                               lazy='joined')
     """ TODO: Parameter Validation
     _arguments = db.relationship('Argument',
                                  backref='implementation',
@@ -271,19 +267,11 @@ class Implementation(db.Model):
         self._name = name
         self._description = description
         self._tags = tags
-        self._urls = urls
+        self._urls = [URL(url, implementation_id=self.id) for url in urls]
         self._setup_scripts = setup_scripts
         self._executable = executable
         # self._arguments = arguments  # TODO: Parameter Validation
 
-    # Functions
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
-
-    # Properties
     @hybrid_property
     def serialize(self):  # TODO: Hierarchy
         serial_tags = [tag.serialize for tag in self.tags]
@@ -324,7 +312,7 @@ class Implementation(db.Model):
 
     @urls.setter
     def urls(self, value):
-        self._urls.append(value)
+        self._urls.append(URL(value, implementation_id=self.id))
 
     @hybrid_property
     def setup_scripts(self):
@@ -384,14 +372,6 @@ class DataCollection(db.Model):
         self._description = description
         self._tags = tags
 
-    # Functions
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
-
-    # Properties
     @hybrid_property
     def serialize(self):  # TODO: Hierarchy
         serial_tags = [tag.serialize for tag in self.tags]
@@ -440,7 +420,6 @@ class DataSet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     _name = db.Column(db.String(64), index=True, unique=True)
     _description = db.Column(db.String(512), index=False, unique=False)
-    _urls = db.Column(db.PickleType(), index=False, unique=False)
 
     # Relationships
     """ TODO: Moving To Multi-User
@@ -450,7 +429,8 @@ class DataSet(db.Model):
         db.Integer, db.ForeignKey('data_collection.id'))
     _tags = db.relationship('Tag', secondary=data_sets_tags,
                             backref=db.backref('data_sets', lazy='dynamic'))
-    _batches = db.relationship('Batch', backref='data_set', lazy='dynamic')
+    _urls = db.relationship('URL', backref='data_set', lazy='select')
+    _batches = db.relationship('Batch', backref='data_set', lazy='joined')
 
     def __init__(self, data_collection_id, name, description, tags, urls):
         super(DataSet, self).__init__()
@@ -458,16 +438,8 @@ class DataSet(db.Model):
         self._name = name
         self._description = description
         self._tags = tags
-        self._urls = urls
+        self._urls = [URL(url, data_set_id=self.id) for url in urls]
 
-    # Functions
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
-
-    # Properties
     @hybrid_property
     def serialize(self):  # TODO: Hierarchy
         serial_tags = [tag.serialize for tag in self.tags]
@@ -507,7 +479,7 @@ class DataSet(db.Model):
 
     @urls.setter
     def urls(self, value):
-        self._urls.append(value)
+        self._urls.append(URL(value, data_set_id=self.id))
 
     @hybrid_property
     def batches(self):
@@ -551,14 +523,6 @@ class Experiment(db.Model):
         self._algorithms = algorithms
         self._collections = collections
 
-    # Functions
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
-
-    # Properties
     @hybrid_property
     def serialize(self):  # TODO: Hierarchy
         serial_tags = [tag.serialize for tag in self.tags]
@@ -650,7 +614,7 @@ class Batch(db.Model):
                                   db.ForeignKey('implementation.id'))
     _tags = db.relationship('Tag', secondary=batches_tags,
                             backref=db.backref('batches', lazy='dynamic'))
-    _jobs = db.relationship('Job', backref='batch', lazy='dynamic')
+    _jobs = db.relationship('Job', backref='batch', lazy='select')
 
     def __init__(self,
                  experiment_id,
@@ -704,13 +668,7 @@ class Batch(db.Model):
         self._submit_file = submit_file
         self._params_file = params_file
         self._share_dir = share_directory
-
-    # Functions
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
+        self.package()  # TODO: Remove
 
     def _enumerate_params(self):
         """ Expands Yaml Fields List Of Param Files For Each Job"""
@@ -754,11 +712,33 @@ class Batch(db.Model):
                     enum_param[field] = self.params[field][idx]
         return enum_params
 
-    def package(self, launch_dir):
-        """Packages The Batch Into An Archive"""
-        return None
+    def package(self):
+        """Packages the files to run a batch of jobs into a directory"""
+        rootdir = makedir(
+            os.path.join(current_app.config['STAGING_AREA'], self.name))
+        self.write_template('sweep', os.path.join(rootdir, self.sweep))
+        self.write_params(rootdir)
+        sharedir = makedir(os.path.join(rootdir, 'shared'))
+        self.write_template('wrapper', os.path.join(sharedir, self.wrapper))
+        for job in self.jobs:  # Setup Job Directories
+            job.package(rootdir)
+        """ TODO: Transfer file copying to templating """
+        # self.write_template('batch_pre', os.path.join(sharedir, self.pre))
+        # self.write_template('batch_post', os.path.join(sharedir, self.post))
+        """ TODO: Zip Directories Into Archive """
 
-    # Properties
+    def write_params(self, rootdir):
+        """ Writes a dictionary to a json file """
+        filename = os.path.join(rootdir, self.params_file)
+        with open(filename, 'w') as writefile:
+            json.dump(self.params, writefile, sort_keys=True, indent=4)
+
+    def write_template(self, template, filename):
+        """ Renders a batch level tempalte and writes it to filename """
+        with open(filename, 'w') as writefile:
+            writefile.write(
+                render_template(template, batch=self, user=current_user))
+
     @hybrid_property
     def serialize(self):  # TODO: Hierarchy
         serial_jobs = [job.serialize for job in self.jobs]  # TODO: Serial Dict
@@ -870,8 +850,8 @@ class Batch(db.Model):
         self._post = value
 
     @hybrid_property
-    def job_pre(self, value):
-        self._job_pre = value
+    def job_pre(self):
+        return self._job_pre
 
     @job_pre.setter
     def job_pre(self, value):
@@ -981,14 +961,28 @@ class Job(db.Model):
         self._uid = uid
         self._params = params
 
-    # Functions
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
+    def package(self, rootdir):
+        """Packages files to run a job into a directory in rootdir"""
+        jobdir = makedir(os.path.join(rootdir, self.uid))
+        self.write_params(jobdir)
+        self.write_template('process', os.path.join(jobdir, self.submit_file))
+        self.write_template('subdag', os.path.join(jobdir, self.subdag))
+        """ TODO: Transfer File Copying To Templating """
+        #  self.write_template('job_pre', os.path.join(jobdir, self.pre))
+        #  self.write_template('job_post', os.path.join(jobdir, self.post))
 
-    # Properties
+    def write_params(self, jobdir):
+        """ Writes a dictionary to a json file """
+        filename = os.path.join(jobdir, self.params_file)
+        with open(filename, 'w') as writefile:
+            json.dump(self.params, writefile, sort_keys=True, indent=4)
+
+    def write_template(self, template, filename):
+        """ Renders a batch level tempalte and writes it to filename """
+        with open(filename, 'w') as writefile:
+            writefile.write(
+                render_template(template, job=self, user=current_user))
+
     @hybrid_property
     def serialize(self):  # TODO
         return {'id': self.id,
@@ -1010,6 +1004,10 @@ class Job(db.Model):
     @params.setter
     def params(self, value):
         self._params = value
+
+    @hybrid_property
+    def params_file(self):
+        return self.batch.params_file
 
     @hybrid_property
     def executable(self):
@@ -1046,6 +1044,10 @@ class Job(db.Model):
     @hybrid_property
     def submit_file(self):
         return self.batch.submit_file
+
+    @hybrid_property
+    def subdag(self):
+        return self.uid + '.dag'
 
     @hybrid_property
     def share_dir(self):
@@ -1103,12 +1105,6 @@ class Argument(db.Model):
                 'data type': self.data_type,
                 'optional': self.optional}
 
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
-
     @hybrid_property
     def name(self):
         return self._name
@@ -1149,7 +1145,6 @@ class Result(db.Model):
         self.batch_id = batch_id
         self._blob = blob
 
-    # properties
     @hybrid_property
     def serialize(self):  # TODO: Hierarchy
         return {'id': self.id,
@@ -1162,3 +1157,35 @@ class Result(db.Model):
     @blob.setter
     def blob(self, value):
         self._blob = value
+
+
+class URL(db.Model):
+
+    # Fields
+    id = db.Column(db.Integer, primary_key=True)
+    _url = db.Column(db.String(124), index=False, unique=False)
+    # Relationships
+    data_set_id = db.Column(db.Integer, db.ForeignKey('data_set.id'))
+    implementation_id = db.Column(db.Integer,
+                                  db.ForeignKey('implementation.id'))
+
+    def __init__(self, url, data_set_id=None, implementation_id=None):
+        self._url = url
+        self.data_set_id = data_set_id
+        self.implementation_id = implementation_id
+
+    @hybrid_property
+    def url(self):
+        return self._url
+
+    @url.setter
+    def url(self, value):
+        self._url = value
+
+
+# Universal Functions
+def makedir(dirname):
+    """ Creates a directory if it doesn't already exist """
+    if not os.path.isdir(dirname):
+        os.makedirs(dirname)
+    return dirname

@@ -60,3 +60,5 @@ target/
 *.db
 flaskapp/db_repository/*
 
+# Assembled Jobs
+flaskapp/assembly

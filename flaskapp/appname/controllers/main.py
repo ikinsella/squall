@@ -46,7 +46,9 @@ def logout():
 def create_user():
     form = CreateUserForm()
     if form.validate_on_submit():
-        user = User(form.username.data, form.password.data)
+        user = User(form.username.data,
+                    form.launch_directory.data,
+                    form.password.data)
         db.session.add(user)
         db.session.commit()
         flash("New user created successfully.", "success")

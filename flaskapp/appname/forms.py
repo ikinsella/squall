@@ -8,6 +8,7 @@ from wtforms import (TextField,
                      SelectMultipleField,
                      IntegerField,
                      FieldList,
+                     FormField,
                      ValidationError)
 
 from wtforms.validators import (DataRequired,
@@ -147,7 +148,7 @@ class DataSetForm(Form):
     urls = FieldList(TextField(u'URLs', [DataRequired(),
                                          URL(),
                                          Length(max=256)]),
-                     min_entries=1, max_entries=10)
+                     min_entries=2, max_entries=10)
 
     def validate(self):
         if super(DataSetForm, self).validate():
@@ -243,6 +244,8 @@ class LoginForm(Form):
 
 class CreateUserForm(Form):
     username = TextField(u'Username', [DataRequired(), Length(max=64)])
+    launch_directory = TextField(u'HTCondor Submit Node Launch Directory',
+                                 [DataRequired(), Length(max=128)])
     password = PasswordField(u'Password', [DataRequired(), Length(max=64)])
 
     def validate(self):

@@ -8,7 +8,7 @@ cleanup() {
 
     {# Remove source code tarballs from home directory #}
     {% for url in batch.data_urls %}
-    fname=$(basename "{{ url }}")
+    fname=$(basename "{{ url.url }}")
     if [ -f "$fname" ]; then
 	rm -v "$fname"
     fi
@@ -16,7 +16,7 @@ cleanup() {
 
     {# Remove transferred data from home directory #}
     {% for url in batch.data_urls %}
-    fname=$(basename "{{ url }}")
+    fname=$(basename "{{ url.url }}")
     if [ -f "$fname" ]; then
 	rm -v "$fname"
     fi
@@ -60,14 +60,14 @@ set -e
 
 {# Download source code #}
 {% for url in batch.code_urls %}
-fname=$(basename "{{ url }}")
-wget -q "{{ url }}"
+fname=$(basename "{{ url.url }}")
+wget -q "{{ url.url }}"
 {# If failed, retry download up to 5 times #}
 DOWNLOAD_STATUS=$?
 i=0
 while [ ! $DOWNLOAD_STATUS -eq 0 ] && [ $i -lt 5 ] ; do
     rm -v "$fname"
-    wget -q "{{ url }}"
+    wget -q "{{ url.url }}"
     DOWNLOAD_STATUS=$?
     i++
 done
@@ -77,20 +77,20 @@ tar xzf "$fname"
 
 {# Download all large data files listed in URLS from SQUID #}
 {% for url in batch.data_urls %}
-fname=$(basename "{{ url }}")
-wget -q "{{ url }}"
+fname=$(basename "{{ url.url }}")
+wget -q "{{ url.url }}"
 DOWNLOAD_STATUS=$?
 i=0
 while [ ! $DOWNLOAD_STATUS -eq 0 ] && [ $i -lt 5 ] ; do
-    rm "r2013b.tar.gz"
-    wget -q "http://proxy.chtc.wisc.edu/SQUID/r2013b.tar.gz"
+    rm "$fname$"
+    wget -q "{{ url.url }}"
     DOWNLOAD_STATUS=$?
     i++
 done
 {% endfor %}
 
 {# Run the setup scripts #}
-{% for setup_script  in batch.setup_scripts %}source "{{ setup_script }}"
+{% for setup_script in batch.setup_scripts %}source "{{ setup_script }}"
 {% endfor %}
 
 {# Execute Application #}

@@ -39,7 +39,7 @@ def createdb():
 
     # Create New DB Reflecting SQLAlchemy Data Models
     db.create_all(app=app)
-    admin = User('admin', 'password')
+    admin = User('admin', '/home/admin', 'password')
     db.session.add(admin)
     db.session.commit()
 
