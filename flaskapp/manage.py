@@ -1,18 +1,16 @@
 #!/usr/bin/env python
 
 import os
-import os.path
-
-from migrate.versioning import api
 import imp
 
-from flask.ext.script import Manager, Server
-from flask.ext.script.commands import ShowUrls, Clean
+from migrate.versioning import api
+from flask.ext.script import (Manager, Server)
+from flask.ext.script.commands import (ShowUrls, Clean)
+from flask.ext.login import current_user
 from appname import create_app
-from appname.models import db, User
+from appname.models import (db, User, DataSet, Implementation)
 
-# default to dev config because no one should use this in
-# production anyway
+# default to dev config because no one should use this in production anyway
 env = os.environ.get('APPNAME_ENV', 'dev')
 app = create_app('appname.settings.%sConfig' % env.capitalize(), env=env)
 
@@ -20,6 +18,39 @@ manager = Manager(app)
 manager.add_command("server", Server())
 manager.add_command("show-urls", ShowUrls())
 manager.add_command("clean", Clean())
+
+
+@app.context_processor
+def inject_user():
+    return dict(user=current_user)
+
+
+@app.context_processor
+def urls():
+
+    def code_urls(batch):
+        implementation = Implementation.query.filter_by(
+            id=batch.implementation_id).first()
+        return implementation.urls
+
+    def executable(batch):
+        implementation = Implementation.query.filter_by(
+            id=batch.implementation_id).first()
+        return implementation.executable
+
+    def setup_scripts(batch):
+        implementation = Implementation.query.filter_by(
+            id=batch.implementation_id).first()
+        return implementation.setup_scripts
+
+    def data_urls(batch):
+        data_set = DataSet.query.filter_by(id=batch.data_set_id).first()
+        return data_set.urls
+
+    return dict(code_urls=code_urls,
+                executable=executable,
+                setup_scripts=setup_scripts,
+                data_urls=data_urls)
 
 
 @manager.shell

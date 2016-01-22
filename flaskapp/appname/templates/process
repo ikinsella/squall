@@ -58,7 +58,7 @@ log = process.log
 # Arguments to the wrapper script.  Of note is the last one, --, anything
 # after this goes direct to your R, Matlab or Other code.
 # This gets augmented for you by mkdag.pl. Choose R or Matlab
-arguments = {{ job.exe }} {{ job.uid }} --{% if job.args %}{% for arg in job.args %} {{ arg }}{% endfor %}{% endif %}{% if job.kwargs %}{% for key, arg in job.kwargs %} -{{ key }} {{ arg }}{% endfor %}{% endif %}
+arguments = {{ executable(job.batch) }} {{ job.uid }} --{% if job.args %}{% for arg in job.args %} {{ arg }}{% endfor %}{% endif %}{% if job.kwargs %}{% for key, arg in job.kwargs %} -{{ key }} {{ arg }}{% endfor %}{% endif %}
 
 # Release a job from being on hold hold after half an hour (1800 seconds), up to 4 times,
 # as long as the executable could be started, the input files and initial directory

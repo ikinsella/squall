@@ -6,17 +6,17 @@
 #
 cleanup() {
 
-    {# Remove source code tarballs from home directory #}
-    {% for url in batch.data_urls %}
-    fname=$(basename "{{ url.url }}")
+    # Remove source code archives from home directory
+    {% for url in code_urls(batch) %}
+    fname=$(basename "{{ url }}")
     if [ -f "$fname" ]; then
 	rm -v "$fname"
     fi
     {% endfor %}
 
-    {# Remove transferred data from home directory #}
-    {% for url in batch.data_urls %}
-    fname=$(basename "{{ url.url }}")
+    # Remove data from home directory
+    {% for url in data_urls(batch) %}
+    fname=$(basename "{{ url }}")
     if [ -f "$fname" ]; then
 	rm -v "$fname"
     fi
@@ -52,22 +52,22 @@ success() {
   exit 0
 }
 
-{# If an exit or interrupt occurs while the script is executing, run the abort function. #}
+# Run the abort function, if failure
 trap abort EXIT SIGTERM
 
-{# Ensure that script exits if any command fails #}
+# Ensure that script exits if any command fails
 set -e
 
-{# Download source code #}
-{% for url in batch.code_urls %}
-fname=$(basename "{{ url.url }}")
-wget -q "{{ url.url }}"
-{# If failed, retry download up to 5 times #}
+# Download source code archives listed in URLS
+{% for url in code_urls(batch) %}
+fname=$(basename "{{ url }}")
+wget -q "{{ url }}"
+# If failed, retry download up to 5 times 
 DOWNLOAD_STATUS=$?
 i=0
 while [ ! $DOWNLOAD_STATUS -eq 0 ] && [ $i -lt 5 ] ; do
     rm -v "$fname"
-    wget -q "{{ url.url }}"
+    wget -q "{{ url }}"
     DOWNLOAD_STATUS=$?
     i++
 done
@@ -75,27 +75,27 @@ done
 tar xzf "$fname"
 {% endfor %}
 
-{# Download all large data files listed in URLS from SQUID #}
-{% for url in batch.data_urls %}
-fname=$(basename "{{ url.url }}")
-wget -q "{{ url.url }}"
+# Download all data files listed in URLS
+{% for url in data_urls(batch) %}
+fname=$(basename "{{ url }}")
+wget -q "{{ url }}"
 DOWNLOAD_STATUS=$?
 i=0
 while [ ! $DOWNLOAD_STATUS -eq 0 ] && [ $i -lt 5 ] ; do
     rm "$fname$"
-    wget -q "{{ url.url }}"
+    wget -q "{{ url }}"
     DOWNLOAD_STATUS=$?
     i++
 done
 {% endfor %}
 
-{# Run the setup scripts #}
-{% for setup_script in batch.setup_scripts %}source "{{ setup_script }}"
+# Run the setup scripts #
+{% for setup_script in setup_scripts(batch) %}source "{{ setup_script }}"
 {% endfor %}
 
-{# Execute Application #}
+# Execute Application
 exe_dir=`dirname "$0"`
-eval "${exe_dir}/{{ batch.exe }}"
+eval "${exe_dir}/{{ executable(batch) }}"
 
-{# Exit Successfully #}
+# Exit Successfully
 trap success EXIT SIGTERM

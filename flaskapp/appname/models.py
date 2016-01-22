@@ -6,7 +6,7 @@ import yaml  # TODO: Check for params errors in __init__
 
 from flask import (render_template, current_app)
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import (UserMixin, AnonymousUserMixin, current_user)
+from flask.ext.login import (UserMixin, AnonymousUserMixin)
 from werkzeug.security import (generate_password_hash, check_password_hash)
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -248,7 +248,7 @@ class Implementation(db.Model):
                                                lazy='dynamic'))
     _urls = db.relationship('URL', backref='implementation', lazy='select')
     _batches = db.relationship('Batch', backref='implementation',
-                               lazy='joined')
+                               lazy='dynamic')
     """ TODO: Parameter Validation
     _arguments = db.relationship('Argument',
                                  backref='implementation',
@@ -308,7 +308,7 @@ class Implementation(db.Model):
 
     @hybrid_property
     def urls(self):
-        return self._urls
+        return [url.url for url in self._urls]
 
     @urls.setter
     def urls(self, value):
@@ -430,7 +430,7 @@ class DataSet(db.Model):
     _tags = db.relationship('Tag', secondary=data_sets_tags,
                             backref=db.backref('data_sets', lazy='dynamic'))
     _urls = db.relationship('URL', backref='data_set', lazy='select')
-    _batches = db.relationship('Batch', backref='data_set', lazy='joined')
+    _batches = db.relationship('Batch', backref='data_set', lazy='dynamic')
 
     def __init__(self, data_collection_id, name, description, tags, urls):
         super(DataSet, self).__init__()
@@ -475,7 +475,7 @@ class DataSet(db.Model):
 
     @hybrid_property
     def urls(self):
-        return self._urls
+        return [url.url for url in self._urls]
 
     @urls.setter
     def urls(self, value):
@@ -736,8 +736,7 @@ class Batch(db.Model):
     def write_template(self, template, filename):
         """ Renders a batch level tempalte and writes it to filename """
         with open(filename, 'w') as writefile:
-            writefile.write(
-                render_template(template, batch=self, user=current_user))
+            writefile.write(render_template(template, batch=self))
 
     @hybrid_property
     def serialize(self):  # TODO: Hierarchy
@@ -922,22 +921,6 @@ class Batch(db.Model):
         self._share_dir = value
 
     @hybrid_property
-    def executable(self):
-        return self.implementation.executable
-
-    @hybrid_property
-    def code_urls(self):
-        return self.implementation.urls
-
-    @hybrid_property
-    def setup_scripts(self):
-        return self.implementation._setup_scripts
-
-    @hybrid_property
-    def data_urls(self):
-        return self.data_set.urls
-
-    @hybrid_property
     def size(self):
         return len(self._jobs)
 
@@ -980,8 +963,7 @@ class Job(db.Model):
     def write_template(self, template, filename):
         """ Renders a batch level tempalte and writes it to filename """
         with open(filename, 'w') as writefile:
-            writefile.write(
-                render_template(template, job=self, user=current_user))
+            writefile.write(render_template(template, job=self))
 
     @hybrid_property
     def serialize(self):  # TODO
@@ -1008,10 +990,6 @@ class Job(db.Model):
     @hybrid_property
     def params_file(self):
         return self.batch.params_file
-
-    @hybrid_property
-    def executable(self):
-        return self.batch.executable
 
     @hybrid_property
     def memory(self):
