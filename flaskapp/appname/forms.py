@@ -8,7 +8,6 @@ from wtforms import (TextField,
                      SelectMultipleField,
                      IntegerField,
                      FieldList,
-                     FormField,
                      ValidationError)
 
 from wtforms.validators import (DataRequired,
@@ -45,20 +44,42 @@ class UniqueName(object):
 
 
 class ValidParamFile(object):
-    """Validates An Uploaded Parameter File To Enforce Proper Formating"""
+    """Validates An Uploaded Parameter File By:
+       1. Ensuring the filename is correct
+       2. TODO: Enforcing Proper Formating
+       3. TODO: Ensuring it is properly formatted
+       4. TODO: Ensuring the arguments are correct for the batch
+    """
     def __init__(self, message='Valid file extensions: ".yaml" or ".yml"'):
         self.message = message
 
-    def __call__(self, form, field):  # TODO: Assert Data Is Valid
-        try:  # Can be read by yaml.load
+    def __call__(self, form, field):  # TODO: 2,3,& 4
+        try:
             # yamldata = yaml.load(field.data)
             # assert isinstance(yamldata, dict)
             filename = field.data.filename
             assert '.' in filename
             assert filename.rsplit('.', 1)[1] in set(['yaml', 'yml'])
             assert field.has_file()
-        except IOError:  # Cannot be read by parser
+        except AssertionError:  # Is not properly formatted
             raise ValidationError(self.message)
+
+
+class ValidResultsFile(object):
+    """Validates An Uploaded Results Parameter File By:
+        1. Ensuring the filename is correct
+        2. TODO: Ensuring it belongs to a batch without results
+        3. TODO: Ensuring it is properly formatted
+    """
+    def __init__(self, message='Valid file extensions: ".json"'):
+        self.message = message
+
+    def __call__(self, form, field):  # TODO: 2 & 3
+        try:
+            filename = field.data.filename
+            assert '.' in filename
+            assert filename.rsplit('.', 1)[1] in set(['json'])
+            assert field.has_file()
         except AssertionError:  # Is not properly formatted
             raise ValidationError(self.message)
 
@@ -198,8 +219,29 @@ class BatchForm(Form):
     tags = SelectMultipleField(u'Tags', [Optional()],
                                coerce=int)
 
-    def validate(self):  # TODO Validate Successful Job Creation
+    def validate(self):  # TODO Validate Param File
         if super(BatchForm, self).validate():
+            return True  # If Our Validators Pass
+        return False
+
+
+class DownloadBatchForm(Form):
+    # batch = SelectField(u'Batch', [DataRequired()], coerce=int)
+    batch = SelectField(u'Batch', [DataRequired()], coerce=int)
+
+    def validate(self):
+        if super(DownloadBatchForm, self).validate():
+            return True
+        return False
+
+
+class UploadResultsForm(Form):
+    batch = SelectField(u'Batch', [DataRequired], coerce=int)
+    results = FileField(u'Results.json', [FileRequired(),
+                                          ValidResultsFile()])
+
+    def validate(self):
+        if super(UploadResultsForm, self).validate():
             return True  # If Our Validators Pass
         return False
 

@@ -3,6 +3,7 @@ import numpy as np
 import os
 import json
 import yaml  # TODO: Check for params errors in __init__
+import zipfile
 
 from flask import (render_template, current_app)
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -596,6 +597,7 @@ class Batch(db.Model):
     _arguments = db.Column(db.PickleType(), index=True, unique=False)
     _kwargs = db.Column(db.PickleType(), index=True, unique=False)
     _sweep = db.Column(db.String(64), index=True, unique=False)
+    _wrapper = db.Column(db.String(64), index=True, unique=False)
     _submit_file = db.Column(db.String(64), index=True, unique=False)
     _params_file = db.Column(db.String(64), index=True, unique=False)
     _share_dir = db.Column(db.String(64), index=True, unique=False)
@@ -668,7 +670,6 @@ class Batch(db.Model):
         self._submit_file = submit_file
         self._params_file = params_file
         self._share_dir = share_directory
-        self.package()  # TODO: Remove
 
     def _enumerate_params(self):
         """ Expands Yaml Fields List Of Param Files For Each Job"""
@@ -726,6 +727,10 @@ class Batch(db.Model):
         # self.write_template('batch_pre', os.path.join(sharedir, self.pre))
         # self.write_template('batch_post', os.path.join(sharedir, self.post))
         """ TODO: Zip Directories Into Archive """
+        filename = rootdir + '.zip'
+        make_zipfile(filename, rootdir)
+        # remove directory structure
+        return os.path.basename(filename)
 
     def write_params(self, rootdir):
         """ Writes a dictionary to a json file """
@@ -931,7 +936,7 @@ class Job(db.Model):
     # Fields
     id = db.Column(db.Integer, primary_key=True)
     _uid = db.Column(db.Integer, index=True, unique=False)
-
+    _params = db.Column(db.PickleType(), index=True, unique=False)
     # Relationships
     batch_id = db.Column(db.Integer, db.ForeignKey('batch.id'))
     """ TODO: Multi-User
@@ -1167,3 +1172,17 @@ def makedir(dirname):
     if not os.path.isdir(dirname):
         os.makedirs(dirname)
     return dirname
+
+
+def make_zipfile(output_filename, source_dir):
+    """http://stackoverflow.com/questions/1855095/"""
+    relroot = os.path.abspath(os.path.join(source_dir, os.pardir))
+    with zipfile.ZipFile(output_filename, "w", zipfile.ZIP_DEFLATED) as zip:
+        for root, dirs, files in os.walk(source_dir):
+            # add directory (needed for empty dirs)
+            zip.write(root, os.path.relpath(root, relroot))
+            for file in files:
+                filename = os.path.join(root, file)
+                if os.path.isfile(filename):  # regular files only
+                    arcname = os.path.join(os.path.relpath(root, relroot), file)
+                    zip.write(filename, arcname)

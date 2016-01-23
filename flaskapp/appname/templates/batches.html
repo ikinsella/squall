@@ -1,118 +1,179 @@
 {% extends "base.html" %}
-
+  
 {% block title %} Batches {% endblock %}
 
 {% block body %}
-    <h1 class="text-center">Batches</h1>
 
-    <div class="row">
-        <div class="col-md-4"></div>
-        <div class="col-md-4">
-            <form role="form" action="{{ url_for('.submit_batch') }}" method="post" enctype=multipart/form-data>
-              {{ batch_form.hidden_tag() }}
+<h1 class="text-center">Create Batch</h1>
 
-              <div class="form-group">
-                {{ batch_form.name.label }}
-		{% if batch_form.name.errors %}
-		{% for e in batch_form.name.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ batch_form.name(class_="form-control") }}
-              </div>
-	      
-              <div class="form-group">
-                {{ batch_form.experiment.label }}
-		{% if batch_form.experiment.errors %}
-		{% for e in batch_form.experiment.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ batch_form.experiment(class_="form-control") }}
-              </div>
+<div class="row">
+  <div class="col-md-4"></div>
+  <div class="col-md-4">
+    <form role="form" action="{{ url_for('.submit_batch') }}" method="post" enctype=multipart/form-data>
+      {{ batch_form.hidden_tag() }}
 
-	      <div class="form-group">
-                {{ batch_form.data_set.label }}
-		{% if batch_form.data_set.errors %}
-		{% for e in batch_form.data_set.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ batch_form.data_set(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ batch_form.name.label }}
+	{% if batch_form.name.errors %}
+	{% for e in batch_form.name.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ batch_form.name(class_="form-control") }}
+      </div>
+      
+      <div class="form-group">
+        {{ batch_form.experiment.label }}
+	{% if batch_form.experiment.errors %}
+	{% for e in batch_form.experiment.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ batch_form.experiment(class_="form-control") }}
+      </div>
 
-	      <div class="form-group">
-                {{ batch_form.implementation.label }}
-		{% if batch_form.implementation.errors %}
-		{% for e in batch_form.implementation.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ batch_form.implementation(class_="form-control") }}
-              </div>
-	      
-              <div class="form-group">
-                {{ batch_form.params.label }}
-		{% if batch_form.params.errors %}
-		{% for e in batch_form.params.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ batch_form.params(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ batch_form.data_set.label }}
+	{% if batch_form.data_set.errors %}
+	{% for e in batch_form.data_set.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ batch_form.data_set(class_="form-control") }}
+      </div>
 
-              <div class="form-group">
-                {{ batch_form.memory.label }}
-		{% if batch_form.memory.errors %}
-		{% for e in batch_form.memory.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ batch_form.memory(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ batch_form.implementation.label }}
+	{% if batch_form.implementation.errors %}
+	{% for e in batch_form.implementation.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ batch_form.implementation(class_="form-control") }}
+      </div>
+      
+      <div class="form-group">
+        {{ batch_form.params.label }}
+	{% if batch_form.params.errors %}
+	{% for e in batch_form.params.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ batch_form.params(class_="form-control") }}
+      </div>
 
-              <div class="form-group">
-                {{ batch_form.disk.label }}
-		{% if batch_form.disk.errors %}
-		{% for e in batch_form.disk.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ batch_form.disk(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ batch_form.memory.label }}
+	{% if batch_form.memory.errors %}
+	{% for e in batch_form.memory.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ batch_form.memory(class_="form-control") }}
+      </div>
 
-              <div class="form-group">
-                {{ batch_form.flock.label }}
-		{% if batch_form.flock.errors %}
-		{% for e in batch_form.flock.errors %}
-		<p class="help-block">{{ e }}</p>
-		{% endfor %}{% endif %}
-		{{ batch_form.flock(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ batch_form.disk.label }}
+	{% if batch_form.disk.errors %}
+	{% for e in batch_form.disk.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ batch_form.disk(class_="form-control") }}
+      </div>
 
-              <div class="form-group">
-                {{ batch_form.glide.label }}
-		{% if batch_form.glide.errors %}
-		{% for e in batch_form.glide.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ batch_form.glide(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ batch_form.flock.label }}
+	{% if batch_form.flock.errors %}
+	{% for e in batch_form.flock.errors %}
+	<p class="help-block">{{ e }}</p>
+	{% endfor %}{% endif %}
+	{{ batch_form.flock(class_="form-control") }}
+      </div>
 
-              <div class="form-group">
-                {{ batch_form.description.label }}
-                {% if batch_form.description.errors %}
-		{% for e in batch_form.description.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-		{{ batch_form.description(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ batch_form.glide.label }}
+	{% if batch_form.glide.errors %}
+	{% for e in batch_form.glide.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ batch_form.glide(class_="form-control") }}
+      </div>
 
-	      <div class="form-group">
-		{{ batch_form.tags.label }}
-		{% if batch_form.tags.errors %}
-                {% for e in batch_form.tags.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ batch_form.tags(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ batch_form.description.label }}
+        {% if batch_form.description.errors %}
+	{% for e in batch_form.description.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+	{{ batch_form.description(class_="form-control") }}
+      </div>
 
-              <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
-        </div>
-        <div class="col-md-4"></div>
-    </div>
+      <div class="form-group">
+	{{ batch_form.tags.label }}
+	{% if batch_form.tags.errors %}
+        {% for e in batch_form.tags.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ batch_form.tags(class_="form-control") }}
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+      
+    </form>
+  </div>
+  <div class="col-md-4"></div>
+</div>
+
+<h1 class="text-center">Download Launch Files</h1>
+
+<div class="row">
+  <div class="col-md-4"></div>
+  <div class="col-md-4">
+
+    <form role="form" action="{{ url_for('.download_batch') }}" method="Post">
+      {{ download_form.hidden_tag() }}
+      
+      <div class="form-group">
+        {{ download_form.batch.label }}
+	{% if download_form.batch.errors %}
+	{% for e in download_form.batch.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ download_form.batch(class_="form-control") }}
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+
+    </form>
+  </div>
+  <div class="col-md-4"></div>
+</div>
+
+<h1 class="text-center">Upload Results</h1>
+
+<div class="row">
+  <div class="col-md-4"></div>
+  <div class="col-md-4">
+    <form role="form" action="{{ url_for('.upload_results') }}" method="post" enctype=multipart/form-data>
+      {{ results_form.hidden_tag() }}
+
+      <div class="form-group">
+        {{ results_form.batch.label }}
+	{% if results_form.batch.errors %}
+	{% for e in results_form.batch.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ results_form.batch(class_="form-control") }}
+      </div>
+      
+      <div class="form-group">
+        {{ results_form.results.label }}
+	{% if results_form.results.errors %}
+	{% for e in results_form.results.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ results_form.results(class_="form-control") }}
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+
+    </form>
+
+  </div>
+  <div class="col-md-4"></div>
+</div>
 {% endblock %}
