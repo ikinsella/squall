@@ -1,4 +1,4 @@
 JOB {{ job.uid }} {{ user.launch_directory }}/{{ job.uid }}/{{ job.submit_file }} dir {{ user.launch_directory }}/{{ job.uid }}
-{% if job.pre %}SCRIPT PRE pre{{ job.uid }} {{ user.launch_directory }}/{{ job.uid }}/{{ job.pre }}{% endif %}
-{% if job.post %}SCRIPT POST post{{ job.uid }} {{ user.launch_directory }}/{{ job.uid }}/{{ job.post }}{% endif %}
+{% if job.pre %}SCRIPT PRE pre{{ job.uid }} {{ user.launch_directory }}/{{ job.share_dir }}/{{ job.pre }} {{ job.uid }}{% endif %}
+{% if job.post %}SCRIPT POST post{{ job.uid }} {{ user.launch_directory }}/{{ job.share_dir }}/{{ job.post }} {{ job.uid }}{% endif %}
 RETRY {{ job.uid }} 10
