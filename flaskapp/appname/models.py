@@ -1,6 +1,7 @@
 import copy
 import numpy as np
 import os
+import shutil
 import json
 import yaml  # TODO: Check for params errors in __init__
 import zipfile
@@ -601,6 +602,7 @@ class Batch(db.Model):
     _submit_file = db.Column(db.String(64), index=True, unique=False)
     _params_file = db.Column(db.String(64), index=True, unique=False)
     _share_dir = db.Column(db.String(64), index=True, unique=False)
+    _results_dir = db.Column(db.String(64), index=True, unique=False)
     _pre = db.Column(db.String(64), index=True, unique=False)
     _post = db.Column(db.String(64), index=True, unique=False)
     _job_pre = db.Column(db.String(64), index=True, unique=False)
@@ -637,6 +639,7 @@ class Batch(db.Model):
                  submit_file='process.sub',
                  params_file='params.json',
                  share_directory='share',
+                 results_directory='results',
                  pre_script=None,
                  job_pre_script=None,
                  post_script='batch_post.py',
@@ -670,6 +673,7 @@ class Batch(db.Model):
         self._submit_file = submit_file
         self._params_file = params_file
         self._share_dir = share_directory
+        self._results_dir = results_directory
 
     def _enumerate_params(self):
         """ Expands Yaml Fields List Of Param Files For Each Job"""
@@ -713,24 +717,25 @@ class Batch(db.Model):
                     enum_param[field] = self.params[field][idx]
         return enum_params
 
-    def package(self):
+    def package(self):  # TODO: Remove after, replace zip if exists,
         """Packages the files to run a batch of jobs into a directory"""
         rootdir = makedir(
             os.path.join(current_app.config['STAGING_AREA'], self.name))
+        makedir(os.path.join(rootdir, self.results_dir))
+        sharedir = makedir(os.path.join(rootdir, self.share_dir))
         self.write_template('sweep', os.path.join(rootdir, self.sweep))
         self.write_params(rootdir)
-        sharedir = makedir(os.path.join(rootdir, 'shared'))
         self.write_template('wrapper', os.path.join(sharedir, self.wrapper))
         for job in self.jobs:  # Setup Job Directories
             job.package(rootdir)
-        """ TODO: Transfer file copying to templating """
         # self.write_template('batch_pre', os.path.join(sharedir, self.pre))
-        # self.write_template('batch_post', os.path.join(sharedir, self.post))
-        """ TODO: Zip Directories Into Archive """
-        filename = rootdir + '.zip'
-        make_zipfile(filename, rootdir)
-        # remove directory structure
-        return os.path.basename(filename)
+        self.write_template('batch_post', os.path.join(sharedir, self.post))
+        # self.write_template('job_pre', os.path.join(sharedir, self.job_pre))
+        self.write_template('job_post', os.path.join(sharedir, self.job_post))
+        zipfile = rootdir + '.zip'
+        make_zipfile(zipfile, rootdir)
+        shutil.rmtree(rootdir)  # clean up for next package
+        return os.path.basename(zipfile)
 
     def write_params(self, rootdir):
         """ Writes a dictionary to a json file """
@@ -740,8 +745,9 @@ class Batch(db.Model):
 
     def write_template(self, template, filename):
         """ Renders a batch level tempalte and writes it to filename """
-        with open(filename, 'w') as writefile:
-            writefile.write(render_template(template, batch=self))
+        if filename:
+            with open(filename, 'w') as writefile:
+                writefile.write(render_template(template, batch=self))
 
     @hybrid_property
     def serialize(self):  # TODO: Hierarchy
@@ -926,6 +932,14 @@ class Batch(db.Model):
         self._share_dir = value
 
     @hybrid_property
+    def results_dir(self):
+        return self._results_dir
+
+    @results_dir.setter
+    def results_dir(self, value):
+        self._results_dir = value
+
+    @hybrid_property
     def size(self):
         return len(self._jobs)
 
@@ -955,9 +969,6 @@ class Job(db.Model):
         self.write_params(jobdir)
         self.write_template('process', os.path.join(jobdir, self.submit_file))
         self.write_template('subdag', os.path.join(jobdir, self.subdag))
-        """ TODO: Transfer File Copying To Templating """
-        #  self.write_template('job_pre', os.path.join(jobdir, self.pre))
-        #  self.write_template('job_post', os.path.join(jobdir, self.post))
 
     def write_params(self, jobdir):
         """ Writes a dictionary to a json file """
@@ -967,8 +978,9 @@ class Job(db.Model):
 
     def write_template(self, template, filename):
         """ Renders a batch level tempalte and writes it to filename """
-        with open(filename, 'w') as writefile:
-            writefile.write(render_template(template, job=self))
+        if filename:
+            with open(filename, 'w') as writefile:
+                writefile.write(render_template(template, job=self))
 
     @hybrid_property
     def serialize(self):  # TODO
@@ -1035,6 +1047,10 @@ class Job(db.Model):
     @hybrid_property
     def share_dir(self):
         return self.batch.share_dir
+
+    @hybrid_property
+    def results_dir(self):
+        return self.batch.results_dir
 
     @hybrid_property
     def pre(self):

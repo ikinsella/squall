@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+import json
+import os
+import sys
+
+rootdir = os.path.join("{{ user.launch_directory }}", "{{ batch.name }}")
+uid = sys.argv[1]
+with open(os.path.join(rootdir, uid, 'results.json'), 'rb') as readfile:
+    results = json.load(readfile)  # Access job results
+with open(os.path.join(rootdir, uid, 'params.json'), 'rb') as readfile:
+    params = json.load(readfile)  # Access job params
+# with open(os.path.join(rootdir, uid, 'meta.json'), 'rb') as readfile:
+#     metadata = json.load(readfile)  # Access job metadata
+results['params'] = params
+# results['metadata'] = metadata
+filename = os.path.join(rootdir, "{{ batch.results_dir }}", uid + ".json")
+with open(filename, 'w') as writefile:
+    json.dump(results, writefile)
