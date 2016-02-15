@@ -3,57 +3,122 @@
 {% block title %} Experiments {% endblock %}
 
 {% block body %}
-    <h1 class="text-center">Experiments</h1>
+<h1 class="text-center">Experiments</h1>
 
-    <div class="row">
-        <div class="col-md-4"></div>
-        <div class="col-md-4">
-            <form role="form" action="{{ url_for('.submit_experiment') }}" method="post">
-              {{ experiment_form.hidden_tag() }}
+<div class="row">
+  <div class="col-md-4"></div>
+  <div class="col-md-4">
+    <form role="form" action="{{ url_for('.submit_experiment') }}" method="post">
+      {{ experiment_form.hidden_tag() }}
 
-              <div class="form-group">
-                {{ experiment_form.name.label }}
-                {% if experiment_form.name.errors %}{% for e in experiment_form.name.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ experiment_form.name(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ experiment_form.name.label }}
+        <p id="experimentNameInfo"></p>
+        <button onclick="myShowExperimentName()" type="button">info</button>
+        <script>
+        function myShowExperimentName() {
+          document.getElementById("experimentNameInfo").innerHTML = "Provide a unique name for experiment identification. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideExperimentName()" type="button">hide</button>
+        <script>
+        function myHideExperimentName() {
+          document.getElementById("experimentNameInfo").innerHTML = "";
+        }
+        </script>
+        {% if experiment_form.name.errors %}{% for e in experiment_form.name.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ experiment_form.name(class_="form-control") }}
+      </div>
 
-	      <div class="form-group">
-                {{ experiment_form.collections.label }}
-                {% if experiment_form.collections.errors %}{% for e in experiment_form.collections.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ experiment_form.collections(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ experiment_form.collections.label }}
+        <p id="experimentCollectionInfo"></p>
+        <button onclick="myShowExperimentCollection()" type="button">info</button>
+        <script>
+        function myShowExperimentCollection() {
+          document.getElementById("experimentCollectionInfo").innerHTML = "Choose at least one data collection from which the experiment will be derived. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideExperimentCollection()" type="button">hide</button>
+        <script>
+        function myHideExperimentCollection() {
+          document.getElementById("experimentCollectionInfo").innerHTML = "";
+        }
+        </script>
+        {% if experiment_form.collections.errors %}{% for e in experiment_form.collections.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ experiment_form.collections(class_="form-control") }}
+      </div>
 
-	      <div class="form-group">
-                {{ experiment_form.algorithms.label }}
-                {% if experiment_form.algorithms.errors %}{% for e in experiment_form.algorithms.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-		{{ experiment_form.algorithms(class_="form-control") }}
-              </div>
-	      
-              <div class="form-group">
-                {{ experiment_form.description.label }}
-		{% if experiment_form.description.errors %}{% for e in experiment_form.description.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ experiment_form.description(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ experiment_form.algorithms.label }}
+        <p id="experimentAlgorithmInfo"></p>
+        <button onclick="myShowExperimentAlgorithm()" type="button">info</button>
+        <script>
+        function myShowExperimentAlgorithm() {
+          document.getElementById("experimentAlgorithmInfo").innerHTML = "Choose at least one algorithm from which the experiment will be derived. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideExperimentAlgorithm()" type="button">hide</button>
+        <script>
+        function myHideExperimentAlgorithm() {
+          document.getElementById("experimentAlgorithmInfo").innerHTML = "";
+        }
+        </script>
+        {% if experiment_form.algorithms.errors %}{% for e in experiment_form.algorithms.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ experiment_form.algorithms(class_="form-control") }}
+      </div>
 
-	      <div class="form-group">
-		{{ experiment_form.tags.label }}
-                {% if experiment_form.tags.errors %}{% for e in experiment_form.tags.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-		{{ experiment_form.tags(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ experiment_form.description.label }}
+        <p id="experimentDescriptionInfo"></p>
+        <button onclick="myShowExperimentDescription()" type="button">info</button>
+        <script>
+        function myShowExperimentDescription() {
+          document.getElementById("experimentDescriptionInfo").innerHTML = "Provide a succinct description for the given experiment.";
+        }
+        </script>
+        <button onclick="myHideExperimentDescription()" type="button">hide</button>
+        <script>
+        function myHideExperimentDescription() {
+          document.getElementById("experimentDescriptionInfo").innerHTML = "";
+        }
+        </script>
+        {% if experiment_form.description.errors %}{% for e in experiment_form.description.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ experiment_form.description(class_="form-control") }}
+      </div>
 
-              <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
-        </div>
-        <div class="col-md-4"></div>
-    </div>
+      <div class="form-group">
+        {{ experiment_form.tags.label }}
+        <p id="experimentTagInfo"></p>
+        <button onclick="myShowExperimentTag()" type="button">info</button>
+        <script>
+        function myShowExperimentTag() {
+          document.getElementById("experimentTagInfo").innerHTML = "Provide tags to help organize and identify the experiment.";
+        }
+        </script>
+        <button onclick="myHideExperimentTag()" type="button">hide</button>
+        <script>
+        function myHideExperimentTag() {
+          document.getElementById("experimentTagInfo").innerHTML = "";
+        }
+        </script>
+        {% if experiment_form.tags.errors %}{% for e in experiment_form.tags.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ experiment_form.tags(class_="form-control") }}
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+  <div class="col-md-4"></div>
+</div>
 {% endblock %}

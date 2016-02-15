@@ -3,104 +3,217 @@
 {% block title %} Data {% endblock %}
 
 {% block body %}
-    <h1 class="text-center">Data Collections</h1>
+<h1 class="text-center">Data Collections</h1>
 
-    <div class="row">
-        <div class="col-md-4"></div>
-        <div class="col-md-4">
-            <form role="form" action="{{ url_for('.submit_collection') }}" method="post">
-              {{ collection_form.hidden_tag() }}
+<div class="row">
+  <div class="col-md-4"></div>
+  <div class="col-md-4">
+    <form role="form" action="{{ url_for('.submit_collection') }}" method="post">
+      {{ collection_form.hidden_tag() }}
 
-              <div class="form-group">
-                {{ collection_form.name.label }}
-                {% if collection_form.name.errors %}
-                {% for e in collection_form.name.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ collection_form.name(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ collection_form.name.label }}
+        <p id="dataCollectionNameInfo"></p>
+        <button onclick="myShowDataCollectionName()" type="button">info</button>
+        <script>
+        function myShowDataCollectionName() {
+          document.getElementById("dataCollectionNameInfo").innerHTML = "Provide a unique name for data collection identification. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideDataCollectionName()" type="button">hide</button>
+        <script>
+        function myHideDataCollectionName() {
+          document.getElementById("dataCollectionNameInfo").innerHTML = "";
+        }
+        </script>
+        {% if collection_form.name.errors %}
+        {% for e in collection_form.name.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ collection_form.name(class_="form-control") }}
+      </div>
 
-	      <div class="form-group">
-		{{ collection_form.description.label }}
-		{% if collection_form.description.errors %}
-                {% for e in collection_form.description.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}		
-                {{ collection_form.description(class_="form-control") }}
-	      </div>
+      <div class="form-group">
+        {{ collection_form.description.label }}
+        <p id="dataCollectionDescriptionInfo"></p>
+        <button onclick="myShowDataCollectionDescription()" type="button">info</button>
+        <script>
+        function myShowDataCollectionDescription() {
+          document.getElementById("dataCollectionDescriptionInfo").innerHTML = "Provide a succinct description for the given data collection.";
+        }
+        </script>
+        <button onclick="myHideDataCollectionDescription()" type="button">hide</button>
+        <script>
+        function myHideDataCollectionDescription() {
+          document.getElementById("dataCollectionDescriptionInfo").innerHTML = "";
+        }
+        </script>
+        {% if collection_form.description.errors %}
+        {% for e in collection_form.description.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}		
+        {{ collection_form.description(class_="form-control") }}
+      </div>
 
-	      <div class="form-group">
-		{{ collection_form.tags.label }}
-		{% if collection_form.tags.errors %}
-                {% for e in collection_form.tags.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}		
-                {{ collection_form.tags(class_="form-control") }}
-              </div>
+      <div class="form-group">
+        {{ collection_form.tags.label }}
+        <p id="dataCollectionTagInfo"></p>
+        <button onclick="myShowDataCollectionTag()" type="button">info</button>
+        <script>
+        function myShowDataCollectionTag() {
+          document.getElementById("dataCollectionTagInfo").innerHTML = "Provide tags to help organize and identify the data collection.";
+        }
+        </script>
+        <button onclick="myHideDataCollectionTag()" type="button">hide</button>
+        <script>
+        function myHideDataCollectionTag() {
+          document.getElementById("dataCollectionTagInfo").innerHTML = "";
+        }
+        </script>
+        {% if collection_form.tags.errors %}
+        {% for e in collection_form.tags.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}		
+        {{ collection_form.tags(class_="form-control") }}
+      </div>
 
-              <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+  <div class="col-md-4"></div>
+</div>
+
+<h1 class="text-center">Data Sets</h1>
+
+<div class="row">
+  <div class="col-md-4"></div>
+  <div class="col-md-4">
+    <form role="form" action="{{ url_for('.submit_data_set') }}" method="post">
+      {{ data_set_form.hidden_tag() }}
+
+      <div class="form-group">
+        {{ data_set_form.name.label }}	
+        <p id="dataSetNameInfo"></p>
+        <button onclick="myShowDataSetName()" type="button">info</button>
+        <script>
+        function myShowDataSetName() {
+          document.getElementById("dataSetNameInfo").innerHTML = "Provide a unique name for data set identification. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideDataSetName()" type="button">hide</button>
+        <script>
+        function myHideDataSetName() {
+          document.getElementById("dataSetNameInfo").innerHTML = "";
+        }
+        </script>
+        {% if data_set_form.name.errors %}
+        {% for e in data_set_form.name.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}	
+        {{ data_set_form.name(class_="form-control") }}
+      </div>
+
+      <div class="form-group">
+        {{ data_set_form.data_collection.label }}
+        <p id="collectionInfo"></p>
+        <button onclick="myShowCollection()" type="button">info</button>
+        <script>
+        function myShowCollection() {
+          document.getElementById("collectionInfo").innerHTML = "Choose one data collection from which the data set will be derived. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideCollection()" type="button">hide</button>
+        <script>
+        function myHideCollection() {
+          document.getElementById("collectionInfo").innerHTML = "";
+        }
+        </script>
+        {% if data_set_form.data_collection.errors %}
+        {% for e in data_set_form.data_collection.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}		
+        {{ data_set_form.data_collection(class_="form-control") }}
+      </div>
+
+      <div class="form-group">
+        <div data-toggle="fieldset" id="url-fieldset">
+          {{ data_set_form.urls.label }}  
+          <button type="button" data-toggle="fieldset-add-row" data-target="#url-fieldset">+</button>
+          <p id="urlInfo"></p>
+          <button onclick="myShowURL()" type="button">info</button>
+          <script>
+          function myShowURL() {
+            document.getElementById("urlInfo").innerHTML = "Provide full addresses to data files on the SQUID web proxy hosted by HTCondor. URLs should be addressed to tar.gz files. <strong>[Required - min: 1 max: 10]</strong>";
+          }
+          </script>
+          <button onclick="myHideURL()" type="button">hide</button>
+          <script>
+          function myHideURL() {
+            document.getElementById("urlInfo").innerHTML = "";
+          }
+          </script>
+          <table>
+            {% for url in data_set_form.urls %}
+            <tr data-toggle="fieldset-entry">
+              <td>{{ data_set_form.urls(class_="form-control") }}</td>
+              <td><button type="button" data-toggle="fieldset-remove-row" id="url-{{loop.index0}}-remove">-</button></td>
+            </tr>
+            {% endfor %}
+          </table>
         </div>
-        <div class="col-md-4"></div>
-    </div>
+      </div>
 
-    <h1 class="text-center">Data Sets</h1>
+      <div class="form-group">
+        {{ data_set_form.description.label }}
+        <p id="dataSetDescriptionInfo"></p>
+        <button onclick="myShowDataSetDescription()" type="button">info</button>
+        <script>
+        function myShowDataSetDescription() {
+          document.getElementById("dataSetDescriptionInfo").innerHTML = "Provide a succinct description for the given data set.";
+        }
+        </script>
+        <button onclick="myHideDataSetDescription()" type="button">hide</button>
+        <script>
+        function myHideDataSetDescription() {
+          document.getElementById("dataSetDescriptionInfo").innerHTML = "";
+        }
+        </script>
+        {% if data_set_form.description.errors %}
+        {% for e in data_set_form.description.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ data_set_form.description(class_="form-control") }}
+      </div>	      
 
-    <div class="row">
-        <div class="col-md-4"></div>
-        <div class="col-md-4">
-            <form role="form" action="{{ url_for('.submit_data_set') }}" method="post">
-              {{ data_set_form.hidden_tag() }}
+      <div class="form-group">
+        {{ data_set_form.tags.label }}
+        <p id="dataSetTagInfo"></p>
+        <button onclick="myShowDataSetTag()" type="button">info</button>
+        <script>
+        function myShowDataSetTag() {
+          document.getElementById("dataSetTagInfo").innerHTML = "Provide tags to help organize and identify the data set.";
+        }
+        </script>
+        <button onclick="myHideDataSetTag()" type="button">hide</button>
+        <script>
+        function myHideDataSetTag() {
+          document.getElementById("dataSetTagInfo").innerHTML = "";
+        }
+        </script>
+        {% if data_set_form.tags.errors %}
+        {% for e in data_set_form.tags.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ data_set_form.tags(class_="form-control") }}
+      </div>
 
-              <div class="form-group">
-                {{ data_set_form.name.label }}	
-		{% if data_set_form.name.errors %}
-                {% for e in data_set_form.name.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}	
-                {{ data_set_form.name(class_="form-control") }}
-              </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+  <div class="col-md-4"></div>
+</div>
 
-              <div class="form-group">
-                {{ data_set_form.data_collection.label }}
-		{% if data_set_form.data_collection.errors %}
-                {% for e in data_set_form.data_collection.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}		
-                {{ data_set_form.data_collection(class_="form-control") }}
-              </div>
-
-	      <div class="form-group">
-		{{ data_set_form.urls.label }}
-		{% if data_set_form.urls.errors %}
-                {% for e in data_set_form.urls.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ data_set_form.urls(class_="form-control") }}
-              </div>
-
-	      <div class="form-group">
-                {{ data_set_form.description.label }}
-		{% if data_set_form.description.errors %}
-                {% for e in data_set_form.description.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ data_set_form.description(class_="form-control") }}
-              </div>	      
-
-	      <div class="form-group">
-		{{ data_set_form.tags.label }}
-		{% if data_set_form.tags.errors %}
-                {% for e in data_set_form.tags.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ data_set_form.tags(class_="form-control") }}
-              </div>
-
-              <button type="submit" class="btn btn-primary">Submit</button>
-            </form>
-        </div>
-        <div class="col-md-4"></div>
-    </div>
+<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+<script src="{{ url_for("static", filename="js/page.js") }}"></script>
 
 {% endblock %}

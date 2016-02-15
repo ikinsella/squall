@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-  
+
 {% block title %} Batches {% endblock %}
 
 {% block body %}
@@ -14,8 +14,21 @@
 
       <div class="form-group">
         {{ batch_form.name.label }}
-	{% if batch_form.name.errors %}
-	{% for e in batch_form.name.errors %}
+        <p id="BatchesNameInfo"></p>
+        <button onclick="myShowBatchesName()" type="button">info</button>
+        <script>
+        function myShowBatchesName() {
+          document.getElementById("BatchesNameInfo").innerHTML = "Provide a unique name for batch identification. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideBatchesName()" type="button">hide</button>
+        <script>
+        function myHideBatchesName() {
+          document.getElementById("BatchesNameInfo").innerHTML = "";
+        }
+        </script>
+        {% if batch_form.name.errors %}
+        {% for e in batch_form.name.errors %}
         <p class="help-block">{{ e }}</p>
         {% endfor %}{% endif %}
         {{ batch_form.name(class_="form-control") }}
@@ -23,8 +36,21 @@
       
       <div class="form-group">
         {{ batch_form.experiment.label }}
-	{% if batch_form.experiment.errors %}
-	{% for e in batch_form.experiment.errors %}
+        <p id="BatchesExperimentInfo"></p>
+        <button onclick="myShowBatchesExperiment()" type="button">info</button>
+        <script>
+        function myShowBatchesExperiment() {
+          document.getElementById("BatchesExperimentInfo").innerHTML = "Choose one experiment from which the batch will be derived. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideBatchesExperiment()" type="button">hide</button>
+        <script>
+        function myHideBatchesExperiment() {
+          document.getElementById("BatchesExperimentInfo").innerHTML = "";
+        }
+        </script>
+        {% if batch_form.experiment.errors %}
+        {% for e in batch_form.experiment.errors %}
         <p class="help-block">{{ e }}</p>
         {% endfor %}{% endif %}
         {{ batch_form.experiment(class_="form-control") }}
@@ -32,8 +58,21 @@
 
       <div class="form-group">
         {{ batch_form.data_set.label }}
-	{% if batch_form.data_set.errors %}
-	{% for e in batch_form.data_set.errors %}
+        <p id="BatchesDataSetInfo"></p>
+        <button onclick="myShowBatchesDataSet()" type="button">info</button>
+        <script>
+        function myShowBatchesDataSet() {
+          document.getElementById("BatchesDataSetInfo").innerHTML = "Choose one data set from which the batch will be derived. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideBatchesDataSet()" type="button">hide</button>
+        <script>
+        function myHideBatchesDataSet() {
+          document.getElementById("BatchesDataSetInfo").innerHTML = "";
+        }
+        </script>
+        {% if batch_form.data_set.errors %}
+        {% for e in batch_form.data_set.errors %}
         <p class="help-block">{{ e }}</p>
         {% endfor %}{% endif %}
         {{ batch_form.data_set(class_="form-control") }}
@@ -41,8 +80,21 @@
 
       <div class="form-group">
         {{ batch_form.implementation.label }}
-	{% if batch_form.implementation.errors %}
-	{% for e in batch_form.implementation.errors %}
+        <p id="BatchesImplementationInfo"></p>
+        <button onclick="myShowBatchesImplementation()" type="button">info</button>
+        <script>
+        function myShowBatchesImplementation() {
+          document.getElementById("BatchesImplementationInfo").innerHTML = "Choose one implementation from which the batch will be derived. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideBatchesImplementation()" type="button">hide</button>
+        <script>
+        function myHideBatchesImplementation() {
+          document.getElementById("BatchesImplementationInfo").innerHTML = "";
+        }
+        </script>
+        {% if batch_form.implementation.errors %}
+        {% for e in batch_form.implementation.errors %}
         <p class="help-block">{{ e }}</p>
         {% endfor %}{% endif %}
         {{ batch_form.implementation(class_="form-control") }}
@@ -50,8 +102,21 @@
       
       <div class="form-group">
         {{ batch_form.params.label }}
-	{% if batch_form.params.errors %}
-	{% for e in batch_form.params.errors %}
+        <p id="BatchesParamFileInfo"></p>
+        <button onclick="myShowBatchesParamFile()" type="button">info</button>
+        <script>
+        function myShowBatchesParamFile() {
+          document.getElementById("BatchesParamFileInfo").innerHTML = "Provide a file with selected implementation parameters. This file can be .yaml or .yml. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideBatchesParamFile()" type="button">hide</button>
+        <script>
+        function myHideBatchesParamFile() {
+          document.getElementById("BatchesParamFileInfo").innerHTML = "";
+        }
+        </script>
+        {% if batch_form.params.errors %}
+        {% for e in batch_form.params.errors %}
         <p class="help-block">{{ e }}</p>
         {% endfor %}{% endif %}
         {{ batch_form.params(class_="form-control") }}
@@ -59,8 +124,21 @@
 
       <div class="form-group">
         {{ batch_form.memory.label }}
-	{% if batch_form.memory.errors %}
-	{% for e in batch_form.memory.errors %}
+        <p id="BatchesMemoryInfo"></p>
+        <button onclick="myShowBatchesMemory()" type="button">info</button>
+        <script>
+        function myShowBatchesMemory() {
+          document.getElementById("BatchesMemoryInfo").innerHTML = "Specify the minimum memory per job. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideBatchesMemory()" type="button">hide</button>
+        <script>
+        function myHideBatchesMemory() {
+          document.getElementById("BatchesMemoryInfo").innerHTML = "";
+        }
+        </script>
+        {% if batch_form.memory.errors %}
+        {% for e in batch_form.memory.errors %}
         <p class="help-block">{{ e }}</p>
         {% endfor %}{% endif %}
         {{ batch_form.memory(class_="form-control") }}
@@ -68,8 +146,21 @@
 
       <div class="form-group">
         {{ batch_form.disk.label }}
-	{% if batch_form.disk.errors %}
-	{% for e in batch_form.disk.errors %}
+        <p id="BatchesDiskSpaceInfo"></p>
+        <button onclick="myShowBatchesDiskSpace()" type="button">info</button>
+        <script>
+        function myShowBatchesDiskSpace() {
+          document.getElementById("BatchesDiskSpaceInfo").innerHTML = "Specify the minimum disk space per job. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideBatchesDiskSpace()" type="button">hide</button>
+        <script>
+        function myHideBatchesDiskSpace() {
+          document.getElementById("BatchesDiskSpaceInfo").innerHTML = "";
+        }
+        </script>
+        {% if batch_form.disk.errors %}
+        {% for e in batch_form.disk.errors %}
         <p class="help-block">{{ e }}</p>
         {% endfor %}{% endif %}
         {{ batch_form.disk(class_="form-control") }}
@@ -77,17 +168,43 @@
 
       <div class="form-group">
         {{ batch_form.flock.label }}
-	{% if batch_form.flock.errors %}
-	{% for e in batch_form.flock.errors %}
-	<p class="help-block">{{ e }}</p>
-	{% endfor %}{% endif %}
-	{{ batch_form.flock(class_="form-control") }}
+        <p id="BatchesFlockInfo"></p>
+        <button onclick="myShowBatchesFlock()" type="button">info</button>
+        <script>
+        function myShowBatchesFlock() {
+          document.getElementById("BatchesFlockInfo").innerHTML = "Check 'Flock' to expand pool to entire UW instead of just HTCondor.";
+        }
+        </script>
+        <button onclick="myHideBatchesFlock()" type="button">hide</button>
+        <script>
+        function myHideBatchesFlock() {
+          document.getElementById("BatchesFlockInfo").innerHTML = "";
+        }
+        </script>
+        {% if batch_form.flock.errors %}
+        {% for e in batch_form.flock.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ batch_form.flock(class_="form-control") }}
       </div>
 
       <div class="form-group">
         {{ batch_form.glide.label }}
-	{% if batch_form.glide.errors %}
-	{% for e in batch_form.glide.errors %}
+        <p id="BatchesGlideInfo"></p>
+        <button onclick="myShowBatchesGlide()" type="button">info</button>
+        <script>
+        function myShowBatchesGlide() {
+          document.getElementById("BatchesGlideInfo").innerHTML = "Check 'Glide' to expand pool to search the whole Open Science Grid.";
+        }
+        </script>
+        <button onclick="myHideBatchesGlide()" type="button">hide</button>
+        <script>
+        function myHideBatchesGlide() {
+          document.getElementById("BatchesGlideInfo").innerHTML = "";
+        }
+        </script>
+        {% if batch_form.glide.errors %}
+        {% for e in batch_form.glide.errors %}
         <p class="help-block">{{ e }}</p>
         {% endfor %}{% endif %}
         {{ batch_form.glide(class_="form-control") }}
@@ -95,27 +212,53 @@
 
       <div class="form-group">
         {{ batch_form.description.label }}
+        <p id="BatchesDescriptionInfo"></p>
+        <button onclick="myShowBatchesDescription()" type="button">info</button>
+        <script>
+        function myShowBatchesDescription() {
+          document.getElementById("BatchesDescriptionInfo").innerHTML = "Provide a succinct description for the given batch.";
+        }
+        </script>
+        <button onclick="myHideBatchesDescription()" type="button">hide</button>
+        <script>
+        function myHideBatchesDescription() {
+          document.getElementById("BatchesDescriptionInfo").innerHTML = "";
+        }
+        </script>
         {% if batch_form.description.errors %}
-	{% for e in batch_form.description.errors %}
+        {% for e in batch_form.description.errors %}
         <p class="help-block">{{ e }}</p>
         {% endfor %}{% endif %}
-	{{ batch_form.description(class_="form-control") }}
+        {{ batch_form.description(class_="form-control") }}
       </div>
 
       <div class="form-group">
-	{{ batch_form.tags.label }}
-	{% if batch_form.tags.errors %}
-        {% for e in batch_form.tags.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ batch_form.tags(class_="form-control") }}
-      </div>
+       {{ batch_form.tags.label }}
+       <p id="BatchesTagInfo"></p>
+       <button onclick="myShowBatchesTag()" type="button">info</button>
+       <script>
+       function myShowBatchesTag() {
+        document.getElementById("BatchesTagInfo").innerHTML = "Provide tags to help organize and identify the batch.";
+      }
+      </script>
+      <button onclick="myHideBatchesTag()" type="button">hide</button>
+      <script>
+      function myHideBatchesTag() {
+        document.getElementById("BatchesTagInfo").innerHTML = "";
+      }
+      </script>
+      {% if batch_form.tags.errors %}
+      {% for e in batch_form.tags.errors %}
+      <p class="help-block">{{ e }}</p>
+      {% endfor %}{% endif %}
+      {{ batch_form.tags(class_="form-control") }}
+    </div>
 
-      <button type="submit" class="btn btn-primary">Submit</button>
-      
-    </form>
-  </div>
-  <div class="col-md-4"></div>
+    <button type="submit" class="btn btn-primary">Submit</button>
+
+  </form>
+</div>
+<div class="col-md-4"></div>
 </div>
 
 <h1 class="text-center">Download Launch Files</h1>
@@ -129,8 +272,21 @@
       
       <div class="form-group">
         {{ download_form.batch.label }}
-	{% if download_form.batch.errors %}
-	{% for e in download_form.batch.errors %}
+        <p id="LaunchFileBatchInfo"></p>
+        <button onclick="myShowLaunchFileBatch()" type="button">info</button>
+        <script>
+        function myShowLaunchFileBatch() {
+          document.getElementById("LaunchFileBatchInfo").innerHTML = "Select batch launch files. Make sure to be logged in as the user that will be launching the batch on HTCondor, as files generated will use the HTCondor directory associated with the logged in user. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideLaunchFileBatch()" type="button">hide</button>
+        <script>
+        function myHideLaunchFileBatch() {
+          document.getElementById("LaunchFileBatchInfo").innerHTML = "";
+        }
+        </script>
+        {% if download_form.batch.errors %}
+        {% for e in download_form.batch.errors %}
         <p class="help-block">{{ e }}</p>
         {% endfor %}{% endif %}
         {{ download_form.batch(class_="form-control") }}
@@ -153,8 +309,21 @@
 
       <div class="form-group">
         {{ results_form.batch.label }}
-	{% if results_form.batch.errors %}
-	{% for e in results_form.batch.errors %}
+        <p id="ResultsBatchInfo"></p>
+        <button onclick="myShowResultsBatch()" type="button">info</button>
+        <script>
+        function myShowResultsBatch() {
+          document.getElementById("ResultsBatchInfo").innerHTML = "Select the batch from which the results correspond to. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideResultsBatch()" type="button">hide</button>
+        <script>
+        function myHideResultsBatch() {
+          document.getElementById("ResultsBatchInfo").innerHTML = "";
+        }
+        </script>
+        {% if results_form.batch.errors %}
+        {% for e in results_form.batch.errors %}
         <p class="help-block">{{ e }}</p>
         {% endfor %}{% endif %}
         {{ results_form.batch(class_="form-control") }}
@@ -162,8 +331,21 @@
       
       <div class="form-group">
         {{ results_form.results.label }}
-	{% if results_form.results.errors %}
-	{% for e in results_form.results.errors %}
+        <p id="ResultsResultsInfo"></p>
+        <button onclick="myShowResultsResults()" type="button">info</button>
+        <script>
+        function myShowResultsResults() {
+          document.getElementById("ResultsResultsInfo").innerHTML = "Upload associated JSON results file returned from HTCondor. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideResultsResults()" type="button">hide</button>
+        <script>
+        function myHideResultsResults() {
+          document.getElementById("ResultsResultsInfo").innerHTML = "";
+        }
+        </script>
+        {% if results_form.results.errors %}
+        {% for e in results_form.results.errors %}
         <p class="help-block">{{ e }}</p>
         {% endfor %}{% endif %}
         {{ results_form.results(class_="form-control") }}
