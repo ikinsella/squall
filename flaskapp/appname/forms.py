@@ -8,7 +8,10 @@ from wtforms import (TextField,
                      SelectMultipleField,
                      IntegerField,
                      FieldList,
-                     ValidationError)
+                     ValidationError,
+                     SubmitField,
+                     StringField,
+                     FormField)
 
 from wtforms.validators import (DataRequired,
                                 Optional,
@@ -27,7 +30,6 @@ from appname.models import (User,
                             Experiment,
                             Batch,
                             Tag)
-
 
 class UniqueName(object):
     """Validates An Objects Selected Name to Ensure It Has A Unique Name"""
@@ -156,21 +158,25 @@ class DataCollectionForm(Form):
         return False
 
 
+class URLForm(Form) :
+    url = TextField('URL', validators=[DataRequired()])
+
 class DataSetForm(Form):
     data_collection = SelectField(u'Data Collection', [DataRequired()],
                                   coerce=int)
     name = TextField(u'Name', [DataRequired(),
                                UniqueName(DataSet),
                                Length(max=64)])
-    description = TextAreaField(u'Desciption', [Optional(),
+    description = TextAreaField(u'Description', [Optional(),
                                                 Length(max=512)])
     tags = SelectMultipleField(u'Tags', [Optional()],
                                coerce=int)
-    urls = FieldList(TextField(u'URLs', [DataRequired(),
-                                         URL(),
-                                         Length(max=256)]),
-                     min_entries=2, max_entries=10)
-
+    #urls = FieldList(TextField(u'URLs', [DataRequired(),
+    #                                     URL(),
+    #                                     Length(max=256)]),
+    #                 min_entries=1, max_entries=10)
+    urls = FieldList(FormField(URLForm), min_entries=1, max_entries=1)
+    #urls = FieldList(TextField(), min_entries=1, max_entries=10)
     def validate(self):
         if super(DataSetForm, self).validate():
             return True  # If Our Validators Pass
@@ -181,7 +187,7 @@ class ExperimentForm(Form):
     name = TextField(u'Name', [DataRequired(),
                                UniqueName(Experiment),
                                Length(max=64)])
-    description = TextAreaField(u'Desciption', [Optional(),
+    description = TextAreaField(u'Description', [Optional(),
                                                 Length(max=512)])
     tags = SelectMultipleField(u'Tags', [Optional()],
                                coerce=int)
