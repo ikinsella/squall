@@ -41,7 +41,7 @@ def submit_collection():
     collection_form = DataCollectionForm()
     collection_form.tags.choices = [(t.id, t.name) for t in
                                     Tag.query.order_by('_name')]
-    data_set_form = DataSetForm(urls=URLS)
+    data_set_form = DataSetForm(url_forms=URLS)
     data_set_form.tags.choices = [(t.id, t.name) for t in
                                   Tag.query.order_by('_name')]
     data_set_form.data_collection.choices = [(dc.id, dc.name) for dc in
@@ -85,7 +85,7 @@ def submit_data_set():
             name=data_set_form.name.data,
             description=data_set_form.description.data,
             tags=tags,
-            urls=[url.data.get('url') for url in data_set_form.urls])
+            urls=[url_form.url.data for url_form in data_set_form.url_forms])
         db.session.add(data_set)
         db.session.commit()
         flash("New data set added successfully.", "success")

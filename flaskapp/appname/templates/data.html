@@ -137,7 +137,12 @@
 
       <div class="form-group">
         <div data-toggle="fieldset" id="url-fieldset">
-          {{ data_set_form.urls.label }}  
+          {{ data_set_form.url_forms.label }}
+	  {% if data_set_form.url_forms.errors %}
+          {% for e in data_set_form.url_forms.errors %}
+          <p class="help-block">{{ e }}</p>
+          {% endfor %}{% endif %}
+
           <p id="urlInfo"></p>
           <button onclick="myShowURL()" type="button">info</button>
           <script>
@@ -154,12 +159,12 @@
           <table>
               <!--td id="urls-0">{{ data_set_form.urls }}</td-->
               <td><button type="button" data-toggle="fieldset-add-row" data-target="#url-fieldset">+</button></td>
-              {% for url in data_set_form.urls %}
+              {% for url_form in data_set_form.url_forms %}
               
               <tr data-toggle="fieldset-entry">
                   
-                  <!--td id="urls-{{loop.index0}}">{{ data_set_form.urls(class_="form-control") }}</td-->
-                  <td id="urls-{{loop.index0}}">{{ url }}</td>
+                  
+                  <td id="urls-{{loop.index0}}">{{ url_form.url }}</td>
                   
                   <td><button type="button" data-toggle="fieldset-remove-row" data-target="#url-fieldset" id="urls-{{loop.index0}}-remove">-</button></td>
               </tr>

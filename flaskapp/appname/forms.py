@@ -31,6 +31,8 @@ from appname.models import (User,
                             Batch,
                             Tag)
 
+import wtforms
+
 
 class UniqueName(object):
     """Validates An Objects Selected Name to Ensure It Has A Unique Name"""
@@ -175,11 +177,11 @@ class DataCollectionForm(Form):
         return False
 
 
-class URLForm(Form):
+class URLForm(wtforms.Form):
     url = TextField('URL', validators=[DataRequired()])
 
     def validate(self):
-        if super(DataSetForm, self).validate():
+        if super(URLForm, self).validate():
             return True  # If Our Validators Pass
         return False
 
@@ -194,12 +196,8 @@ class DataSetForm(Form):
                                                  Length(max=512)])
     tags = SelectMultipleField(u'Tags', [Optional()],
                                coerce=int)
-    # urls = FieldList(TextField(u'URLs', [DataRequired(), # Ian's old code
-    #                                      URL(),
-    #                                      Length(max=256)]),
-    #                  min_entries=1, max_entries=10)
-    urls = FieldList(FormField(URLForm), min_entries=1, max_entries=1)
-    # urls = FieldList(TextField(), min_entries=1, max_entries=10)
+
+    url_forms = FieldList(FormField(URLForm), min_entries=1, max_entries=10)
 
     def validate(self):
         if super(DataSetForm, self).validate():
