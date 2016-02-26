@@ -10,8 +10,7 @@ from appname.controllers import (main,
                                  data,
                                  experiments,
                                  batches,
-                                 tags,
-				 batchAPI)
+                                 tags)
 
 from appname.extensions import (
     cache,
@@ -61,6 +60,5 @@ def create_app(object_name, env="prod"):
     app.register_blueprint(experiments, url_prefix='/experiments')
     app.register_blueprint(batches, url_prefix='/batches')
     app.register_blueprint(tags, url_prefix='/tags')
-    app.register_blueprint(batchAPI, url_prefix='/api')
 
     return app

@@ -31,6 +31,7 @@ from appname.models import (User,
                             Batch,
                             Tag)
 
+
 class UniqueName(object):
     """Validates An Objects Selected Name to Ensure It Has A Unique Name"""
     def __init__(self, cls, message=None):
@@ -64,6 +65,22 @@ class ValidParamFile(object):
             assert filename.rsplit('.', 1)[1] in set(['yaml', 'yml'])
             assert field.has_file()
         except AssertionError:  # Is not properly formatted
+            raise ValidationError(self.message)
+
+
+class ValidResultsBatch(object):
+    """ Validates A Batch To Add Results To By:
+        1. Ensuring the batch doesn't already have an associated results file
+    """
+    def __init__(self, message='Selected Batch Is Already Completed'):
+        self.message = message
+
+    def __call__(self, form, field):
+        try:
+            # batch = Batch.query.filter_by(id=field.data).first()
+            # assert not batch.completed
+            pass
+        except AssertionError:
             raise ValidationError(self.message)
 
 
@@ -158,8 +175,14 @@ class DataCollectionForm(Form):
         return False
 
 
-class URLForm(Form) :
+class URLForm(Form):
     url = TextField('URL', validators=[DataRequired()])
+
+    def validate(self):
+        if super(DataSetForm, self).validate():
+            return True  # If Our Validators Pass
+        return False
+
 
 class DataSetForm(Form):
     data_collection = SelectField(u'Data Collection', [DataRequired()],
@@ -168,15 +191,16 @@ class DataSetForm(Form):
                                UniqueName(DataSet),
                                Length(max=64)])
     description = TextAreaField(u'Description', [Optional(),
-                                                Length(max=512)])
+                                                 Length(max=512)])
     tags = SelectMultipleField(u'Tags', [Optional()],
                                coerce=int)
-    #urls = FieldList(TextField(u'URLs', [DataRequired(),
-    #                                     URL(),
-    #                                     Length(max=256)]),
-    #                 min_entries=1, max_entries=10)
+    # urls = FieldList(TextField(u'URLs', [DataRequired(), # Ian's old code
+    #                                      URL(),
+    #                                      Length(max=256)]),
+    #                  min_entries=1, max_entries=10)
     urls = FieldList(FormField(URLForm), min_entries=1, max_entries=1)
-    #urls = FieldList(TextField(), min_entries=1, max_entries=10)
+    # urls = FieldList(TextField(), min_entries=1, max_entries=10)
+
     def validate(self):
         if super(DataSetForm, self).validate():
             return True  # If Our Validators Pass
@@ -188,7 +212,7 @@ class ExperimentForm(Form):
                                UniqueName(Experiment),
                                Length(max=64)])
     description = TextAreaField(u'Description', [Optional(),
-                                                Length(max=512)])
+                                                 Length(max=512)])
     tags = SelectMultipleField(u'Tags', [Optional()],
                                coerce=int)
     algorithms = SelectMultipleField(u'Algorithms', [DataRequired()],
@@ -242,7 +266,8 @@ class DownloadBatchForm(Form):
 
 
 class UploadResultsForm(Form):
-    batch = SelectField(u'Batch', [DataRequired], coerce=int)
+    batch = SelectField(u'Batch', [DataRequired(),
+                                   ValidResultsBatch()], coerce=int)
     results = FileField(u'Results.json', [FileRequired(),
                                           ValidResultsFile()])
 
