@@ -171,11 +171,11 @@ class DataSetForm(Form):
                                                 Length(max=512)])
     tags = SelectMultipleField(u'Tags', [Optional()],
                                coerce=int)
-    #urls = FieldList(TextField(u'URLs', [DataRequired(),
-    #                                     URL(),
-    #                                     Length(max=256)]),
-    #                 min_entries=1, max_entries=10)
-    urls = FieldList(FormField(URLForm), min_entries=1, max_entries=1)
+    urls = FieldList(TextField(u'URLs', [DataRequired(),
+                                         URL(),
+                                         Length(max=256)]),
+                     min_entries=1, max_entries=5)
+    #urls = FieldList(FormField(URLForm), min_entries=1, max_entries=1)
     #urls = FieldList(TextField(), min_entries=1, max_entries=10)
     def validate(self):
         if super(DataSetForm, self).validate():
