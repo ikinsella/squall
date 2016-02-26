@@ -9,6 +9,7 @@ help:
 
 env:
 	sudo easy_install pip && \
+	pip install —upgrade pip && \
 	pip install virtualenv && \
 	virtualenv env && \
 	. env/bin/activate && \
