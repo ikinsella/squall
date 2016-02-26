@@ -586,27 +586,27 @@ class Batch(db.Model):
     """Represents a batch of jobs to be deployed on HTCondor"""
 
     # Fields
-    id = db.Column(db.Integer,
-                   primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     _name = db.Column(db.String(64), index=True, unique=True)
     _description = db.Column(db.String(512), index=False, unique=False)
-    _params = db.Column(db.PickleType(), index=True, unique=False)
-    _memory = db.Column(db.Integer, index=True, unique=False)
-    _disk = db.Column(db.Integer, index=True, unique=False)
+    _params = db.Column(db.PickleType(), index=False, unique=False)
+    _memory = db.Column(db.Integer, index=False, unique=False)
+    _disk = db.Column(db.Integer, index=False, unique=False)
     _flock = db.Column(db.Boolean(), index=False)
     _glide = db.Column(db.Boolean(), index=False)
-    _arguments = db.Column(db.PickleType(), index=True, unique=False)
-    _kwargs = db.Column(db.PickleType(), index=True, unique=False)
-    _sweep = db.Column(db.String(64), index=True, unique=False)
-    _wrapper = db.Column(db.String(64), index=True, unique=False)
-    _submit_file = db.Column(db.String(64), index=True, unique=False)
-    _params_file = db.Column(db.String(64), index=True, unique=False)
-    _share_dir = db.Column(db.String(64), index=True, unique=False)
-    _results_dir = db.Column(db.String(64), index=True, unique=False)
-    _pre = db.Column(db.String(64), index=True, unique=False)
-    _post = db.Column(db.String(64), index=True, unique=False)
-    _job_pre = db.Column(db.String(64), index=True, unique=False)
-    _job_post = db.Column(db.String(64), index=True, unique=False)
+    _arguments = db.Column(db.PickleType(), index=False, unique=False)
+    _kwargs = db.Column(db.PickleType(), index=False, unique=False)
+    _sweep = db.Column(db.String(64), index=False, unique=False)
+    _wrapper = db.Column(db.String(64), index=False, unique=False)
+    _submit_file = db.Column(db.String(64), index=False, unique=False)
+    _params_file = db.Column(db.String(64), index=False, unique=False)
+    _share_dir = db.Column(db.String(64), index=False, unique=False)
+    _results_dir = db.Column(db.String(64), index=False, unique=False)
+    _pre = db.Column(db.String(64), index=False, unique=False)
+    _post = db.Column(db.String(64), index=False, unique=False)
+    _job_pre = db.Column(db.String(64), index=False, unique=False)
+    _job_post = db.Column(db.String(64), index=False, unique=False)
+    _results = db.Column(db.PickleType, index=False, unique=False)
 
     # Relationships
     """ TODO: Multi-User
@@ -653,7 +653,7 @@ class Batch(db.Model):
         self._name = name
         self._description = description
         self._tags = tags
-        self._params = params
+        self._params = yaml.load(params)  # TODO: Validate
         enum_params = self._enumerate_params()
         self._jobs = [Job(batch_id=self.id, uid=uid, params=enum_param)
                       for uid, enum_param in enumerate(enum_params)]
@@ -674,6 +674,7 @@ class Batch(db.Model):
         self._params_file = params_file
         self._share_dir = share_directory
         self._results_dir = results_directory
+        self._results = None
 
     def _enumerate_params(self):
         """ Expands Yaml Fields List Of Param Files For Each Job"""
@@ -813,7 +814,7 @@ class Batch(db.Model):
 
     @params.setter
     def params(self, value):
-        self._params = value
+        self._params = yaml.load(value)  # TODO: Validate
 
     @hybrid_property
     def memory(self):
@@ -940,8 +941,20 @@ class Batch(db.Model):
         self._results_dir = value
 
     @hybrid_property
+    def results(self):
+        return self._results
+
+    @results.setter
+    def results(self, value):
+        self._results = json.load(value)  # TODO: Validate
+
+    @hybrid_property
     def size(self):
         return len(self._jobs)
+
+    @hybrid_property
+    def completed(self):
+        return self.results is not None
 
 
 class Job(db.Model):
@@ -1128,34 +1141,6 @@ class Argument(db.Model):
     def optional(self, value):
         self._optional = value
 """
-
-
-class Result(db.Model):
-
-    # fields
-    id = db.Column(db.Integer, primary_key=True)
-    batch_id = db.Column(db.Integer, index=True, unique=True)
-    _blob = db.Column(db.PickleType, index=True, unique=False)
-
-    # relationships
-    # TODO: Link To Batch/Job
-
-    def __init__(self, batch_id, blob):
-        self.batch_id = batch_id
-        self._blob = blob
-
-    @hybrid_property
-    def serialize(self):  # TODO: Hierarchy
-        return {'id': self.id,
-                'blob': self.blob}
-
-    @hybrid_property
-    def blob(self):
-        return self._blob
-
-    @blob.setter
-    def blob(self, value):
-        self._blob = value
 
 
 class URL(db.Model):

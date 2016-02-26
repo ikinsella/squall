@@ -6,118 +6,248 @@
 <h1 class="text-center">Algorithms</h1>
 
 <div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4">
-        <form role="form" action="{{ url_for('.submit_algorithm') }}" method="post">
-            {{ algorithm_form.hidden_tag() }}
-            
-            <div class="form-group">
-                {{ algorithm_form.name.label }}
-                {% if algorithm_form.name.errors %}
-                {% for e in algorithm_form.name.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ algorithm_form.name(class_="form-control") }}
-            </div>
-            
-            <div class="form-group">
-                {{ algorithm_form.description.label }}
-                {% if implementation_form.description.errors %}
-                {% for e in implementation_form.description.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ algorithm_form.description(class_="form-control") }}
-            </div>
-            
-            <div class="form-group">
-                {{ algorithm_form.tags.label }}
-                {% if implementation_form.tags.errors %}
-                {% for e in implementation_form.tags.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ algorithm_form.tags(class_="form-control") }}
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
-    <div class="col-md-4"></div>
+  <div class="col-md-4"></div>
+  <div class="col-md-4">
+    <form role="form" action="{{ url_for('.submit_algorithm') }}" method="post">
+      {{ algorithm_form.hidden_tag() }}
+
+      <div class="form-group">
+        {{ algorithm_form.name.label }}
+        <p id="algorithmNameInfo"></p>
+        <button onclick="myShowAlgorithmName()" type="button">info</button>
+        <script>
+        function myShowAlgorithmName() {
+          document.getElementById("algorithmNameInfo").innerHTML = "Provide a unique name for algorithm identification. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideAlgorithmName()" type="button">hide</button>
+        <script>
+        function myHideAlgorithmName() {
+          document.getElementById("algorithmNameInfo").innerHTML = "";
+        }
+        </script>
+        {% if algorithm_form.name.errors %}
+        {% for e in algorithm_form.name.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ algorithm_form.name(class_="form-control") }}
+      </div>
+
+      <div class="form-group">
+        {{ algorithm_form.description.label }}
+        <p id="algorithmDescriptionInfo"></p>
+        <button onclick="myShowAlgorithmDescription()" type="button">info</button>
+        <script>
+        function myShowAlgorithmDescription() {
+          document.getElementById("algorithmDescriptionInfo").innerHTML = "Provide a succinct description for the given algorithm.";
+        }
+        </script>
+        <button onclick="myHideAlgorithmDescription()" type="button">hide</button>
+        <script>
+        function myHideAlgorithmDescription() {
+          document.getElementById("algorithmDescriptionInfo").innerHTML = "";
+        }
+        </script>
+        {% if implementation_form.description.errors %}
+        {% for e in implementation_form.description.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}		
+        {{ algorithm_form.description(class_="form-control") }}
+      </div>
+
+      <div class="form-group">
+        {{ algorithm_form.tags.label }}
+        <p id="algorithmTagInfo"></p>
+        <button onclick="myShowAlgorithmTag()" type="button">info</button>
+        <script>
+        function myShowAlgorithmTag() {
+          document.getElementById("algorithmTagInfo").innerHTML = "Provide tags to help organize and identify the algorithm.";
+        }
+        </script>
+        <button onclick="myHideAlgorithmTag()" type="button">hide</button>
+        <script>
+        function myHideAlgorithmTag() {
+          document.getElementById("algorithmTagInfo").innerHTML = "";
+        }
+        </script>
+        {% if implementation_form.tags.errors %}
+        {% for e in implementation_form.tags.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ algorithm_form.tags(class_="form-control") }}
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+  <div class="col-md-4"></div>
 </div>
 
 <h1 class="text-center">Implementations</h1>
 
 <div class="row">
-    <div class="col-md-4"></div>
-    <div class="col-md-4">
-        <form role="form" action="{{ url_for('.submit_implementation') }}" method="post">
-            {{ implementation_form.hidden_tag() }}
-            
-            <div class="form-group">
-                {{ implementation_form.name.label }}
-                {% if implementation_form.name.errors %}
-                {% for e in implementation_form.name.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ implementation_form.name(class_="form-control") }}
-            </div>
-            
-            <div class="form-group">
-                {{ implementation_form.algorithm.label }}
-                {% if implementation_form.algorithm.errors %}
-                {% for e in implementation_form.algorithm.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ implementation_form.algorithm(class_="form-control") }}
-            </div>
-            
-            <div class="form-group">
-                {{ implementation_form.urls.label }}
-                {% if implementation_form.urls.errors %}
-                {% for e in implementation_form.urls.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ implementation_form.urls(class_="form-control") }}
-            </div>
-            
-            <div class="form-group">
-                {{ implementation_form.setup_scripts.label }}
-                {% if implementation_form.setup_scripts.errors %}
-                {% for e in implementation_form.setup_scripts.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ implementation_form.setup_scripts(class_="form-control") }}
-            </div>
-            
-            <div class="form-group">
-                {{ implementation_form.executable.label }}
-                {% if implementation_form.executable.errors %}
-                {% for e in implementation_form.executable.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ implementation_form.executable(class_="form-control") }}
-            </div>
-            
-            <div class="form-group">
-                {{ implementation_form.description.label }}
-                {% if implementation_form.description.errors %}
-                {% for e in implementation_form.description.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ implementation_form.description(class_="form-control") }}
-            </div>
-            
-            <div class="form-group">
-                {{ implementation_form.tags.label }}
-                {% if implementation_form.tags.errors %}
-                {% for e in implementation_form.tags.errors %}
-                <p class="help-block">{{ e }}</p>
-                {% endfor %}{% endif %}
-                {{ implementation_form.tags(class_="form-control") }}
-            </div>
-            
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-    </div>
-    <div class="col-md-4"></div>
+  <div class="col-md-4"></div>
+  <div class="col-md-4">
+    <form role="form" action="{{ url_for('.submit_implementation') }}" method="post">
+      {{ implementation_form.hidden_tag() }}
+
+      <div class="form-group">
+        {{ implementation_form.name.label }}
+        <p id="implementationNameInfo"></p>
+        <button onclick="myShowImplementationName()" type="button">info</button>
+        <script>
+        function myShowImplementationName() {
+          document.getElementById("implementationNameInfo").innerHTML = "Provide a unique name for implementation identification. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideImplementationName()" type="button">hide</button>
+        <script>
+        function myHideImplementationName() {
+          document.getElementById("implementationNameInfo").innerHTML = "";
+        }
+        </script>
+        {% if implementation_form.name.errors %}
+        {% for e in implementation_form.name.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ implementation_form.name(class_="form-control") }}
+      </div>
+
+      <div class="form-group">
+        {{ implementation_form.algorithm.label }}
+        <p id="implementationAlgorithmInfo"></p>
+        <button onclick="myShowImplementationAlgorithm()" type="button">info</button>
+        <script>
+        function myShowImplementationAlgorithm() {
+          document.getElementById("implementationAlgorithmInfo").innerHTML = "Choose one algorithm from which the implementation will be derived. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideImplementationAlgorithm()" type="button">hide</button>
+        <script>
+        function myHideImplementationAlgorithm() {
+          document.getElementById("implementationAlgorithmInfo").innerHTML = "";
+        }
+        </script>
+        {% if implementation_form.algorithm.errors %}
+        {% for e in implementation_form.algorithm.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ implementation_form.algorithm(class_="form-control") }}
+      </div>
+
+      <div class="form-group">
+        {{ implementation_form.urls.label }}
+        <p id="implementationURLInfo"></p>
+        <button onclick="myShowImplementationURL()" type="button">info</button>
+        <script>
+        function myShowImplementationURL() {
+          document.getElementById("implementationURLInfo").innerHTML = "Provide full addresses to code on the SQUID web proxy hosted by HTCondor. URLs should be addressed to tar.gz files. <strong>[Required - min: 1 max: 10]</strong>";
+        }
+        </script>
+        <button onclick="myHideImplementationURL()" type="button">hide</button>
+        <script>
+        function myHideImplementationURL() {
+          document.getElementById("implementationURLInfo").innerHTML = "";
+        }
+        </script>
+        {% if implementation_form.urls.errors %}
+        {% for e in implementation_form.urls.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ implementation_form.urls(class_="form-control") }}
+      </div>
+
+      <div class="form-group">
+        {{ implementation_form.setup_scripts.label }}
+        <p id="implementationScriptInfo"></p>
+        <button onclick="myShowImplementationScript()" type="button">info</button>
+        <script>
+        function myShowImplementationScript() {
+          document.getElementById("implementationScriptInfo").innerHTML = "Provide a setup shell script to create the runtime environment. <strong>[Required]";
+        }
+        </script>
+        <button onclick="myHideImplementationScript()" type="button">hide</button>
+        <script>
+        function myHideImplementationScript() {
+          document.getElementById("implementationScriptInfo").innerHTML = "";
+        }
+        </script>
+        {% if implementation_form.setup_scripts.errors %}
+        {% for e in implementation_form.setup_scripts.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ implementation_form.setup_scripts(class_="form-control") }}
+      </div>
+
+      <div class="form-group">
+        {{ implementation_form.executable.label }}
+        <p id="implementationExecutableInfo"></p>
+        <button onclick="myShowImplementationExecutable()" type="button">info</button>
+        <script>
+        function myShowImplementationExecutable() {
+          document.getElementById("implementationExecutableInfo").innerHTML = "Provide the address to the executable file. An example of an executable file is compiled MATLAB code. <strong>[Required]</strong>";
+        }
+        </script>
+        <button onclick="myHideImplementationExecutable()" type="button">hide</button>
+        <script>
+        function myHideImplementationExecutable() {
+          document.getElementById("implementationExecutableInfo").innerHTML = "";
+        }
+        </script>
+        {% if implementation_form.executable.errors %}
+        {% for e in implementation_form.executable.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}
+        {{ implementation_form.executable(class_="form-control") }}
+      </div>
+
+      <div class="form-group">
+        {{ implementation_form.description.label }}
+        <p id="implementationDescriptionInfo"></p>
+        <button onclick="myShowImplementationDescription()" type="button">info</button>
+        <script>
+        function myShowImplementationDescription() {
+          document.getElementById("implementationDescriptionInfo").innerHTML = "Provide a succinct description for the given implementation.";
+        }
+        </script>
+        <button onclick="myHideImplementationDescription()" type="button">hide</button>
+        <script>
+        function myHideImplementationDescription() {
+          document.getElementById("implementationDescriptionInfo").innerHTML = "";
+        }
+        </script>
+        {% if implementation_form.description.errors %}
+        {% for e in implementation_form.description.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}		
+        {{ implementation_form.description(class_="form-control") }}
+      </div>
+
+      <div class="form-group">
+        {{ implementation_form.tags.label }}
+        <p id="implementationTagInfo"></p>
+        <button onclick="myShowImplementationTag()" type="button">info</button>
+        <script>
+        function myShowImplementationTag() {
+          document.getElementById("implementationTagInfo").innerHTML = "Provide tags to help organize and identify the implementation.";
+        }
+        </script>
+        <button onclick="myHideImplementationTag()" type="button">hide</button>
+        <script>
+        function myHideImplementationTag() {
+          document.getElementById("implementationTagInfo").innerHTML = "";
+        }
+        </script>
+        {% if implementation_form.tags.errors %}
+        {% for e in implementation_form.tags.errors %}
+        <p class="help-block">{{ e }}</p>
+        {% endfor %}{% endif %}		
+        {{ implementation_form.tags(class_="form-control") }}
+      </div>
+
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+  <div class="col-md-4"></div>
 </div>
 {% endblock %}

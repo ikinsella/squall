@@ -1,2 +1,2 @@
 # Squall
-Library to perform fMRI analysis on HTC systems
+Platform to facilitate the use of HTC computing resources for fMRI analysis.
