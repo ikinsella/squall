@@ -11,7 +11,7 @@ from appname.models import (db,
                             Tag,
                             Algorithm,
                             Implementation)
-from appname.controllers.constants import URLS
+from appname.controllers.constants import (URLS, SCRIPTS)
 
 
 algorithms = Blueprint('algorithms', __name__)
@@ -24,7 +24,8 @@ def algorithm():
     algorithm_form = AlgorithmForm()
     algorithm_form.tags.choices = [(t.id, t.name) for t in
                                    Tag.query.order_by('_name')]
-    implementation_form = ImplementationForm(url_forms=URLS)
+    implementation_form = ImplementationForm(url_forms=URLS,
+                                             setup_scripts=SCRIPTS)
     implementation_form.algorithm.choices = [(a.id, a.name) for a in
                                              Algorithm.query.order_by('_name')]
     implementation_form.tags.choices = [(t.id, t.name) for t in
@@ -41,7 +42,8 @@ def submit_algorithm():
     algorithm_form = AlgorithmForm()
     algorithm_form.tags.choices = [(t.id, t.name) for t in
                                    Tag.query.order_by('_name')]
-    implementation_form = ImplementationForm(url_forms=URLS)
+    implementation_form = ImplementationForm(url_forms=URLS,
+                                             setup_scripts=SCRIPTS)
     implementation_form.algorithm.choices = [(a.id, a.name) for a in
                                              Algorithm.query.order_by('_name')]
     implementation_form.tags.choices = [(t.id, t.name) for t in
@@ -69,7 +71,7 @@ def submit_implementation():
     algorithm_form = AlgorithmForm()
     algorithm_form.tags.choices = [(t.id, t.name) for t in
                                    Tag.query.order_by('_name')]
-    implementation_form = ImplementationForm(url_forms=URLS)
+    implementation_form = ImplementationForm(url_forms=URLS, setup_scripts=SCRIPTS)
     implementation_form.algorithm.choices = [(a.id, a.name) for a in
                                              Algorithm.query.order_by('_name')]
     implementation_form.tags.choices = [(t.id, t.name) for t in
