@@ -23,7 +23,7 @@ def collection():
     collection_form = DataCollectionForm()
     collection_form.tags.choices = [(t.id, t.name) for t in
                                     Tag.query.order_by('_name')]
-    data_set_form = DataSetForm(urls=URLS)
+    data_set_form = DataSetForm(url_forms=URLS)
     data_set_form.tags.choices = [(t.id, t.name) for t in
                                   Tag.query.order_by('_name')]
     data_set_form.data_collection.choices = [(dc.id, dc.name) for dc in
@@ -71,7 +71,7 @@ def submit_data_set():
     collection_form = DataCollectionForm()
     collection_form.tags.choices = [(t.id, t.name) for t in
                                     Tag.query.order_by('_name')]
-    data_set_form = DataSetForm(urls=URLS)
+    data_set_form = DataSetForm(url_forms=URLS)
     data_set_form.tags.choices = [(t.id, t.name) for t in
                                   Tag.query.order_by('_name')]
     data_set_form.data_collection.choices = [(dc.id, dc.name) for dc in

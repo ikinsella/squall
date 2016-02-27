@@ -9,8 +9,6 @@ from wtforms import (TextField,
                      IntegerField,
                      FieldList,
                      ValidationError,
-                     SubmitField,
-                     StringField,
                      FormField)
 
 from wtforms.validators import (DataRequired,
@@ -105,6 +103,24 @@ class ValidResultsFile(object):
             raise ValidationError(self.message)
 
 
+class URLForm(wtforms.Form):
+    url = TextField('URL', validators=[DataRequired(), URL()])
+
+    def validate(self):
+        if super(URLForm, self).validate():
+            return True  # If Our Validators Pass
+        return False
+
+
+class ScriptForm(wtforms.Form):
+    path = TextField('Path', validators=[DataRequired()])
+
+    def validate(self):
+        if super(ScriptForm, self).validate():
+            return True  # If Our Validators Pass
+        return False
+
+
 class AlgorithmForm(Form):
     name = TextField(u'Name', [DataRequired(),
                                UniqueName(Algorithm),
@@ -129,35 +145,16 @@ class ImplementationForm(Form):
                                                 Length(max=512)])
     tags = SelectMultipleField(u'Tags', [Optional()],
                                coerce=int)
-    urls = FieldList(TextField(u'URLs', [DataRequired(),
-                                         URL(),
-                                         Length(max=256)]),
-                     min_entries=1, max_entries=10)
-    setup_scripts = FieldList(TextField(u'Setup Scripts', [DataRequired(),
-                                                           Length(max=256)]),
-                              min_entries=1, max_entries=10)
+    url_forms = FieldList(FormField(URLForm), min_entries=1, max_entries=10)
+
+    setup_scripts = FieldList(FormField(ScriptForm),
+                              min_entries=1,
+                              max_entries=10)
     executable = TextField(u'Executable', [DataRequired(),
                                            Length(max=64)])
 
     def validate(self):
         if super(ImplementationForm, self).validate():
-            return True  # If Our Validators Pass
-        return False
-
-
-class ArgumentForm(Form):
-    name = TextField(u'Name', [DataRequired(),
-                               Length(max=64)])
-    data_type = SelectField(u'Data Type', [DataRequired()],
-                            choices=[(0, 'Int'),
-                                     (1, 'Float'),
-                                     (2, 'Array'),
-                                     (3, 'String'),
-                                     (4, 'Boolean')])
-    optional = BooleanField(u'Optional')
-
-    def validate(self):
-        if super(ArgumentForm, self).validate():
             return True  # If Our Validators Pass
         return False
 
@@ -173,15 +170,6 @@ class DataCollectionForm(Form):
 
     def validate(self):
         if super(DataCollectionForm, self).validate():
-            return True  # If Our Validators Pass
-        return False
-
-
-class URLForm(wtforms.Form):
-    url = TextField('URL', validators=[DataRequired()])
-
-    def validate(self):
-        if super(URLForm, self).validate():
             return True  # If Our Validators Pass
         return False
 
@@ -254,7 +242,6 @@ class BatchForm(Form):
 
 
 class DownloadBatchForm(Form):
-    # batch = SelectField(u'Batch', [DataRequired()], coerce=int)
     batch = SelectField(u'Batch', [DataRequired()], coerce=int)
 
     def validate(self):
@@ -332,3 +319,21 @@ class CreateUserForm(Form):
 
         self.username.errors.append('Username Unavailable')
         return False
+
+""" TODO: For Parameter Validation
+class ArgumentForm(Form):
+    name = TextField(u'Name', [DataRequired(),
+                               Length(max=64)])
+    data_type = SelectField(u'Data Type', [DataRequired()],
+                            choices=[(0, 'Int'),
+                                     (1, 'Float'),
+                                     (2, 'Array'),
+                                     (3, 'String'),
+                                     (4, 'Boolean')])
+    optional = BooleanField(u'Optional')
+
+    def validate(self):
+        if super(ArgumentForm, self).validate():
+            return True  # If Our Validators Pass
+        return False
+"""

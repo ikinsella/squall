@@ -16,15 +16,15 @@
         <p id="algorithmNameInfo"></p>
         <button onclick="myShowAlgorithmName()" type="button">info</button>
         <script>
-        function myShowAlgorithmName() {
+          function myShowAlgorithmName() {
           document.getElementById("algorithmNameInfo").innerHTML = "Provide a unique name for algorithm identification. <strong>[Required]</strong>";
-        }
+          }
         </script>
         <button onclick="myHideAlgorithmName()" type="button">hide</button>
         <script>
-        function myHideAlgorithmName() {
+          function myHideAlgorithmName() {
           document.getElementById("algorithmNameInfo").innerHTML = "";
-        }
+          }
         </script>
         {% if algorithm_form.name.errors %}
         {% for e in algorithm_form.name.errors %}
@@ -38,15 +38,15 @@
         <p id="algorithmDescriptionInfo"></p>
         <button onclick="myShowAlgorithmDescription()" type="button">info</button>
         <script>
-        function myShowAlgorithmDescription() {
+          function myShowAlgorithmDescription() {
           document.getElementById("algorithmDescriptionInfo").innerHTML = "Provide a succinct description for the given algorithm.";
-        }
+          }
         </script>
         <button onclick="myHideAlgorithmDescription()" type="button">hide</button>
         <script>
-        function myHideAlgorithmDescription() {
+          function myHideAlgorithmDescription() {
           document.getElementById("algorithmDescriptionInfo").innerHTML = "";
-        }
+          }
         </script>
         {% if implementation_form.description.errors %}
         {% for e in implementation_form.description.errors %}
@@ -60,15 +60,15 @@
         <p id="algorithmTagInfo"></p>
         <button onclick="myShowAlgorithmTag()" type="button">info</button>
         <script>
-        function myShowAlgorithmTag() {
+          function myShowAlgorithmTag() {
           document.getElementById("algorithmTagInfo").innerHTML = "Provide tags to help organize and identify the algorithm.";
-        }
+          }
         </script>
         <button onclick="myHideAlgorithmTag()" type="button">hide</button>
         <script>
-        function myHideAlgorithmTag() {
+          function myHideAlgorithmTag() {
           document.getElementById("algorithmTagInfo").innerHTML = "";
-        }
+          }
         </script>
         {% if implementation_form.tags.errors %}
         {% for e in implementation_form.tags.errors %}
@@ -96,15 +96,15 @@
         <p id="implementationNameInfo"></p>
         <button onclick="myShowImplementationName()" type="button">info</button>
         <script>
-        function myShowImplementationName() {
+          function myShowImplementationName() {
           document.getElementById("implementationNameInfo").innerHTML = "Provide a unique name for implementation identification. <strong>[Required]</strong>";
-        }
+          }
         </script>
         <button onclick="myHideImplementationName()" type="button">hide</button>
         <script>
-        function myHideImplementationName() {
+          function myHideImplementationName() {
           document.getElementById("implementationNameInfo").innerHTML = "";
-        }
+          }
         </script>
         {% if implementation_form.name.errors %}
         {% for e in implementation_form.name.errors %}
@@ -118,15 +118,15 @@
         <p id="implementationAlgorithmInfo"></p>
         <button onclick="myShowImplementationAlgorithm()" type="button">info</button>
         <script>
-        function myShowImplementationAlgorithm() {
+          function myShowImplementationAlgorithm() {
           document.getElementById("implementationAlgorithmInfo").innerHTML = "Choose one algorithm from which the implementation will be derived. <strong>[Required]</strong>";
-        }
+          }
         </script>
         <button onclick="myHideImplementationAlgorithm()" type="button">hide</button>
         <script>
-        function myHideImplementationAlgorithm() {
+          function myHideImplementationAlgorithm() {
           document.getElementById("implementationAlgorithmInfo").innerHTML = "";
-        }
+          }
         </script>
         {% if implementation_form.algorithm.errors %}
         {% for e in implementation_form.algorithm.errors %}
@@ -136,47 +136,77 @@
       </div>
 
       <div class="form-group">
-        {{ implementation_form.urls.label }}
-        <p id="implementationURLInfo"></p>
-        <button onclick="myShowImplementationURL()" type="button">info</button>
-        <script>
-        function myShowImplementationURL() {
-          document.getElementById("implementationURLInfo").innerHTML = "Provide full addresses to code on the SQUID web proxy hosted by HTCondor. URLs should be addressed to tar.gz files. <strong>[Required - min: 1 max: 10]</strong>";
-        }
-        </script>
-        <button onclick="myHideImplementationURL()" type="button">hide</button>
-        <script>
-        function myHideImplementationURL() {
-          document.getElementById("implementationURLInfo").innerHTML = "";
-        }
-        </script>
-        {% if implementation_form.urls.errors %}
-        {% for e in implementation_form.urls.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ implementation_form.urls(class_="form-control") }}
+        <div data-toggle="fieldset" id="url-fieldset">
+          {{ implementation_form.url_forms.label }}
+	  {% if implementation_form.url_forms.errors %}
+          {% for errors in implementation_form.url_forms.errors %}
+	  {% for e in errors.get("url") %}
+          <p class="help-block">{{ e }}</p>
+          {% endfor %}{% endfor %}{% endif %}
+
+          <p id="urlInfo"></p>
+
+	  <button onclick="myShowURL()" type="button">info</button>
+          <script>
+            function myShowURL() {
+            document.getElementById("urlInfo").innerHTML = "Provide full addresses to code on the SQUID web proxy hosted by HTCondor. URLs should be addressed to tar.gz files. <strong>[Required - min: 1 max: 10]</strong>";
+            }
+          </script>
+
+	  <button onclick="myHideURL()" type="button">hide</button>
+	  <script>
+            function myHideURL() {
+            document.getElementById("urlInfo").innerHTML = "";
+            }
+          </script>
+	  
+	  <table>
+            <td><button type="button" data-toggle="fieldset-add-row" data-target="#url-fieldset">+</button></td>
+            {% for url_form in implementation_form.url_forms %}
+            <tr data-toggle="fieldset-entry">
+              <td id="urls-{{loop.index0}}">{{ url_form.url }}</td>
+              <td><button type="button" data-toggle="fieldset-remove-row" data-target="#url-fieldset" id="urls-{{loop.index0}}-remove">-</button></td>
+            </tr>
+            {% endfor %}
+          </table>
+	</div>
       </div>
 
       <div class="form-group">
-        {{ implementation_form.setup_scripts.label }}
-        <p id="implementationScriptInfo"></p>
-        <button onclick="myShowImplementationScript()" type="button">info</button>
-        <script>
-        function myShowImplementationScript() {
-          document.getElementById("implementationScriptInfo").innerHTML = "Provide a setup shell script to create the runtime environment. <strong>[Required]";
-        }
-        </script>
-        <button onclick="myHideImplementationScript()" type="button">hide</button>
-        <script>
-        function myHideImplementationScript() {
-          document.getElementById("implementationScriptInfo").innerHTML = "";
-        }
-        </script>
-        {% if implementation_form.setup_scripts.errors %}
-        {% for e in implementation_form.setup_scripts.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ implementation_form.setup_scripts(class_="form-control") }}
+        <div data-toggle="fieldset" id="script-fieldset">
+          {{ implementation_form.setup_scripts.label }}
+	  {% if implementation_form.setup_scripts.errors %}
+          {% for errors in implementation_form.setup_scripts.errors %}
+	  {% for e in errors.get("path") %}
+          <p class="help-block">{{ e }}</p>
+          {% endfor %}{% endfor %}{% endif %}
+
+          <p id="ScriptInfo"></p>
+
+	  <button onclick="myShowScript()" type="button">info</button>
+          <script>
+            function myShowScript() {
+            document.getElementById("ScriptInfo").innerHTML = "Helpful Description here";
+            }
+          </script>
+
+	  <button onclick="myHideScript()" type="button">hide</button>
+	  <script>
+            function myHideScript() {
+            document.getElementById("ScriptInfo").innerHTML = "";
+            }
+          </script>
+	  
+	  <table>
+            <td><button type="button" data-toggle="fieldset-add-row" data-target="#script-fieldset">+</button></td>
+            {% for script in implementation_form.setup_scripts %}
+            <tr data-toggle="fieldset-entry">
+              <td id="scripts-{{loop.index0}}">{{ script.path }}</td>
+              <td><button type="button" data-toggle="fieldset-remove-row" data-target="#script-fieldset" id="scripts-{{loop.index0}}-remove">-</button></td>
+            </tr>
+            {% endfor %}
+          </table>
+	</div>
       </div>
 
       <div class="form-group">
@@ -250,4 +280,8 @@
   </div>
   <div class="col-md-4"></div>
 </div>
+
+<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+<script src="{{ url_for("static", filename="js/page.js") }}"></script>
+
 {% endblock %}

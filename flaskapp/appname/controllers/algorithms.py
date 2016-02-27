@@ -24,7 +24,7 @@ def algorithm():
     algorithm_form = AlgorithmForm()
     algorithm_form.tags.choices = [(t.id, t.name) for t in
                                    Tag.query.order_by('_name')]
-    implementation_form = ImplementationForm(urls=URLS)
+    implementation_form = ImplementationForm(url_forms=URLS)
     implementation_form.algorithm.choices = [(a.id, a.name) for a in
                                              Algorithm.query.order_by('_name')]
     implementation_form.tags.choices = [(t.id, t.name) for t in
@@ -41,7 +41,7 @@ def submit_algorithm():
     algorithm_form = AlgorithmForm()
     algorithm_form.tags.choices = [(t.id, t.name) for t in
                                    Tag.query.order_by('_name')]
-    implementation_form = ImplementationForm(urls=URLS)
+    implementation_form = ImplementationForm(url_forms=URLS)
     implementation_form.algorithm.choices = [(a.id, a.name) for a in
                                              Algorithm.query.order_by('_name')]
     implementation_form.tags.choices = [(t.id, t.name) for t in
@@ -69,7 +69,7 @@ def submit_implementation():
     algorithm_form = AlgorithmForm()
     algorithm_form.tags.choices = [(t.id, t.name) for t in
                                    Tag.query.order_by('_name')]
-    implementation_form = ImplementationForm(urls=URLS)
+    implementation_form = ImplementationForm(url_forms=URLS)
     implementation_form.algorithm.choices = [(a.id, a.name) for a in
                                              Algorithm.query.order_by('_name')]
     implementation_form.tags.choices = [(t.id, t.name) for t in
@@ -82,8 +82,10 @@ def submit_implementation():
             name=implementation_form.name.data,
             description=implementation_form.description.data,
             tags=tags,
-            urls=implementation_form.urls.data,
-            setup_scripts=implementation_form.setup_scripts.data,
+            urls=[url_form.url.data for url_form in
+                  implementation_form.url_forms],
+            setup_scripts=[script.path.data for script in
+                           implementation_form.setup_scripts],
             executable=implementation_form.executable.data)
         db.session.add(implementation)
         db.session.commit()
