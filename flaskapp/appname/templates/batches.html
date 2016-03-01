@@ -14,19 +14,8 @@
 
       <div class="form-group">
         {{ batch_form.name.label }}
-        <p id="BatchesNameInfo"></p>
-        <button onclick="myShowBatchesName()" type="button">info</button>
-        <script>
-        function myShowBatchesName() {
-          document.getElementById("BatchesNameInfo").innerHTML = "Provide a unique name for batch identification. <strong>[Required]</strong>";
-        }
-        </script>
-        <button onclick="myHideBatchesName()" type="button">hide</button>
-        <script>
-        function myHideBatchesName() {
-          document.getElementById("BatchesNameInfo").innerHTML = "";
-        }
-        </script>
+        <p id="batches_name_info"></p>
+        <button onclick="toggleButton('batches_name_button', 'batches_name_info', 'Provide a unique name for batch identification. <strong>[Required]</strong>')" type="button" id="batches_name_button">info</button>
         {% if batch_form.name.errors %}
         {% for e in batch_form.name.errors %}
         <p class="help-block">{{ e }}</p>
@@ -36,19 +25,9 @@
       
       <div class="form-group">
         {{ batch_form.experiment.label }}
-        <p id="BatchesExperimentInfo"></p>
-        <button onclick="myShowBatchesExperiment()" type="button">info</button>
-        <script>
-        function myShowBatchesExperiment() {
-          document.getElementById("BatchesExperimentInfo").innerHTML = "Choose one experiment from which the batch will be derived. <strong>[Required]</strong>";
-        }
-        </script>
-        <button onclick="myHideBatchesExperiment()" type="button">hide</button>
-        <script>
-        function myHideBatchesExperiment() {
-          document.getElementById("BatchesExperimentInfo").innerHTML = "";
-        }
-        </script>
+        <p id="batches_experiment_info"></p>
+        <button onclick="toggleButton('batches_experiment_button', 'batches_experiment_info', 'Choose one experiment from which the batch will be derived. <strong>[Required]</strong>')" type="button" id="batches_experiment_button">info</button>
+        
         {% if batch_form.experiment.errors %}
         {% for e in batch_form.experiment.errors %}
         <p class="help-block">{{ e }}</p>
@@ -58,19 +37,9 @@
 
       <div class="form-group">
         {{ batch_form.data_set.label }}
-        <p id="BatchesDataSetInfo"></p>
-        <button onclick="myShowBatchesDataSet()" type="button">info</button>
-        <script>
-        function myShowBatchesDataSet() {
-          document.getElementById("BatchesDataSetInfo").innerHTML = "Choose one data set from which the batch will be derived. <strong>[Required]</strong>";
-        }
-        </script>
-        <button onclick="myHideBatchesDataSet()" type="button">hide</button>
-        <script>
-        function myHideBatchesDataSet() {
-          document.getElementById("BatchesDataSetInfo").innerHTML = "";
-        }
-        </script>
+        <p id="batches_data_set_info"></p>
+        <button onclick="toggleButton('batches_data_set_button', 'batches_data_set_info', 'Choose one data set from which the batch will be derived. <strong>[Required]</strong>')" type="button" id="batches_data_set_button">info</button>
+        
         {% if batch_form.data_set.errors %}
         {% for e in batch_form.data_set.errors %}
         <p class="help-block">{{ e }}</p>
@@ -80,19 +49,9 @@
 
       <div class="form-group">
         {{ batch_form.implementation.label }}
-        <p id="BatchesImplementationInfo"></p>
-        <button onclick="myShowBatchesImplementation()" type="button">info</button>
-        <script>
-        function myShowBatchesImplementation() {
-          document.getElementById("BatchesImplementationInfo").innerHTML = "Choose one implementation from which the batch will be derived. <strong>[Required]</strong>";
-        }
-        </script>
-        <button onclick="myHideBatchesImplementation()" type="button">hide</button>
-        <script>
-        function myHideBatchesImplementation() {
-          document.getElementById("BatchesImplementationInfo").innerHTML = "";
-        }
-        </script>
+        <p id="batches_implementation_info"></p>
+        <button onclick="toggleButton('batches_implementation_button', 'batches_implementation_info', 'Choose one implementation from which the batch will be derived. <strong>[Required]</strong>')" type="button" id="batches_implementation_button">info</button>
+        
         {% if batch_form.implementation.errors %}
         {% for e in batch_form.implementation.errors %}
         <p class="help-block">{{ e }}</p>
@@ -102,19 +61,9 @@
       
       <div class="form-group">
         {{ batch_form.params.label }}
-        <p id="BatchesParamFileInfo"></p>
-        <button onclick="myShowBatchesParamFile()" type="button">info</button>
-        <script>
-        function myShowBatchesParamFile() {
-          document.getElementById("BatchesParamFileInfo").innerHTML = "Provide a file with selected implementation parameters. This file can be .yaml or .yml. <strong>[Required]</strong>";
-        }
-        </script>
-        <button onclick="myHideBatchesParamFile()" type="button">hide</button>
-        <script>
-        function myHideBatchesParamFile() {
-          document.getElementById("BatchesParamFileInfo").innerHTML = "";
-        }
-        </script>
+        <p id="batches_param_file_info"></p>
+        <button onclick="toggleButton('batches_param_file_button', 'batches_param_file_info', 'Provide a file with selected implementation parameters. This file can be .yaml or .yml. <strong>[Required]</strong>')" type="button" id="batches_param_file_button">info</button>
+        
         {% if batch_form.params.errors %}
         {% for e in batch_form.params.errors %}
         <p class="help-block">{{ e }}</p>
@@ -124,19 +73,9 @@
 
       <div class="form-group">
         {{ batch_form.memory.label }}
-        <p id="BatchesMemoryInfo"></p>
-        <button onclick="myShowBatchesMemory()" type="button">info</button>
-        <script>
-        function myShowBatchesMemory() {
-          document.getElementById("BatchesMemoryInfo").innerHTML = "Specify the minimum memory per job. <strong>[Required]</strong>";
-        }
-        </script>
-        <button onclick="myHideBatchesMemory()" type="button">hide</button>
-        <script>
-        function myHideBatchesMemory() {
-          document.getElementById("BatchesMemoryInfo").innerHTML = "";
-        }
-        </script>
+        <p id="batches_memory_info"></p>
+        <button onclick="toggleButton('batches_memory_button', 'batches_memory_info', 'Specify the minimum memory per job. <strong>[Required]</strong>')" type="button" id="batches_memory_button">info</button>
+        
         {% if batch_form.memory.errors %}
         {% for e in batch_form.memory.errors %}
         <p class="help-block">{{ e }}</p>
@@ -146,19 +85,9 @@
 
       <div class="form-group">
         {{ batch_form.disk.label }}
-        <p id="BatchesDiskSpaceInfo"></p>
-        <button onclick="myShowBatchesDiskSpace()" type="button">info</button>
-        <script>
-        function myShowBatchesDiskSpace() {
-          document.getElementById("BatchesDiskSpaceInfo").innerHTML = "Specify the minimum disk space per job. <strong>[Required]</strong>";
-        }
-        </script>
-        <button onclick="myHideBatchesDiskSpace()" type="button">hide</button>
-        <script>
-        function myHideBatchesDiskSpace() {
-          document.getElementById("BatchesDiskSpaceInfo").innerHTML = "";
-        }
-        </script>
+        <p id="batches_disk_space_info"></p>
+        <button onclick="toggleButton('batches_disk_space_button', 'batches_disk_space_info', 'Specify the minimum disk space per job. <strong>[Required]</strong>')" type="button" id="batches_disk_space_button">info</button>
+        
         {% if batch_form.disk.errors %}
         {% for e in batch_form.disk.errors %}
         <p class="help-block">{{ e }}</p>
@@ -168,19 +97,9 @@
 
       <div class="form-group">
         {{ batch_form.flock.label }}
-        <p id="BatchesFlockInfo"></p>
-        <button onclick="myShowBatchesFlock()" type="button">info</button>
-        <script>
-        function myShowBatchesFlock() {
-          document.getElementById("BatchesFlockInfo").innerHTML = "Check 'Flock' to expand pool to entire UW instead of just HTCondor.";
-        }
-        </script>
-        <button onclick="myHideBatchesFlock()" type="button">hide</button>
-        <script>
-        function myHideBatchesFlock() {
-          document.getElementById("BatchesFlockInfo").innerHTML = "";
-        }
-        </script>
+        <p id="batches_flock_info"></p>
+        <button onclick="toggleButton('batches_flock_button', 'batches_flock_info', 'Check \'Flock\' to expand pool to entire UW instead of just HTCondor.')" type="button" id="batches_flock_button">info</button>
+        
         {% if batch_form.flock.errors %}
         {% for e in batch_form.flock.errors %}
         <p class="help-block">{{ e }}</p>
@@ -190,19 +109,9 @@
 
       <div class="form-group">
         {{ batch_form.glide.label }}
-        <p id="BatchesGlideInfo"></p>
-        <button onclick="myShowBatchesGlide()" type="button">info</button>
-        <script>
-        function myShowBatchesGlide() {
-          document.getElementById("BatchesGlideInfo").innerHTML = "Check 'Glide' to expand pool to search the whole Open Science Grid.";
-        }
-        </script>
-        <button onclick="myHideBatchesGlide()" type="button">hide</button>
-        <script>
-        function myHideBatchesGlide() {
-          document.getElementById("BatchesGlideInfo").innerHTML = "";
-        }
-        </script>
+        <p id="batches_glide_info"></p>
+        <button onclick="toggleButton('batches_glide_button', 'batches_glide_info', 'Check \'Glide\' to expand pool to search the whole Open Science Grid.')" type="button" id="batches_glide_button">info</button>
+        
         {% if batch_form.glide.errors %}
         {% for e in batch_form.glide.errors %}
         <p class="help-block">{{ e }}</p>
@@ -212,19 +121,9 @@
 
       <div class="form-group">
         {{ batch_form.description.label }}
-        <p id="BatchesDescriptionInfo"></p>
-        <button onclick="myShowBatchesDescription()" type="button">info</button>
-        <script>
-        function myShowBatchesDescription() {
-          document.getElementById("BatchesDescriptionInfo").innerHTML = "Provide a succinct description for the given batch.";
-        }
-        </script>
-        <button onclick="myHideBatchesDescription()" type="button">hide</button>
-        <script>
-        function myHideBatchesDescription() {
-          document.getElementById("BatchesDescriptionInfo").innerHTML = "";
-        }
-        </script>
+        <p id="batches_description_info"></p>
+        <button onclick="toggleButton('batches_description_button', 'batches_description_info', 'Provide a succinct description for the given batch.')" type="button" id="batches_description_button">info</button>
+        
         {% if batch_form.description.errors %}
         {% for e in batch_form.description.errors %}
         <p class="help-block">{{ e }}</p>
@@ -234,19 +133,9 @@
 
       <div class="form-group">
        {{ batch_form.tags.label }}
-       <p id="BatchesTagInfo"></p>
-       <button onclick="myShowBatchesTag()" type="button">info</button>
-       <script>
-       function myShowBatchesTag() {
-        document.getElementById("BatchesTagInfo").innerHTML = "Provide tags to help organize and identify the batch.";
-      }
-      </script>
-      <button onclick="myHideBatchesTag()" type="button">hide</button>
-      <script>
-      function myHideBatchesTag() {
-        document.getElementById("BatchesTagInfo").innerHTML = "";
-      }
-      </script>
+       <p id="batches_tag_info"></p>
+       <button onclick="toggleButton('batches_tag_button', 'batches_tag_info', 'Provide tags to help organize and identify the batch.')" type="button" id="batches_tag_button">info</button>
+       
       {% if batch_form.tags.errors %}
       {% for e in batch_form.tags.errors %}
       <p class="help-block">{{ e }}</p>
@@ -272,19 +161,9 @@
       
       <div class="form-group">
         {{ download_form.batch.label }}
-        <p id="LaunchFileBatchInfo"></p>
-        <button onclick="myShowLaunchFileBatch()" type="button">info</button>
-        <script>
-        function myShowLaunchFileBatch() {
-          document.getElementById("LaunchFileBatchInfo").innerHTML = "Select batch launch files. Make sure to be logged in as the user that will be launching the batch on HTCondor, as files generated will use the HTCondor directory associated with the logged in user. <strong>[Required]</strong>";
-        }
-        </script>
-        <button onclick="myHideLaunchFileBatch()" type="button">hide</button>
-        <script>
-        function myHideLaunchFileBatch() {
-          document.getElementById("LaunchFileBatchInfo").innerHTML = "";
-        }
-        </script>
+        <p id="launch_file_batch_info"></p>
+        <button onclick="toggleButton('launch_file_batch_button', 'launch_file_batch_info', 'Select batch launch files. Make sure to be logged in as the user that will be launching the batch on HTCondor, as files generated will use the HTCondor directory associated with the logged in user. <strong>[Required]</strong>')" type="button" id="launch_file_batch_button">info</button>
+        
         {% if download_form.batch.errors %}
         {% for e in download_form.batch.errors %}
         <p class="help-block">{{ e }}</p>
@@ -309,19 +188,9 @@
 
       <div class="form-group">
         {{ results_form.batch.label }}
-        <p id="ResultsBatchInfo"></p>
-        <button onclick="myShowResultsBatch()" type="button">info</button>
-        <script>
-        function myShowResultsBatch() {
-          document.getElementById("ResultsBatchInfo").innerHTML = "Select the batch from which the results correspond to. <strong>[Required]</strong>";
-        }
-        </script>
-        <button onclick="myHideResultsBatch()" type="button">hide</button>
-        <script>
-        function myHideResultsBatch() {
-          document.getElementById("ResultsBatchInfo").innerHTML = "";
-        }
-        </script>
+        <p id="results_batch_info"></p>
+        <button onclick="toggleButton('results_batch_button', 'results_batch_info', 'Select the batch from which the results correspond to. <strong>[Required]</strong>')" type="button" id="results_batch_button">info</button>
+        
         {% if results_form.batch.errors %}
         {% for e in results_form.batch.errors %}
         <p class="help-block">{{ e }}</p>
@@ -331,19 +200,9 @@
       
       <div class="form-group">
         {{ results_form.results.label }}
-        <p id="ResultsResultsInfo"></p>
-        <button onclick="myShowResultsResults()" type="button">info</button>
-        <script>
-        function myShowResultsResults() {
-          document.getElementById("ResultsResultsInfo").innerHTML = "Upload associated JSON results file returned from HTCondor. <strong>[Required]</strong>";
-        }
-        </script>
-        <button onclick="myHideResultsResults()" type="button">hide</button>
-        <script>
-        function myHideResultsResults() {
-          document.getElementById("ResultsResultsInfo").innerHTML = "";
-        }
-        </script>
+        <p id="results_results_info"></p>
+        <button onclick="toggleButton('results_results_button', 'results_results_info', 'Upload associated JSON results file returned from HTCondor. <strong>[Required]</strong>')" type="button" id="results_results_button">info</button>
+        
         {% if results_form.results.errors %}
         {% for e in results_form.results.errors %}
         <p class="help-block">{{ e }}</p>
@@ -358,4 +217,6 @@
   </div>
   <div class="col-md-4"></div>
 </div>
+
+<script src="{{ url_for("static", filename="js/toggle.js") }}"></script>
 {% endblock %}

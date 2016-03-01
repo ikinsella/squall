@@ -13,19 +13,9 @@
 
       <div class="form-group">
         {{ tag_form.name.label }}
-        <p id="TagsNameInfo"></p>
-        <button onclick="myShowTagsName()" type="button">info</button>
-        <script>
-        function myShowTagsName() {
-          document.getElementById("TagsNameInfo").innerHTML = "Used to add meta-data to other objects.";
-        }
-        </script>
-        <button onclick="myHideTagsName()" type="button">hide</button>
-        <script>
-        function myHideTagsName() {
-          document.getElementById("TagsNameInfo").innerHTML = "";
-        }
-        </script>
+        <p id="tags_name_info"></p>
+        <button onclick="toggleButton('tags_name_button', 'tags_name_info', 'Used to add meta-data to other objects.')" type="button" id="tags_name_button">info</button>
+        
         {% if tag_form.name.errors %}
         {% for e in tag_form.name.errors %}
         <p class="help-block">{{ e }}</p>
@@ -38,4 +28,6 @@
   </div>
   <div class="col-md-4"></div>
 </div>
+
+<script src="{{ url_for("static", filename="js/toggle.js") }}"></script>
 {% endblock %}
