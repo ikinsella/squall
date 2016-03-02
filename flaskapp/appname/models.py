@@ -11,9 +11,14 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import (UserMixin, AnonymousUserMixin)
 from werkzeug.security import (generate_password_hash, check_password_hash)
 from sqlalchemy.ext.hybrid import hybrid_property
+from flask.ext.pymongo import PyMongo
 
 db = SQLAlchemy()
-
+mongo = PyMongo()
+from pymongo import Connection
+connection = Connection()
+mongodb = connection.test_database
+collection = mongodb.test_collection
 
 """ Tables For Many To Many Relationships """
 """ TODO : Multi-User
