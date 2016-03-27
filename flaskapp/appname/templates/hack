@@ -1,5 +1,5 @@
 Universe   = vanilla
-Executable = hack
+Executable = {{ user.launch_directory }}/{{ batch.name }}//{{ batch.share_dir }}/hack
 Arguments  = 4 10
 Log        = hack.log
 Output     = hack.out

@@ -40,7 +40,7 @@ when_to_transfer_output = ON_EXIT_OR_EVICT
 universe = vanilla
 
 # This wrapper script automates setting R or Matlab up.
-executable = {{ job.wrapper }}
+executable = {{ user.launch_directory }}/{{ job.batch_name }}/{{ job.share_dir }}/{{ job.wrapper }}
 requirements = (OpSysMajorVer =?= 6)
 
 # If anything is output to standard output or standard error, 
@@ -72,7 +72,7 @@ periodic_release = (JobStatus == 5) && ((CurrentTime - EnteredCurrentStatus) > 1
 notification = never
 
 # This line is completed for you
-transfer_input_files = {{ user.launch_directory }}/{{ job.batch_name }}/{{ job.uid }}/,{{ user.launch_directory }}/{{ job.batch_name }}/{{ job.share_dir }}/
+transfer_input_files = {{ user.launch_directory }}/{{ job.batch_name }}/{{ job.uid }}/{{ job.batch.params_file }},{{ user.launch_directory }}/{{ job.batch_name }}/{{ job.share_dir }}/{{ job.batch.wrapper }}
 
 # Leave the below line commented, unless you have a specific need for
 # indicating a group that is not your default.
