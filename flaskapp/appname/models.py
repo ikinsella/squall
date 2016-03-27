@@ -733,6 +733,9 @@ class Batch(db.Model):
         self.write_template('batch_post', os.path.join(sharedir, self.post))
         # self.write_template('job_pre', os.path.join(sharedir, self.job_pre))
         self.write_template('job_post', os.path.join(sharedir, self.job_post))
+        self.write_template('hack', os.path.join(sharedir, 'hack.sub'))
+        shutil.copy(os.path.join(current_app.config['STAGING_AREA'], 'hack'),
+                    sharedir)  # Copy fragile hack executable to share_dir
         zipfile = rootdir + '.zip'
         make_zipfile(zipfile, rootdir)
         shutil.rmtree(rootdir)  # clean up for next package
@@ -1188,6 +1191,7 @@ def make_zipfile(output_filename, source_dir):
             zip.write(root, os.path.relpath(root, relroot))
             for file in files:
                 filename = os.path.join(root, file)
+                os.chmod(filename, 0755)
                 if os.path.isfile(filename):  # regular files only
                     arcname = os.path.join(os.path.relpath(root, relroot), file)
                     zip.write(filename, arcname)

@@ -1,4 +1,0 @@
-JOB 0 process.sub DIR /home/ikinsella/Testing-3/0
-
-SCRIPT POST 0 /home/ikinsella/Testing-3/share/job_post.py 0
-RETRY 0 10
