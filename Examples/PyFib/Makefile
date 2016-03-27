@@ -1,8 +1,9 @@
 # Project Dependent Parameters
 PDIST=Python-2.7
-PBIN=python2
+PBIN=python2.7
 WRAPPER=FibWrapper.py
-DTAR=PyFib.tar.gz
+DIR=PyFib
+DTAR=$(DIR).tar.gz
 
 # Reusable Input Parameters -- Shouldn't Change If Following Project Structure Guidelines
 # SRC - List of Custom Modules ie. SRC=A B C
@@ -12,59 +13,56 @@ DTAR=PyFib.tar.gz
 # SUBMIT - Name of interactive build submit file
 # PTAR - Name of python distribution tarball ie. Python-2.7.tgz
 # SRCTAR - Name of package which will be shipped to interactive build
+# PIP - Link to get-pip.py
 # PROJ - Full path to project directory where make is being run
 # DIR - Name of project (top level directory)
 SRC=Src
 DEP=Dependencies
-SETUP=setup.sh
-REQ=requirements.txt
-SUBMIT=interactive_build.sub
-PTAR=$(PDIST).tgz
+SETUP=$(DEP)/setup.sh
+REQ=$(DEP)/requirements.txt
+SUBMIT=$(DEP)/interactive_build.sub
+PTAR=$(DEP)/$(PDIST).tgz
 SRCTAR=source_code.tar.gz
+PIP=https://bootstrap.pypa.io/get-pip.py
 PROJ=`pwd`
-DIR=`pwd|sed 'sA.*/AA'`
 
 # Targets & Recipes
-.PHONY: $(PBIN) $(DTAR) $(SETUP) $(WRAPPER) clean postbuild extract sdist enode snode condor submit distribution all
+.PHONY: $(PBIN) $(PTAR) $(DTAR) $(SETUP) $(WRAPPER) clean postbuild extract sdist enode snode condor submit distribution all
 
 all: condor postbuild
 
 condor:
 	-scp -r $(PROJ) $(CHTC_USER)@$(SUBMIT_NODE):~/
-	-ssh $(CHTC_USER)@$(SUBMIT_NODE) "cd $(DIR); make snode DIR=$(DIR);"
+	-ssh $(CHTC_USER)@$(SUBMIT_NODE) "cd $(DIR); make snode;"
 
 snode: sdist submit
 
 sdist:
-	-tar czvf $(SRCTAR) $(WRAPPER) $(DEP)/$(SETUP) $(DEP)/$(PTAR) $(DEP)/$(REQ) $(SRC)
+	-tar czvf $(SRCTAR) $(WRAPPER) $(SETUP) $(PTAR) $(REQ) $(SRC)
 
-submit: $(DEP)/$(SUBMIT)
+submit: $(SUBMIT)
 	-mkdir log
 	-cp $< .
-	-condor submit -i interactive_build.sub <<< "make enode DIR=$(DIR)"
+	-condor_submit -i interactive_build.sub SRCTAR=$(SRCTAR) <<< "make enode"
 
-enode: extract $(PTAR) $(PBIN) $(REQ) $(DIR) $(DTAR) clean
+enode: extract $(PTAR) $(PBIN) $(REQ) $(DIR) $(DTAR)
 
 extract:
 	-tar xzf $(SRCTAR)
 
-$(PTAR): $(PTAR)
+$(PTAR):
 	-mkdir python
-	-tar xvzf $<
-	-cd $(PDIST)
-	-./configure --prefix=$(pwd)/../python
-	-make
-	-make install
+	-tar xvzf $@
+	-cd $(PDIST); ./configure --prefix="`pwd`/../python"; make; make install
 
 $(PBIN): python/bin/$(PBIN)
 	-cp $< python/bin/python
 
-$(REQ): $(REQ) pip
-	-pip install -r $@
-
-pip:
+$(REQ):
 	-export PATH=$(pwd)/python/bin:$PATH
-	-wget http://link.to.get-pip.py
+	-wget $(PIP)
+	-python get-pip.py
+	-pip install -r $@
 
 $(DIR): $(WRAPPER) $(SETUP) $(SRC)
 	-mkdir $@
@@ -75,7 +73,7 @@ $(DTAR): python/ $(DIR)/
 
 clean: $(DTAR)
 	-rm $(SRCTAR)
-	-rm $(PTAR)
+	-rm get-pip.py
 	-rm _condor_std???
 	-rm Makefile
 	-exit
