@@ -1,0 +1,9 @@
+SPLICE 0 0.dag DIR /home/ikinsella/Testing-3/0/
+SPLICE 1 1.dag DIR /home/ikinsella/Testing-3/1/
+SPLICE 2 2.dag DIR /home/ikinsella/Testing-3/2/
+
+JOB hack hack.sub DIR /home/ikinsella/Testing-3/hack/
+
+SCRIPT POST hack /home/ikinsella/Testing-3/share/batch_post.py
+
+PARENT 0 1 2 CHILD hack

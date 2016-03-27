@@ -1074,6 +1074,10 @@ class Job(db.Model):
         return self.batch.job_post
 
     @hybrid_property
+    def batch_name(self):
+        return self.batch.name
+
+    @hybrid_property
     def tags(self):
         return self.batch.tags
 

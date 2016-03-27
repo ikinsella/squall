@@ -1,0 +1,4 @@
+JOB 180 /home/crcox/Manchester/WholeBrain_RSA/visual/avg/final/grOWL2/180/process.sub dir /home/crcox/Manchester/WholeBrain_RSA/visual/avg/final/grOWL2/180
+
+
+RETRY 180 10

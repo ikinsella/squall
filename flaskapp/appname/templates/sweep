@@ -1,4 +1,4 @@
-{% for job in batch.jobs %}SPLICE {{ job.uid }} {{ user.launch_directory }}/{{ job.uid }}/{{ job.uid }}.dag
+{% for job in batch.jobs %}SPLICE {{ job.uid }} {{ user.launch_directory }}/{{ batch.name }}/{{ job.uid }}/{{ job.uid }}.dag
 {% endfor %}
-{% if batch.pre %}SCRIPT PRE PreBatch {{ user.launch_directory }}/{{ batch.share_dir }}/{{ batch.pre }}{% endif %}
-{% if batch.post %}SCRIPT POST PostBatch {{ user.launch_directory }}/{{ batch.share_dir }}/{{ batch.post }}{% endif %}
+{% if batch.pre %}SCRIPT PRE PreBatch {{ user.launch_directory }}/{{ batch.name }}/{{ batch.share_dir }}/{{ batch.pre }}{% endif %}
+{% if batch.post %}SCRIPT POST PostBatch {{ user.launch_directory }}/{{ batch.name }}/{{ batch.share_dir }}/{{ batch.post }}{% endif %}

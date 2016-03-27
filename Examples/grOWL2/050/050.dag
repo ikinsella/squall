@@ -1,0 +1,4 @@
+JOB 050 /home/crcox/Manchester/WholeBrain_RSA/visual/avg/final/grOWL2/050/process.sub dir /home/crcox/Manchester/WholeBrain_RSA/visual/avg/final/grOWL2/050
+
+
+RETRY 050 10

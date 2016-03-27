@@ -1,0 +1,25 @@
+---
+Lambdas: [.1, .5, 1, 5, 10, 50, 100, 500, 1000, 5000, 10000]
+Alphas: 0
+Thresholds: 1
+Weighted: false
+Probability: "log"
+Order: "constant"
+GroupOrder: "linear"
+K: 3
+N: 100
+P: 1000
+O: 25
+V: 3
+D: .1
+RndSeed: true
+Seed1: [0,1,2,3,4,5,6,7,8,9]
+Seed10: [0,1,2,3,4,5,6,7,8,9]
+Seed100: [0,1,2,3,4,5,6,7,8,9]
+WriteToMat: false
+WriteToJSON: true
+HTCondor: true
+ExpandFields:
+- Seed1
+- Seed10
+- Seed100

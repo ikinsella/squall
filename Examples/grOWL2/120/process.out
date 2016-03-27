@@ -1,0 +1,24 @@
+/crcox/MRI/Manchester/avg/s06_avg.mat
+------------------------------------------
+Setting up environment variables
+---
+LD_LIBRARY_PATH is .:v82/runtime/glnxa64:v82/bin/glnxa64:v82/sys/os/glnxa64
+Loading data from  ./s06_avg.mat, subject number 6
+Initial dimensions: (37,13950)
+Filtered dimensions: (37,13824)
+Including Bias Unit:        [YES]
+Normalizing columns of X:   [YES]
+Data loaded and processed.
+   cv   lam       lam1    test err    train err      p1 test     p1 train     cor test    cor train       n vox  
+  6 |   0.64 |   6.00 |       0.52 |       0.08 |       0.54 |       0.77 |      -0.05 |       0.90 |        157
+Exit status -- Iteration limit reached (150000 iterations)
+Saving stuff.....
+Done!
+
+*************
+** SUCCESS **
+*************
+
+removed `r2013b.tar.gz'
+removed `s06_avg.mat'
+all clean

@@ -1,0 +1,7 @@
+Universe   = vanilla
+Executable = hack
+Arguments  = 4 10
+Log        = hack.log
+Output     = hack.out
+Error      = hack.error
+Queue
