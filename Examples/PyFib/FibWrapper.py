@@ -1,10 +1,9 @@
 #!bin/env/python
 import json
-from src.fib import fib_prod
+from Src.fib import fib_prod
 
 # Read params JSON delivered by HTCondor
-with open('params.json', 'rb') as paramfile:
-    params = json.load(paramfile)
+params = json.loads(open('params.json').read())
 
 # Compute & time fibonnacci numbers & their product
 (product, fibA, fibB, cpuA, cpuB) = fib_prod(params['A'], params['B'])
