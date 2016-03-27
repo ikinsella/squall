@@ -36,7 +36,7 @@ sdist:
 submit: $(DEP)/$(SUBMIT)
 	-mkdir log
 	-cp $< .
-	-condor_submit -i interactive_build.sub <<< "make enode"
+	-condor_submit -i interactive_build.sub SRCTAR=$(SRCTAR) <<< "make enode"
 
 enode: extract $(BINTAR) clean
 
