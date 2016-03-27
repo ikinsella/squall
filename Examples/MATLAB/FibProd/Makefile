@@ -1,47 +1,70 @@
 # Reusable Input Parameters
 MREV=R2014b
-WRAPPER=fibwrapper.m
-COMPILE=condor_compile.sh
-SUBMIT=interactive_build.sub
-# Architecture Dependent Parameters
-SRC=src
-SUB=$(SRC)/subroutines
-DEP=dependencies
-JSON=$(DEP)/jsonlab
-SETUP=$(DEP)/setupMCR
-INCL= -I $(SRC) -I $(JSON) -I $(SUB)
-# Constants
 MCC=/usr/local/MATLAB/$(MREV)/bin/mcc
 MEX=/usr/local/MATLAB/$(MREV)/bin/mex
 MFLAGS=-mv -R -singleCompThread -R -nodisplay -R -nojvm
+SUBMIT=interactive_build.sub
+SRCTAR=source_code.tar.gz
+BINTAR=FibProd.tar.gz
+SETUP_SCRIPT=setup.sh
+EXE=executable
+PROJ=`pwd`
+DIR=`pwd|sed 'sA.*/AA'`
+
+# Architecture Dependent Parameters
+WRAPPER=FibWrapper.m
+SRC=Src
+DEP=Dependencies
+JSON=$(DEP)/jsonlab
+SETUP=$(DEP)/setupMCR
+INCL=-I $(SRC) -I $(JSON)
+
 # Targets & Recipes
-.PHONY: clean postbuild binaries.tar.gz setup.sh executable extract sdist all
+.PHONY: clean postbuild $(BINTAR) $(SETUP_SCRIPT) $(EXE) extract sdist snode enode condor all
 
-all: binaries.tar.gz postbuild
+all: condor postbuild
 
-sdist: $(DEP)/$(COMPILE) $(DEP)/$(SUBMIT)
-	-tar czf source_code.tar.gz Makefile $(WRAPPER) $(SRC) $(DEP)
-	-cp $^ .
+condor:
+	-scp -r $(PROJ) $(CHTC_USER)@$(SUBMIT_NODE):~/
+	-ssh $(CHTC_USER)@$(SUBMIT_NODE) "cd $(DIR); make snode;"
+
+snode: sdist submit
+
+sdist:
+	-tar czf $(SRCTAR) $(WRAPPER) $(SRC) $(DEP)
+
+submit: $(DEP)/$(SUBMIT)
+	-mkdir log
+	-cp $< .
+	-condor_submit -i interactive_build.sub <<< "make enode"
+
+enode: extract $(BINTAR) clean
 
 extract:
-	-mkdir source_code/
-	-tar xzf source_code.tar.gz -C ./source_code/
+	-tar xvzf $(SRCTAR)
 
-executable: $(WRAPPER)
+$(EXE): $(WRAPPER)
 	$(MCC) $(MFLAGS) $(INCL) -o $@ $<
 
-setup.sh: $(SETUP)/setup$(MREV).sh
+$(SETUP_SCRIPT): $(SETUP)/setup$(MREV).sh
 	-cp $< $@
 
-binaries.tar.gz: executable setup.sh
+$(BINTAR): $(EXE) $(SETUP_SCRIPT)
 	-mkdir bin/
 	-mv $^ bin/
-	-tar czvf $@ bin/
+	-tar cvzf $@ bin/
 
-postbuild: binaries.tar.gz
-	-cp binaries.tar.gz ../
-
-clean:
-	-rm source_code.tar.gz
+clean: $(BINTAR)
+	-rm $(SRCTAR)
+	-rm $(WRAPPER)
 	-rm _condor_std???
 	-rm Makefile
+	-rm run_executable.sh
+	-rm readme.txt
+	-rm *.log
+	-exit
+
+postbuild:
+	-scp $(CHTC_USER)@$(SUBMIT_NODE):~/$(DIR)/$(BINTAR) $(PROJ)/$(BINTAR)
+	-ssh $(CHTC_USER)@$(SUBMIT_NODE) "yes|rm -rf $(DIR)"
+	-echo "SUCCESS! Compiled Binaries placed in: $(PROJ)/$(BINTAR)"
