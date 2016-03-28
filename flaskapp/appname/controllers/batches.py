@@ -1,3 +1,4 @@
+import json
 from flask import (Blueprint,
                    render_template,
                    flash,
@@ -130,12 +131,12 @@ def download_batch():
 @login_required
 def upload_results():
     #mongotest
-    post = {"author":"My name is Zach"}  
-    posts = mongodb.posts  
-    result = posts.insert(post)              
+    #post = {"author":"My name is Zach"}  
+    #posts = mongodb.posts  
+    #result = posts.insert(post)              
     #flash(dict(post))
-    for post in posts.find():                
-        print post
+    #for post in posts.find():                
+    #    print post
     #return redirect(url_for("algorithms.algorithm"))
 
 
@@ -156,13 +157,18 @@ def upload_results():
     results_form = UploadResultsForm()
     results_form.batch.choices = [(b.id, b.name) for b in
                                   Batch.query.order_by('_name')]
-    #if results_form.validate_on_submit():
-    #    results_json = json.load(results_form.results.data) # TODO: Handle Results File Uploads
-    #    batch = Batch.query.filter_by(id=results_form.batch.data).first()
-    #    batch.results = results_json  # TODO: Link results to batch
-    #    flash("Results Stored", "danger")
-    #    return redirect(url_for("batches.batch"))
-    #flash("Failed validation", "danger")
+
+    if results_form.validate_on_submit():
+        results_json = json.load(results_form.results.data) # TODO: Handle Results File Uploads
+        batch = Batch.query.filter_by(id=results_form.batch.data).first()
+        batch.results = results_json  # TODO: Link results to batch
+	post = batch.serialize
+	posts = mongodb.posts
+	result = posts.insert(post)
+        flash("Results Stored", "danger")
+        return redirect(url_for("batches.batch"))
+    flash("Failed validation", "danger")
+
     return render_template('batches.html',
                            batch_form=batch_form,
                            download_form=download_form,

@@ -776,13 +776,14 @@ class Batch(db.Model):
                 'post': self.post,
                 'job_pre': self.job_pre,
                 'job_post': self.job_post,
-                'args': self.args,
+#                'args': self.args,
                 'kwargs': self.kwargs,
                 'sweep': self.sweep,
                 'wrapper': self.wrapper,
                 'submit_file': self.submit_file,
                 'params_file': self.params_file,
-                'share_dir': self.share_dir}
+                'share_dir': self.share_dir,
+		'results': self.results}
 
     @hybrid_property
     def name(self):
@@ -886,7 +887,7 @@ class Batch(db.Model):
 
     @hybrid_property
     def args(self):
-        return self.batch.args
+        return self._args
 
     @args.setter
     def args(self, value):
@@ -954,7 +955,7 @@ class Batch(db.Model):
 
     @results.setter
     def results(self, value):
-        self._results = json.load(value)  # TODO: Validate
+        self._results = json.dumps(value)  # TODO: Validate
 
     @hybrid_property
     def size(self):
