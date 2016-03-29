@@ -25,6 +25,38 @@ cleanup() {
     echo "all clean"
 }
 
+download() {
+    url=$1
+    try=0
+    name=$(basename "$url")
+    DOWNLOAD_STATUS=1
+    while [ $DOWNLOAD_STATUS -gt 0 ]; do
+	# If retrying, clean up from last attempt
+	if [ $try -gt 0 ]; then
+	    echo "Download failed, cleaning up and retrying..."
+	    rm -f $name
+	fi
+	# Download file and verify success
+	wget "${url}"
+	DOWNLOAD_STATUS=$?
+	# If .md5 exists, use it to verify download integrity
+	wget --spider "${url}.md5"
+	if [ $? -eq 0 ]; then
+	    echo "Downloading md5 hash to verify file integrity"
+	    wget "${url}.md5"
+	    md5sum -c "./${name}.md5"
+	    DOWNLOAD_STATUS=$?
+	    rm -f "${name}.md5"
+	fi
+	# If download failed, retry up to 5 times
+	try=$((try+1))
+	if [ $try -gt 5 ]; then
+	    echo "Download exceeded max tries. Exiting...";
+	    exit;
+	fi
+    done
+}
+
 abort() {
   echo >&2 '
 *************
@@ -58,51 +90,32 @@ trap abort EXIT SIGTERM
 # Ensure that script exits if any command fails
 set -e
 
-# Download source code archives listed in URLS
+# Download source code listed in Implementation URLS
 {% for url in code_urls(batch) %}
 fname=$(basename "{{ url }}")
-echo "Downloading $fname from {{ url }}..."
-wget -q "{{ url }}"
-# If failed, retry download up to 5 times 
-DOWNLOAD_STATUS=$?
-i=0
-while [ ! $DOWNLOAD_STATUS -eq 0 ] && [ $i -lt 5 ] ; do
-    echo "Download failed, cleaning up and retrying..."
-    rm -v "$fname"
-    wget -q "{{ url }}"
-    DOWNLOAD_STATUS=$?
-    i++
-done
-echo "SUCCESS! Untarring $fname ..."
-{# Unzip directory #}
+echo "Downloading $fname from {{ url }} ..."
+download "{{ url }}"
+echo "SUCCESS! Untarring $fname into $(pwd) ..."
 tar xvzf "$fname"
 {% endfor %}
 
-# Download all data files listed in URLS
+# Download data files listed in Data Set URLS
 {% for url in data_urls(batch) %}
 fname=$(basename "{{ url }}")
-echo "Downloading $fname from {{ url }}..."
-wget -q "{{ url }}"
-DOWNLOAD_STATUS=$?
-i=0
-while [ ! $DOWNLOAD_STATUS -eq 0 ] && [ $i -lt 5 ] ; do
-    echo "Download failed, cleaning up and retrying..."
-    rm "$fname$"
-    wget -q "{{ url }}"
-    DOWNLOAD_STATUS=$?
-    i++
-done
+echo "Downloading $fname from {{ url }} ..."
+download "{{ url }}"
+echo "SUCCESS! $fname placed in $(pwd) ..."
 {% endfor %}
 
-{# Run the setup scripts #}
+# Run all Implementation setup scripts
 echo "Setting up environment..."
 {% for setup_script in setup_scripts(batch) %}
 echo "sourcing {{ setup_script }} ..."
 source "{{ setup_script }}"
 {% endfor %}
 
+# Execute Application
 echo "Environment successfully setup, running executable..."
-{# Execute Application #}
 exe_dir=`dirname "$0"`
 eval "${exe_dir}/{{ executable(batch) }}"
 
