@@ -40,8 +40,11 @@ download() {
 	wget "${url}"
 	DOWNLOAD_STATUS=$?
 	# If .md5 exists, use it to verify download integrity
+	set +e
 	wget --spider "${url}.md5"
-	if [ $? -eq 0 ]; then
+	MD5=$?
+	set -e
+	if [ $MD5 -eq 0 ]; then
 	    echo "Downloading md5 hash to verify file integrity"
 	    wget "${url}.md5"
 	    md5sum -c "./${name}.md5"
