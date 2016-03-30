@@ -671,7 +671,7 @@ class Batch(db.Model):
         self._post = post_script
         self._job_pre = job_pre_script
         self._job_post = job_post_script
-        self._args = arguments
+        self._arguments = arguments
         self._kwargs = keyword_arguments
         self._sweep = sweep
         self._wrapper = wrapper
@@ -776,7 +776,7 @@ class Batch(db.Model):
                 'post': self.post,
                 'job_pre': self.job_pre,
                 'job_post': self.job_post,
-#                'args': self.args,
+                'args': self.args,
                 'kwargs': self.kwargs,
                 'sweep': self.sweep,
                 'wrapper': self.wrapper,
@@ -887,11 +887,11 @@ class Batch(db.Model):
 
     @hybrid_property
     def args(self):
-        return self._args
+        return self._arguments
 
     @args.setter
     def args(self, value):
-        self._args = value
+        self._arguments = value
 
     @hybrid_property
     def kwargs(self):
