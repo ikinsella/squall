@@ -161,10 +161,14 @@ def upload_results():
     if results_form.validate_on_submit():
         results_json = json.load(results_form.results.data) # TODO: Handle Results File Uploads
         batch = Batch.query.filter_by(id=results_form.batch.data).first()
-        batch.results = results_json  # TODO: Link results to batch
-	post = batch.serialize
-	posts = mongodb.posts
-	result = posts.insert(post)
+        batch.results = results_json  # TODO: Link results to batch 
+	col = mongodb.col
+	for key, value in results_json.iteritems():
+		post = {"id": key, "results": value}
+		result = col.insert(post)
+	#post = batch.serialize
+	#posts = mongodb.posts
+	#result = posts.insert(post)
         flash("Results Stored", "danger")
         return redirect(url_for("batches.batch"))
     flash("Failed validation", "danger")
