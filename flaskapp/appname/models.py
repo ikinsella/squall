@@ -762,6 +762,9 @@ class Batch(db.Model):
     def serialize(self):  # TODO: Hierarchy
         serial_jobs = [job.serialize for job in self.jobs]  # TODO: Serial Dict
         serial_tags = [tag.serialize for tag in self.tags]
+	imp = Implementation.query.filter_by(id=self.implementation_id).first()
+	exp = Experiment.query.filter_by(id=self.experiment_id).first()
+	data_set = DataSet.query.filter_by(id=self.data_set_id).first()
         return {'id': self.id,
                 'name': self.name,
                 'description': self.description,
@@ -783,7 +786,9 @@ class Batch(db.Model):
                 'submit_file': self.submit_file,
                 'params_file': self.params_file,
                 'share_dir': self.share_dir,
-		'results': self.results}
+		'implementation': imp.serialize,
+		'experiment': exp.serialize,
+		'data set': data_set.serialize}
 
     @hybrid_property
     def name(self):
