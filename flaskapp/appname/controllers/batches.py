@@ -162,13 +162,16 @@ def upload_results():
         results_json = json.load(results_form.results.data) # TODO: Handle Results File Uploads
         batch = Batch.query.filter_by(id=results_form.batch.data).first()
         batch.results = results_json  # TODO: Link results to batch 
-	col = mongodb.col
+	exp = Experiment.query.filter_by(id=batch.experiment_id).first()
+	if exp.name in mongodb.collection_names():
+		col = mongodb.create_collection(exp.name)
+	else:
+		col = mongodb[exp.name]
+	b_post = batch.serialize
+	col.insert(b_post)
 	for key, value in results_json.iteritems():
-		post = {"id": key, "results": value}
+		post = {"id": key, "batch_id": batch.id, "batch_name": batch.name, "results": value}
 		result = col.insert(post)
-	#post = batch.serialize
-	#posts = mongodb.posts
-	#result = posts.insert(post)
         flash("Results Stored", "danger")
         return redirect(url_for("batches.batch"))
     flash("Failed validation", "danger")
