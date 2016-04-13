@@ -1,3 +1,4 @@
+import json
 from flask import (Blueprint,
                    render_template,
                    flash,
@@ -9,6 +10,7 @@ from flask.ext.login import login_required
 from appname.extensions import cache
 from appname.forms import (BatchForm, DownloadBatchForm, UploadResultsForm)
 from appname.models import (db,
+                            mongodb,
                             Tag,
                             Experiment,
                             Implementation,
@@ -128,6 +130,18 @@ def download_batch():
 @cache.cached(timeout=1000)
 @login_required
 def upload_results():
+    #mongotest
+    #post = {"author":"My name is Zach"}  
+    #posts = mongodb.posts  
+    #result = posts.insert(post)              
+    #flash(dict(post))
+    #for post in posts.find():                
+    #    print post
+    #return redirect(url_for("algorithms.algorithm"))
+
+
+
+
     batch_form = BatchForm(memory=MEMORY, disk=DISK, flock=FLOCK, glide=GLIDE)
     batch_form.tags.choices = [(t.id, t.name) for t in
                                Tag.query.order_by('_name')]
@@ -143,12 +157,25 @@ def upload_results():
     results_form = UploadResultsForm()
     results_form.batch.choices = [(b.id, b.name) for b in
                                   Batch.query.order_by('_name')]
+
     if results_form.validate_on_submit():
+        results_json = json.load(results_form.results.data) # TODO: Handle Results File Uploads
         batch = Batch.query.filter_by(id=results_form.batch.data).first()
-        batch.results = results_form.results.data  # TODO: Validate Results
-        flash("Results Stored", "success")
+        batch.results = results_json  # TODO: Link results to batch 
+	exp = Experiment.query.filter_by(id=batch.experiment_id).first()
+	if exp.name in mongodb.collection_names():
+		col = mongodb.create_collection(exp.name)
+	else:
+		col = mongodb[exp.name]
+	b_post = batch.serialize
+	col.insert(b_post)
+	for key, value in results_json.iteritems():
+		post = {"id": key, "batch_id": batch.id, "batch_name": batch.name, "results": value}
+		result = col.insert(post)
+        flash("Results Stored", "danger")
         return redirect(url_for("batches.batch"))
     flash("Failed validation", "danger")
+
     return render_template('batches.html',
                            batch_form=batch_form,
                            download_form=download_form,

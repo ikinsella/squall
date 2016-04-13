@@ -11,9 +11,14 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import (UserMixin, AnonymousUserMixin)
 from werkzeug.security import (generate_password_hash, check_password_hash)
 from sqlalchemy.ext.hybrid import hybrid_property
+from flask.ext.pymongo import PyMongo
 
 db = SQLAlchemy()
-
+mongo = PyMongo()
+from pymongo import Connection
+connection = Connection()
+mongodb = connection.test_database
+collection = mongodb.test_collection
 
 """ Tables For Many To Many Relationships """
 """ TODO : Multi-User
@@ -666,7 +671,7 @@ class Batch(db.Model):
         self._post = post_script
         self._job_pre = job_pre_script
         self._job_post = job_post_script
-        self._args = arguments
+        self._arguments = arguments
         self._kwargs = keyword_arguments
         self._sweep = sweep
         self._wrapper = wrapper
@@ -757,6 +762,9 @@ class Batch(db.Model):
     def serialize(self):  # TODO: Hierarchy
         serial_jobs = [job.serialize for job in self.jobs]  # TODO: Serial Dict
         serial_tags = [tag.serialize for tag in self.tags]
+	imp = Implementation.query.filter_by(id=self.implementation_id).first()
+	exp = Experiment.query.filter_by(id=self.experiment_id).first()
+	data_set = DataSet.query.filter_by(id=self.data_set_id).first()
         return {'id': self.id,
                 'name': self.name,
                 'description': self.description,
@@ -777,7 +785,10 @@ class Batch(db.Model):
                 'wrapper': self.wrapper,
                 'submit_file': self.submit_file,
                 'params_file': self.params_file,
-                'share_dir': self.share_dir}
+                'share_dir': self.share_dir,
+		'implementation': imp.serialize,
+		'experiment': exp.serialize,
+		'data set': data_set.serialize}
 
     @hybrid_property
     def name(self):
@@ -881,11 +892,11 @@ class Batch(db.Model):
 
     @hybrid_property
     def args(self):
-        return self.batch.args
+        return self._arguments
 
     @args.setter
     def args(self, value):
-        self._args = value
+        self._arguments = value
 
     @hybrid_property
     def kwargs(self):
@@ -949,7 +960,7 @@ class Batch(db.Model):
 
     @results.setter
     def results(self, value):
-        self._results = json.load(value)  # TODO: Validate
+        self._results = json.dumps(value)  # TODO: Validate
 
     @hybrid_property
     def size(self):
