@@ -270,7 +270,7 @@ class Implementation(db.Model):
                  urls,
                  setup_scripts,
                  executable):
-        self.algorithm_id = algorithm_id
+        self._algorithm_id = algorithm_id
         self._name = name
         self._description = description
         self._tags = tags
@@ -789,6 +789,38 @@ class Batch(db.Model):
 		'implementation': imp.serialize,
 		'experiment': exp.serialize,
 		'data set': data_set.serialize}
+
+    @hybrid_property
+    def getMongoInfo(self):
+	tags_name = [tag.name for tag in self.tags]
+	tag_str = json.dumps(tags_name) 
+	imp = Implementation.query.filter_by(id=self.implementation_id).first()
+	imp_tname = [tag.name for tag in imp._tags]
+	imp_tstr = json.dumps(imp_tname) 
+	exp = Experiment.query.filter_by(id=self.experiment_id).first()
+	exp_tname = [tag.name for tag in exp._tags]
+	exp_tstr = json.dumps(exp_tname) 
+	data_set = DataSet.query.filter_by(id=self.data_set_id).first()
+	ds_tname = [tag.name for tag in data_set._tags]
+	ds_tstr = json.dumps(ds_tname) 
+        data_collection = DataCollection.query.filter_by(id=data_set.data_collection_id).first() 
+	dc_tname = [tag.name for tag in data_collection._tags]
+	dc_tstr = json.dumps(dc_tname) 
+	alg = Algorithm.query.filter_by(id=imp._algorithm_id).first() 
+	alg_tname = [tag.name for tag in alg._tags]
+	alg_tstr = json.dumps(alg_tname) 
+	return {'Batch': self.name,
+		'Batch tags': tag_str,
+		'Experiment': exp.name,
+		'Experiment tags': exp_tstr,
+		'Data Set': data_set.name,
+		'Data Set tags': ds_tstr,
+		'Data Collection': data_collection.name,
+		'Data Collection tags': dc_tstr,
+		'Algorithm': alg.name,
+		'Algorithm tags': alg_tstr,
+		'Implementation': imp.name,
+		'Implementation tags': imp_tstr}
 
     @hybrid_property
     def name(self):
