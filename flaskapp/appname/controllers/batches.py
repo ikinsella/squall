@@ -167,10 +167,11 @@ def upload_results():
 		col = mongodb.create_collection(exp.name)
 	else:
 		col = mongodb[exp.name]
-	b_post = batch.serialize
-	col.insert(b_post)
+	b_post = batch.getMongoInfo
 	for key, value in results_json.iteritems():
-		post = {"id": key, "batch_id": batch.id, "batch_name": batch.name, "results": value}
+		post = {'id': key}
+		post.update(b_post)
+		post.update({'results':value})
 		result = col.insert(post)
         flash("Results Stored", "danger")
         return redirect(url_for("batches.batch"))
