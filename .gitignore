@@ -58,6 +58,7 @@ target/
 
 # Database file
 *.db
+*.db-journal
 flaskapp/db_repository/*
 flaskapp/assembly/*
 
