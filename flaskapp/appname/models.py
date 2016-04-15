@@ -1,5 +1,3 @@
-import copy
-import numpy as np
 import os
 import shutil
 import json
@@ -11,9 +9,10 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import (UserMixin, AnonymousUserMixin)
 from werkzeug.security import (generate_password_hash, check_password_hash)
 from sqlalchemy.ext.hybrid import hybrid_property
+from flask.ext.pymongo import PyMongo
 
 db = SQLAlchemy()
-
+mongo = PyMongo()
 
 """ Tables For Many To Many Relationships """
 """ TODO : Multi-User
@@ -154,11 +153,6 @@ class Tag(db.Model):
         self._name = name
 
     @hybrid_property
-    def serialize(self):  # TODO: Hierarchy
-        return {'id': self.id,
-                'name': self.name}
-
-    @hybrid_property
     def name(self):
         return self._name
 
@@ -190,12 +184,9 @@ class Algorithm(db.Model):
         self._tags = tags
 
     @hybrid_property
-    def serialize(self):  # TODO: Hierarchy
-        serial_tags = [tag.serialize for tag in self.tags]  # Propogate
-        return {'id': self.id,
-                'name': self.name,
-                'description': self.description,
-                'tags': serial_tags}
+    def serialize(self):
+        return {'Name': self.name,
+                'Tags': [tag.name for tag in self.tags]}
 
     @hybrid_property
     def name(self):
@@ -214,7 +205,7 @@ class Algorithm(db.Model):
         self._description = value
 
     @hybrid_property
-    def tags(self):  # TODO propogate
+    def tags(self):
         return self._tags
 
     @tags.setter
@@ -275,14 +266,9 @@ class Implementation(db.Model):
         # self._arguments = arguments  # TODO: Parameter Validation
 
     @hybrid_property
-    def serialize(self):  # TODO: Hierarchy
-        serial_tags = [tag.serialize for tag in self.tags]
-        return {'id': self.id,
-                'name': self.name,
-                'description': self.description,
-                'tags': serial_tags,
-                'urls': self.urls,
-                'executable': self.executable}
+    def serialize(self):
+        return {'Name': self.name,
+                'Tags': [tag.name for tag in self.tags]}
 
     @hybrid_property
     def name(self):
@@ -301,7 +287,7 @@ class Implementation(db.Model):
         self._description = value
 
     @hybrid_property
-    def tags(self):  # TODO Propogate
+    def tags(self):
         return self._tags
 
     @tags.setter
@@ -375,12 +361,9 @@ class DataCollection(db.Model):
         self._tags = tags
 
     @hybrid_property
-    def serialize(self):  # TODO: Hierarchy
-        serial_tags = [tag.serialize for tag in self.tags]
-        return {'id': self.id,
-                'name': self.name,
-                'description': self.description,
-                'tags': serial_tags}
+    def serialize(self):
+        return {'Name': self.name,
+                'Tags': [tag.name for tag in self.tags]}
 
     @hybrid_property
     def name(self):
@@ -399,7 +382,7 @@ class DataCollection(db.Model):
         self._description = value
 
     @hybrid_property
-    def tags(self):  # TODO propogate
+    def tags(self):
         return self._tags
 
     @tags.setter
@@ -443,13 +426,9 @@ class DataSet(db.Model):
         self._urls = [URL(url, data_set_id=self.id) for url in urls]
 
     @hybrid_property
-    def serialize(self):  # TODO: Hierarchy
-        serial_tags = [tag.serialize for tag in self.tags]
-        return {'id': self.id,
-                'name': self.name,
-                'description': self.description,
-                'tags': serial_tags,
-                'urls': self.urls}
+    def serialize(self):
+        return {'Name': self.name,
+                'Tags': [tag.name for tag in self.tags]}
 
     @hybrid_property
     def name(self):
@@ -468,7 +447,7 @@ class DataSet(db.Model):
         self._description = value
 
     @hybrid_property
-    def tags(self):  # TODO propogate
+    def tags(self):
         return self._tags
 
     @tags.setter
@@ -526,12 +505,9 @@ class Experiment(db.Model):
         self._collections = collections
 
     @hybrid_property
-    def serialize(self):  # TODO: Hierarchy
-        serial_tags = [tag.serialize for tag in self.tags]
-        return {'id': self.id,
-                'name': self.name,
-                'description': self.description,
-                'tags': serial_tags}
+    def serialize(self):
+        return {'Name': self.name,
+                'Tags': [tag.name for tag in self.tags]}
 
     @hybrid_property
     def name(self):
@@ -550,7 +526,7 @@ class Experiment(db.Model):
         self._description = value
 
     @hybrid_property
-    def tags(self):  # TODO propogate
+    def tags(self):
         return self._tags
 
     @tags.setter
@@ -606,7 +582,7 @@ class Batch(db.Model):
     _post = db.Column(db.String(64), index=False, unique=False)
     _job_pre = db.Column(db.String(64), index=False, unique=False)
     _job_post = db.Column(db.String(64), index=False, unique=False)
-    _results = db.Column(db.PickleType, index=False, unique=False)
+    _completed = db.Column(db.Boolean(), index=False)
 
     # Relationships
     """ TODO: Multi-User
@@ -653,10 +629,9 @@ class Batch(db.Model):
         self._name = name
         self._description = description
         self._tags = tags
-        self._params = yaml.load(params)  # TODO: Validate
-        enum_params = self._enumerate_params()
-        self._jobs = [Job(batch_id=self.id, uid=uid, params=enum_param)
-                      for uid, enum_param in enumerate(enum_params)]
+        self._params = params
+        self._jobs = [Job(batch_id=self.id, uid=uid, params=job_params)
+                      for uid, job_params in enumerate(params)]
         self._memory = memory
         self._disk = disk
         self._flock = flock
@@ -666,7 +641,7 @@ class Batch(db.Model):
         self._post = post_script
         self._job_pre = job_pre_script
         self._job_post = job_post_script
-        self._args = arguments
+        self._arguments = arguments
         self._kwargs = keyword_arguments
         self._sweep = sweep
         self._wrapper = wrapper
@@ -674,49 +649,7 @@ class Batch(db.Model):
         self._params_file = params_file
         self._share_dir = share_directory
         self._results_dir = results_directory
-        self._results = None
-
-    def _enumerate_params(self):
-        """ Expands Yaml Fields List Of Param Files For Each Job"""
-
-        try:  # If Expand Fields Doesn't Exist, Nothing To Be Done
-            expand_fields = self.params['ExpandFields']
-            del self.params['ExpandFields']
-        except KeyError:
-            return self.params
-
-        # Copy Only Static Fields
-        static_data = copy.copy(self.params)
-        for field in expand_fields:
-            if isinstance(field, list):  # TODO: Make More Robust/Elegant
-                for subfield in field:
-                    del static_data[subfield]
-            else:
-                del static_data[field]
-
-        # Count Number Of Values Per Expand Field
-        field_lengths = np.zeros(len(expand_fields))
-        for idx, field in enumerate(expand_fields):
-            if isinstance(field, list) or isinstance(field, tuple):
-                subfields = [len(self.params[key]) for key in field]
-                if not all(map(lambda x: x is subfields[0], subfields)):
-                    raise RuntimeError('Incompatible Length: ExpandFields')
-                field_lengths[idx] = subfields[0]
-            else:
-                field_lengths[idx] = len(self.params[field])
-
-        enum_params = [static_data for _ in xrange(int(field_lengths.prod()))]
-
-        # Enumerate Expand Fields
-        for cdx, enum_param in enumerate(enum_params):
-            for idx, field in zip(
-                    np.unravel_index(cdx, field_lengths), expand_fields):
-                if isinstance(field, list) or isinstance(field, tuple):
-                    for k in field:
-                        enum_param[k] = self.params[k][idx]
-                else:
-                    enum_param[field] = self.params[field][idx]
-        return enum_params
+        self._completed = False
 
     def package(self):  # TODO: Remove after, replace zip if exists,
         """Packages the files to run a batch of jobs into a directory"""
@@ -754,30 +687,24 @@ class Batch(db.Model):
                 writefile.write(render_template(template, batch=self))
 
     @hybrid_property
-    def serialize(self):  # TODO: Hierarchy
-        serial_jobs = [job.serialize for job in self.jobs]  # TODO: Serial Dict
-        serial_tags = [tag.serialize for tag in self.tags]
-        return {'id': self.id,
-                'name': self.name,
-                'description': self.description,
-                'tags': serial_tags,
-                'jobs': serial_jobs,
-                'params': self.params,
-                'memory': self.memory,
-                'disk': self.disk,
-                'flock': self.flock,
-                'glide': self.glide,
-                'pre': self.pre,
-                'post': self.post,
-                'job_pre': self.job_pre,
-                'job_post': self.job_post,
-                'args': self.args,
-                'kwargs': self.kwargs,
-                'sweep': self.sweep,
-                'wrapper': self.wrapper,
-                'submit_file': self.submit_file,
-                'params_file': self.params_file,
-                'share_dir': self.share_dir}
+    def serialize(self):
+        return {'Name': self.name,
+                'Tags': [tag.name for tag in self.tags]}
+
+    @hybrid_property
+    def mongoize(self):
+        imp = Implementation.query.filter_by(id=self.implementation_id).first()
+        exp = Experiment.query.filter_by(id=self.experiment_id).first()
+        ds = DataSet.query.filter_by(id=self.data_set_id).first()
+        dc = DataCollection.query.filter_by(id=ds.data_collection_id).first()
+        alg = Algorithm.query.filter_by(id=imp._algorithm_id).first()
+        return {'Batch': self.serialize,
+                'Tags': [tag.name for tag in self.tags],  # TODO: conglomerate
+                'Experiment': exp.serialize,
+                'DataSet': ds.serialize,
+                'DataCollection': dc.serialize,
+                'Algorithm': alg.serialize,
+                'Implementation': imp.serialize}
 
     @hybrid_property
     def name(self):
@@ -796,7 +723,7 @@ class Batch(db.Model):
         self._description = value
 
     @hybrid_property
-    def tags(self):  # TODO propogate
+    def tags(self):
         return self._tags
 
     @tags.setter
@@ -881,11 +808,11 @@ class Batch(db.Model):
 
     @hybrid_property
     def args(self):
-        return self.batch.args
+        return self._arguments
 
     @args.setter
     def args(self, value):
-        self._args = value
+        self._arguments = value
 
     @hybrid_property
     def kwargs(self):
@@ -944,20 +871,16 @@ class Batch(db.Model):
         self._results_dir = value
 
     @hybrid_property
-    def results(self):
-        return self._results
-
-    @results.setter
-    def results(self, value):
-        self._results = json.load(value)  # TODO: Validate
-
-    @hybrid_property
     def size(self):
         return len(self._jobs)
 
     @hybrid_property
     def completed(self):
-        return self.results is not None
+        return self._completed
+
+    @completed.setter
+    def completed(self, value):
+        self._completed = value
 
 
 class Job(db.Model):
@@ -997,12 +920,6 @@ class Job(db.Model):
         if filename:
             with open(filename, 'w') as writefile:
                 writefile.write(render_template(template, job=self))
-
-    @hybrid_property
-    def serialize(self):  # TODO
-        return {'id': self.id,
-                'uid': self.uid,
-                'params': self.params}
 
     @hybrid_property
     def uid(self):

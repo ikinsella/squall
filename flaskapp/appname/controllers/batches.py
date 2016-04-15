@@ -1,3 +1,4 @@
+import json
 from flask import (Blueprint,
                    render_template,
                    flash,
@@ -9,6 +10,7 @@ from flask.ext.login import login_required
 from appname.extensions import cache
 from appname.forms import (BatchForm, DownloadBatchForm, UploadResultsForm)
 from appname.models import (db,
+                            mongo,
                             Tag,
                             Experiment,
                             Implementation,
@@ -225,6 +227,7 @@ def upload_results():
         batch_items.append(BatchItem(b_id, b_name, b_set, b_imp, b_param, b_mem, b_disk, b_flock, b_glide, b_descr, tags, b_size, b_completed))
     batch_table = BatchTable(batch_items)
 
+    """Add the results form a batch to MongoDB job by job"""
     batch_form = BatchForm(memory=MEMORY, disk=DISK, flock=FLOCK, glide=GLIDE)
     batch_form.tags.choices = [(t.id, t.name) for t in
                                Tag.query.order_by('_name')]
@@ -242,10 +245,18 @@ def upload_results():
                                   Batch.query.order_by('_name')]
     if results_form.validate_on_submit():
         batch = Batch.query.filter_by(id=results_form.batch.data).first()
-        batch.results = results_form.results.data  # TODO: Validate Results
-        flash("Results Stored", "success")
+        col = mongo.db[Experiment.query.filter_by(
+            id=batch.experiment_id).first().name]
+        metadata = batch.mongoize
+        for job in results_form.results.data:
+            job.update(metadata)
+            col.insert(job)  # Insert each job as a separate document
+        batch.completed = True  # Update Batch Status In SQL
+        db.session.add(batch)
+        db.session.commit()
+        flash("Results Stored In MongoDB", "success")
         return redirect(url_for("batches.batch"))
-    flash("Failed validation", "danger")
+    flash("Upload Failed: Validation Error", "danger")
     return render_template('batches.html',
                            batch_form=batch_form,
                            download_form=download_form,
