@@ -33,24 +33,21 @@ def batch():
     all_batches = Batch.query.all()
     batch_items = []
     for batch in all_batches:
-        flash(batch_items)
         b_id = batch.id
         b_name = batch.name
         b_descr = batch.description
-        b_params = batch.params
         b_mem = batch.memory
         b_disk = batch.disk
         b_flock = batch.flock
         b_glide = batch.glide
         b_descr = batch.description
-        b_tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=batch_id)).all()]
-        tags = '\n'.join([str(x) for x in b_tags])
-        b_exp = Experiment.query.filter(Experiment.batches.any())
-        b_set = DataSet.query.filter(DataSet.batches.any())
-        b_imp = Implementation.query.filter(Implementation.batches.any())
+        b_tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=b_id)).all()]
+        b_exp = Experiment.query.filter(Experiment.batches.any()).first().name
+        b_set = DataSet.query.filter(DataSet.batches.any()).first().name
+        b_imp = Implementation.query.filter(Implementation.batches.any()).first().name
         b_size = batch.size
         b_completed = batch.completed
-        batch_items.append(BatchItem(b_id, b_name, b_set, b_imp, b_param, b_mem, b_disk, b_flock, b_glide, b_descr, b_tags, b_size, b_completed))
+        batch_items.append(BatchItem(b_id, b_name, b_exp, b_set, b_imp, b_mem, b_disk, b_flock, b_glide, b_descr, '\n'.join([str(x) for x in b_tags]), b_size, b_completed))
     batch_table = BatchTable(batch_items)
 
     
@@ -87,20 +84,18 @@ def submit_batch():
         b_id = batch.id
         b_name = batch.name
         b_descr = batch.description
-        b_params = batch.params
         b_mem = batch.memory
         b_disk = batch.disk
         b_flock = batch.flock
         b_glide = batch.glide
         b_descr = batch.description
-        b_tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=batch_id)).all()]
-        tags = '\n'.join([str(x) for x in b_tags])
-        b_exp = Experiment.query.filter(Experiment.batches.any())
-        b_set = DataSet.query.filter(DataSet.batches.any())
-        b_imp = Implementation.query.filter(Implementation.batches.any())
+        b_tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=b_id)).all()]
+        b_exp = Experiment.query.filter(Experiment.batches.any()).first().name
+        b_set = DataSet.query.filter(DataSet.batches.any()).first().name
+        b_imp = Implementation.query.filter(Implementation.batches.any()).first().name
         b_size = batch.size
         b_completed = batch.completed
-        batch_items.append(BatchItem(b_id, b_name, b_set, b_imp, b_param, b_mem, b_disk, b_flock, b_glide, b_descr, tags, b_size, b_completed))
+        batch_items.append(BatchItem(b_id, b_name, b_exp, b_set, b_imp, b_mem, b_disk, b_flock, b_glide, b_descr, '\n'.join([str(x) for x in b_tags]), b_size, b_completed))
     batch_table = BatchTable(batch_items)
 
     batch_form = BatchForm(memory=MEMORY, disk=DISK, flock=FLOCK, glide=GLIDE)
@@ -154,20 +149,18 @@ def download_batch():
         b_id = batch.id
         b_name = batch.name
         b_descr = batch.description
-        b_params = batch.params
         b_mem = batch.memory
         b_disk = batch.disk
         b_flock = batch.flock
         b_glide = batch.glide
         b_descr = batch.description
-        b_tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=batch_id)).all()]
-        tags = '\n'.join([str(x) for x in b_tags])
-        b_exp = Experiment.query.filter(Experiment.batches.any())
-        b_set = DataSet.query.filter(DataSet.batches.any())
-        b_imp = Implementation.query.filter(Implementation.batches.any())
+        b_tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=b_id)).all()]
+        b_exp = Experiment.query.filter(Experiment.batches.any()).first().name
+        b_set = DataSet.query.filter(DataSet.batches.any()).first().name
+        b_imp = Implementation.query.filter(Implementation.batches.any()).first().name
         b_size = batch.size
         b_completed = batch.completed
-        batch_items.append(BatchItem(b_id, b_name, b_set, b_imp, b_param, b_mem, b_disk, b_flock, b_glide, b_descr, tags, b_size, b_completed))
+        batch_items.append(BatchItem(b_id, b_name, b_exp, b_set, b_imp, b_mem, b_disk, b_flock, b_glide, b_descr, '\n'.join([str(x) for x in b_tags]), b_size, b_completed))
     batch_table = BatchTable(batch_items)
 
     batch_form = BatchForm(memory=MEMORY, disk=DISK, flock=FLOCK, glide=GLIDE)
@@ -211,20 +204,18 @@ def upload_results():
         b_id = batch.id
         b_name = batch.name
         b_descr = batch.description
-        b_params = batch.params
         b_mem = batch.memory
         b_disk = batch.disk
         b_flock = batch.flock
         b_glide = batch.glide
         b_descr = batch.description
-        b_tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=batch_id)).all()]
-        tags = '\n'.join([str(x) for x in b_tags])
-        b_exp = Experiment.query.filter(Experiment.batches.any())
-        b_set = DataSet.query.filter(DataSet.batches.any())
-        b_imp = Implementation.query.filter(Implementation.batches.any())
+        b_tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=b_id)).all()]
+        b_exp = Experiment.query.filter(Experiment.batches.any()).first().name
+        b_set = DataSet.query.filter(DataSet.batches.any()).first().name
+        b_imp = Implementation.query.filter(Implementation.batches.any()).first().name
         b_size = batch.size
         b_completed = batch.completed
-        batch_items.append(BatchItem(b_id, b_name, b_set, b_imp, b_param, b_mem, b_disk, b_flock, b_glide, b_descr, tags, b_size, b_completed))
+        batch_items.append(BatchItem(b_id, b_name, b_exp, b_set, b_imp, b_mem, b_disk, b_flock, b_glide, b_descr, '\n'.join([str(x) for x in b_tags]), b_size, b_completed))
     batch_table = BatchTable(batch_items)
 
     """Add the results form a batch to MongoDB job by job"""
@@ -269,7 +260,6 @@ class BatchTable(Table):
     exp = Col('Experiment')
     set = Col('Data Set')
     imp = Col('Algorithm Implemention')
-    param = Col('Parameter File')
     mem = Col('Memory (MB)')
     disk = Col('Disk Space (KB)')
     flock = Col('Flock')
@@ -283,13 +273,12 @@ class BatchTable(Table):
         return '<tr valign="top">{}</tr>'
 
 class BatchItem(Table):
-    def __init__(self, id, name, exp, set, imp, param, mem, disk, flock, glide, descr, tags, size, completed):
+    def __init__(self, id, name, exp, set, imp, mem, disk, flock, glide, descr, tags, size, completed):
         self.name = name
         self.id = id
         self.exp = exp
         self.set = set
         self.imp = imp
-        self.param = param
         self.mem = mem
         self.disk = disk
         self.flock = flock
