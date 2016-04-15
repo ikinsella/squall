@@ -4,7 +4,8 @@ from flask import Flask
 from webassets.loaders import PythonLoader as PythonAssetsLoader
 
 from appname import assets
-from appname.models import db
+from appname.models import (db,
+                            mongo)
 from appname.controllers import (main,
                                  algorithms,
                                  data,
@@ -46,6 +47,9 @@ def create_app(object_name, env="prod"):
     # initialize SQLAlchemy
     db.init_app(app)
     login_manager.init_app(app)
+
+    # initialize MongoDB
+    mongo.init_app(app)
 
     # Import and register the different asset bundles
     assets_env.init_app(app)

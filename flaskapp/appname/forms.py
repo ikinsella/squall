@@ -28,8 +28,11 @@ from appname.models import (User,
                             Experiment,
                             Batch,
                             Tag)
-
 import wtforms
+import yaml
+import json
+import copy
+import numpy as np
 
 
 class UniqueName(object):
@@ -48,24 +51,95 @@ class UniqueName(object):
 
 class ValidParamFile(object):
     """Validates An Uploaded Parameter File By:
-       1. Ensuring the filename is correct
-       2. TODO: Enforcing Proper Formating
-       3. TODO: Ensuring it is properly formatted
-       4. TODO: Ensuring the arguments are correct for the batch
+       1. TODO: Ensuring it is properly formatted
+       2. TODO: Ensuring the arguments are correct for the batch
     """
-    def __init__(self, message='Valid file extensions: ".yaml" or ".yml"'):
+    def __init__(self, message='Uploaded File Improperly Formatted'):
         self.message = message
 
-    def __call__(self, form, field):  # TODO: 2,3,& 4
+    def __call__(self, form, field):  # TODO: Param Validation
+        """Upload and parse yaml file to ensure proper formatting"""
         try:
-            # yamldata = yaml.load(field.data)
-            # assert isinstance(yamldata, dict)
+            # Validate Presence of Yaml File
             filename = field.data.filename
             assert '.' in filename
             assert filename.rsplit('.', 1)[1] in set(['yaml', 'yml'])
             assert field.has_file()
-        except AssertionError:  # Is not properly formatted
+            # Validate & Parse Contents of Yaml File
+            field.data = self.parse(yaml.load(field.data))
+        except AssertionError:
+            raise ValidationError('Valid file extensions: ".yaml" or ".yml"')
+        except:  # TODO: Identify possible Error Types
             raise ValidationError(self.message)
+
+    def parse(self, params):
+        """ Expands Yaml Fields List Of Param Files For Each Job"""
+
+        try:  # If Expand Fields Doesn't Exist, Nothing To Be Done
+            expand_fields = params['ExpandFields']
+            del params['ExpandFields']
+        except KeyError:
+            return params
+
+        # Copy Only Static Fields
+        static_data = copy.copy(params)
+        for field in expand_fields:
+            if isinstance(field, list):  # TODO: Make More Robust/Elegant
+                for subfield in field:
+                    del static_data[subfield]
+            else:
+                del static_data[field]
+
+        # Count Number Of Values Per Expand Field
+        field_lengths = np.zeros(len(expand_fields))
+        for idx, field in enumerate(expand_fields):
+            if isinstance(field, list) or isinstance(field, tuple):
+                subfields = [len(params[key]) for key in field]
+                if not all(map(lambda x: x is subfields[0], subfields)):
+                    raise RuntimeError('Incompatible Length: ExpandFields')
+                field_lengths[idx] = subfields[0]
+            else:
+                field_lengths[idx] = len(params[field])
+
+        enum_params = [static_data for _ in xrange(int(field_lengths.prod()))]
+
+        # Enumerate Expand Fields
+        for cdx, enum_param in enumerate(enum_params):
+            for idx, field in zip(
+                    np.unravel_index(cdx, field_lengths), expand_fields):
+                if isinstance(field, list) or isinstance(field, tuple):
+                    for k in field:
+                        enum_param[k] = params[k][idx]
+                else:
+                    enum_param[field] = params[field][idx]
+        return enum_params
+
+
+class ValidResultsFile(object):
+    """Validates An Uploaded Results Parameter File By:
+        1. Ensuring the filename/extension is correct
+        2. TODO: Ensuring it is properly formatted
+    """
+    def __init__(self, message='Uploaded File Improperly Formatted'):
+        self.message = message
+
+    def __call__(self, form, field):
+        try:
+            # Validate Presence of JSON File
+            filename = field.data.filename
+            assert '.' in filename
+            assert filename.rsplit('.', 1)[1] in set(['json'])
+            assert field.has_file()
+            field.data = self.parse(field.data)  # Parse & Format Results JSON
+        except AssertionError:
+            raise ValidationError('Valid file extensions: ".json"')
+        except:
+            raise ValidationError(self.message)
+
+    def parse(self, json_file):
+        """Sift through results, validate contents, & format"""
+        return [dict(id=jid, **results)
+                for jid, results in json.load(json_file).iteritems()]
 
 
 class ValidResultsBatch(object):
@@ -77,29 +151,10 @@ class ValidResultsBatch(object):
 
     def __call__(self, form, field):
         try:
-            # batch = Batch.query.filter_by(id=field.data).first()
-            # assert not batch.completed
+            batch = Batch.query.filter_by(id=field.data).first()
+            assert not batch.completed
             pass
         except AssertionError:
-            raise ValidationError(self.message)
-
-
-class ValidResultsFile(object):
-    """Validates An Uploaded Results Parameter File By:
-        1. Ensuring the filename is correct
-        2. TODO: Ensuring it belongs to a batch without results
-        3. TODO: Ensuring it is properly formatted
-    """
-    def __init__(self, message='Valid file extensions: ".json"'):
-        self.message = message
-
-    def __call__(self, form, field):  # TODO: 2 & 3
-        try:
-            filename = field.data.filename
-            assert '.' in filename
-            assert filename.rsplit('.', 1)[1] in set(['json'])
-            assert field.has_file()
-        except AssertionError:  # Is not properly formatted
             raise ValidationError(self.message)
 
 

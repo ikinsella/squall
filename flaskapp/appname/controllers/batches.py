@@ -10,7 +10,7 @@ from flask.ext.login import login_required
 from appname.extensions import cache
 from appname.forms import (BatchForm, DownloadBatchForm, UploadResultsForm)
 from appname.models import (db,
-                            mongodb,
+                            mongo,
                             Tag,
                             Experiment,
                             Implementation,
@@ -130,18 +130,7 @@ def download_batch():
 @cache.cached(timeout=1000)
 @login_required
 def upload_results():
-    #mongotest
-    #post = {"author":"My name is Zach"}  
-    #posts = mongodb.posts  
-    #result = posts.insert(post)              
-    #flash(dict(post))
-    #for post in posts.find():                
-    #    print post
-    #return redirect(url_for("algorithms.algorithm"))
-
-
-
-
+    """Add the results form a batch to MongoDB job by job"""
     batch_form = BatchForm(memory=MEMORY, disk=DISK, flock=FLOCK, glide=GLIDE)
     batch_form.tags.choices = [(t.id, t.name) for t in
                                Tag.query.order_by('_name')]
@@ -157,26 +146,20 @@ def upload_results():
     results_form = UploadResultsForm()
     results_form.batch.choices = [(b.id, b.name) for b in
                                   Batch.query.order_by('_name')]
-
     if results_form.validate_on_submit():
-        results_json = json.load(results_form.results.data) # TODO: Handle Results File Uploads
         batch = Batch.query.filter_by(id=results_form.batch.data).first()
-        batch.results = results_json  # TODO: Link results to batch 
-	exp = Experiment.query.filter_by(id=batch.experiment_id).first()
-	if exp.name in mongodb.collection_names():
-		col = mongodb.create_collection(exp.name)
-	else:
-		col = mongodb[exp.name]
-	b_post = batch.getMongoInfo
-	for key, value in results_json.iteritems():
-		post = {'id': key}
-		post.update(b_post)
-		post.update({'results':value})
-		result = col.insert(post)
-        flash("Results Stored", "danger")
+        col = mongo.db[Experiment.query.filter_by(
+            id=batch.experiment_id).first().name]
+        metadata = batch.mongoize
+        for job in results_form.results.data:
+            job.update(metadata)
+            col.insert(job)  # Insert each job as a separate document
+        batch.completed = True  # Update Batch Status In SQL
+        db.session.add(batch)
+        db.session.commit()
+        flash("Results Stored In MongoDB", "success")
         return redirect(url_for("batches.batch"))
-    flash("Failed validation", "danger")
-
+    flash("Upload Failed: Validation Error", "danger")
     return render_template('batches.html',
                            batch_form=batch_form,
                            download_form=download_form,
