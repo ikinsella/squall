@@ -26,12 +26,12 @@ mongo:
 	if [[ $$OSTYPE == darwin* ]]; then \
 		echo $(RESULT); \
 		if [[ $(RESULT) == "" ]]; then \
-			echo Please install homebrew; \
-		else \
-			brew update; \
-			brew install mongodb; \
-			mongod; \
+			ruby -e “$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)”;\
 		fi \
+		brew update; \
+		brew install mongodb; \
+		sudo mkdir /data/db; \
+		sudo chown `id -u` /data/db; \
 	else \
 		echo You are not on mac. Please install mongodb; \
 	fi
