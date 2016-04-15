@@ -18,6 +18,7 @@ from appname.controllers.constants import (MEMORY,
                                            DISK,
                                            FLOCK,
                                            GLIDE)
+from flask_table import Table, Col
 
 batches = Blueprint('batches', __name__)
 
@@ -26,6 +27,31 @@ batches = Blueprint('batches', __name__)
 @cache.cached(timeout=1000)
 @login_required
 def batch():
+    
+    all_batches = Batch.query.all()
+    batch_items = []
+    for batch in all_batches:
+        flash(batch_items)
+        b_id = batch.id
+        b_name = batch.name
+        b_descr = batch.description
+        b_params = batch.params
+        b_mem = batch.memory
+        b_disk = batch.disk
+        b_flock = batch.flock
+        b_glide = batch.glide
+        b_descr = batch.description
+        b_tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=batch_id)).all()]
+        tags = '\n'.join([str(x) for x in b_tags])
+        b_exp = Experiment.query.filter(Experiment.batches.any())
+        b_set = DataSet.query.filter(DataSet.batches.any())
+        b_imp = Implementation.query.filter(Implementation.batches.any())
+        b_size = batch.size
+        b_completed = batch.completed
+        batch_items.append(BatchItem(b_id, b_name, b_set, b_imp, b_param, b_mem, b_disk, b_flock, b_glide, b_descr, b_tags, b_size, b_completed))
+    batch_table = BatchTable(batch_items)
+
+    
     batch_form = BatchForm(memory=MEMORY, disk=DISK, flock=FLOCK, glide=GLIDE)
     batch_form.tags.choices = [(t.id, t.name) for t in
                                Tag.query.order_by('_name')]
@@ -44,13 +70,37 @@ def batch():
     return render_template('batches.html',
                            batch_form=batch_form,
                            download_form=download_form,
-                           results_form=results_form)
+                           results_form=results_form,
+                           batch_table=batch_table)
 
 
 @batches.route('/submit_batch', methods=["Post"])
 @cache.cached(timeout=1000)
 @login_required
 def submit_batch():
+    
+    all_batches = Batch.query.all()
+    batch_items = []
+    for batch in all_batches:
+        b_id = batch.id
+        b_name = batch.name
+        b_descr = batch.description
+        b_params = batch.params
+        b_mem = batch.memory
+        b_disk = batch.disk
+        b_flock = batch.flock
+        b_glide = batch.glide
+        b_descr = batch.description
+        b_tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=batch_id)).all()]
+        tags = '\n'.join([str(x) for x in b_tags])
+        b_exp = Experiment.query.filter(Experiment.batches.any())
+        b_set = DataSet.query.filter(DataSet.batches.any())
+        b_imp = Implementation.query.filter(Implementation.batches.any())
+        b_size = batch.size
+        b_completed = batch.completed
+        batch_items.append(BatchItem(b_id, b_name, b_set, b_imp, b_param, b_mem, b_disk, b_flock, b_glide, b_descr, tags, b_size, b_completed))
+    batch_table = BatchTable(batch_items)
+
     batch_form = BatchForm(memory=MEMORY, disk=DISK, flock=FLOCK, glide=GLIDE)
     batch_form.tags.choices = [(t.id, t.name) for t in
                                Tag.query.order_by('_name')]
@@ -88,13 +138,36 @@ def submit_batch():
     return render_template('batches.html',
                            batch_form=batch_form,
                            download_form=download_form,
-                           results_form=results_form)
+                           results_form=results_form,
+                           batch_table=batch_table)
 
 
 @batches.route('/download_batch', methods=["Get", "Post"])
 @cache.cached(timeout=1000)
 @login_required
 def download_batch():
+    all_batches = Batch.query.all()
+    batch_items = []
+    for batch in all_batches:
+        b_id = batch.id
+        b_name = batch.name
+        b_descr = batch.description
+        b_params = batch.params
+        b_mem = batch.memory
+        b_disk = batch.disk
+        b_flock = batch.flock
+        b_glide = batch.glide
+        b_descr = batch.description
+        b_tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=batch_id)).all()]
+        tags = '\n'.join([str(x) for x in b_tags])
+        b_exp = Experiment.query.filter(Experiment.batches.any())
+        b_set = DataSet.query.filter(DataSet.batches.any())
+        b_imp = Implementation.query.filter(Implementation.batches.any())
+        b_size = batch.size
+        b_completed = batch.completed
+        batch_items.append(BatchItem(b_id, b_name, b_set, b_imp, b_param, b_mem, b_disk, b_flock, b_glide, b_descr, tags, b_size, b_completed))
+    batch_table = BatchTable(batch_items)
+
     batch_form = BatchForm(memory=MEMORY, disk=DISK, flock=FLOCK, glide=GLIDE)
     batch_form.tags.choices = [(t.id, t.name) for t in
                                Tag.query.order_by('_name')]
@@ -121,13 +194,37 @@ def download_batch():
     return render_template('batches.html',
                            batch_form=batch_form,
                            download_form=download_form,
-                           results_form=results_form)
+                           results_form=results_form,
+                           batch_table=batch_table)
 
 
 @batches.route('/upload_results', methods=["Post"])
 @cache.cached(timeout=1000)
 @login_required
 def upload_results():
+    
+    all_batches = Batch.query.all()
+    batch_items = []
+    for batch in all_batches:
+        b_id = batch.id
+        b_name = batch.name
+        b_descr = batch.description
+        b_params = batch.params
+        b_mem = batch.memory
+        b_disk = batch.disk
+        b_flock = batch.flock
+        b_glide = batch.glide
+        b_descr = batch.description
+        b_tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=batch_id)).all()]
+        tags = '\n'.join([str(x) for x in b_tags])
+        b_exp = Experiment.query.filter(Experiment.batches.any())
+        b_set = DataSet.query.filter(DataSet.batches.any())
+        b_imp = Implementation.query.filter(Implementation.batches.any())
+        b_size = batch.size
+        b_completed = batch.completed
+        batch_items.append(BatchItem(b_id, b_name, b_set, b_imp, b_param, b_mem, b_disk, b_flock, b_glide, b_descr, tags, b_size, b_completed))
+    batch_table = BatchTable(batch_items)
+
     batch_form = BatchForm(memory=MEMORY, disk=DISK, flock=FLOCK, glide=GLIDE)
     batch_form.tags.choices = [(t.id, t.name) for t in
                                Tag.query.order_by('_name')]
@@ -152,4 +249,42 @@ def upload_results():
     return render_template('batches.html',
                            batch_form=batch_form,
                            download_form=download_form,
-                           results_form=results_form)
+                           results_form=results_form,
+                           batch_table=batch_table)
+
+class BatchTable(Table):
+    id = Col('Batch ID')
+    name = Col('Batch Name')
+    exp = Col('Experiment')
+    set = Col('Data Set')
+    imp = Col('Algorithm Implemention')
+    param = Col('Parameter File')
+    mem = Col('Memory (MB)')
+    disk = Col('Disk Space (KB)')
+    flock = Col('Flock')
+    glide = Col('Glide')
+    descr = Col('Description')
+    tags = Col('Tags')
+    size = Col('Size')
+    completed = Col('Completed')
+
+    def tr_format(self, item):
+        return '<tr valign="top">{}</tr>'
+
+class BatchItem(Table):
+    def __init__(self, id, name, exp, set, imp, param, mem, disk, flock, glide, descr, tags, size, completed):
+        self.name = name
+        self.id = id
+        self.exp = exp
+        self.set = set
+        self.imp = imp
+        self.param = param
+        self.mem = mem
+        self.disk = disk
+        self.flock = flock
+        self.glide = glide
+        self.descr = descr
+        self.tags = tags
+        self.size = size
+        self.completed = completed
+

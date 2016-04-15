@@ -72,5 +72,20 @@
   <div class="col-md-4"></div>
 </div>
 
+<hr>
+
+<div class="row">
+    <div class="col-md-4"></div>
+    <style>
+        table, th, td {
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+    </style>
+    <pre>
+    {{ exp_table }}
+    </pre>
+    <div class="col-md-4"></div>
+</div>
 <script src="{{ url_for("static", filename="js/toggle.js") }}"></script>
 {% endblock %}

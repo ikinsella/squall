@@ -28,6 +28,20 @@
   </div>
   <div class="col-md-4"></div>
 </div>
+<hr>
+<div class="row">
+    <div class="col-md-4"></div>
+    <style>
+        th, td {
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+    </style>
+    <pre>
+    {{ tag_table }}
+    </pre>
+    <div class="col-md-4"></div>
+</div>
 
 <script src="{{ url_for("static", filename="js/toggle.js") }}"></script>
 {% endblock %}

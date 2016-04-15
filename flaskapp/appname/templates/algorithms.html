@@ -15,7 +15,6 @@
         {{ algorithm_form.name.label }}
         <p id="algorithm_name_info"></p>
         <button onclick="toggleButton('algorithm_name_button', 'algorithm_name_info', 'Provide a unique name for algorithm identification. <strong>[Required]</strong>')" type="button" id="algorithm_name_button">info</button>
-
         {% if algorithm_form.name.errors %}
         {% for e in algorithm_form.name.errors %}
         <p class="help-block">{{ e }}</p>
@@ -164,7 +163,6 @@
 
         <p id="implementation_tag_info"></p>
         <button onclick="toggleButton('implementation_tag_button', 'implementation_tag_info', 'Provide tags to help organize and identify the implementation.')" type="button" id="implementation_tag_button">info</button>
-
         {% if implementation_form.tags.errors %}
         {% for e in implementation_form.tags.errors %}
         <p class="help-block">{{ e }}</p>
@@ -178,8 +176,29 @@
   <div class="col-md-4"></div>
 </div>
 
+<hr>
+
+<div class="row">
+    <div class="col-md-4"></div>
+    <style>
+        th, td {
+            padding-left: 8px;
+            padding-right: 8px;
+        }
+    </style>
+    <pre>
+    {{ alg_table }}
+    </pre>
+    <br>
+    <pre>
+    {{ imp_table }}
+    </pre>
+    <div class="col-md-4"></div>
+</div>
+
 <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
 <script src="{{ url_for("static", filename="js/page.js") }}"></script>
 <script src="{{ url_for("static", filename="js/toggle.js") }}"></script>
+<!--script src="{{ url_for("static", filename="js/display.js") }}"></script-->
 
 {% endblock %}

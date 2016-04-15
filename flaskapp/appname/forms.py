@@ -337,3 +337,16 @@ class ArgumentForm(Form):
             return True  # If Our Validators Pass
         return False
 """
+
+class DisplayAllForm(Form):
+
+    algorithms = SelectField(u'Algorithms', [Optional()],
+                               coerce=int)
+    implementations = SelectField(u'Implementations', [Optional()],
+                                    coerce=int)
+        
+    def validate(self):
+        if super(AlgorithmForm, self).validate():
+            return True  # If Our Validators Pass
+        return False
+

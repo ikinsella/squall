@@ -265,7 +265,7 @@ class Implementation(db.Model):
                  urls,
                  setup_scripts,
                  executable):
-        self.algorithm_id = algorithm_id
+        self._algorithm_id = algorithm_id
         self._name = name
         self._description = description
         self._tags = tags
