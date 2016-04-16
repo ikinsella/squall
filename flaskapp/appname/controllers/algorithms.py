@@ -6,15 +6,13 @@ from flask import (Blueprint,
 from flask.ext.login import login_required
 from appname.extensions import cache
 from appname.forms import (AlgorithmForm,
-                           ImplementationForm,
-                           DisplayAllForm)
+                           ImplementationForm)
 from appname.models import (db,
                             Tag,
                             Algorithm,
-                            Implementation,
-                            URL)
+                            Implementation)
 from appname.controllers.constants import (URLS, SCRIPTS)
-from flask_table import Table, Col
+from flask_table import (Table, Col)
 
 
 algorithms = Blueprint('algorithms', __name__)
@@ -24,203 +22,74 @@ algorithms = Blueprint('algorithms', __name__)
 @cache.cached(timeout=1000)
 @login_required
 def algorithm():
-    
-    all_algs = Algorithm.query.all()
-    alg_items = []
-    for alg in all_algs:
-        alg_id = alg.id
-        alg_name = alg.name
-        alg_descr = alg.description
-        alg_tags = [tag.name for tag in Tag.query.filter(Tag.algorithms.any(id=alg_id)).all()]
-        alg_items.append(AlgItem(alg_id, alg_name, alg_descr, '\n'.join([str(x) for x in alg_tags])))
-    alg_table = AlgTable(alg_items)
-
-    all_imps = Implementation.query.all()
-    imp_items = []
-    for imp in all_imps:
-        imp_id = imp.id
-        imp_name = imp.name
-        imp_descr = imp.description
-        imp_executable = imp.executable
-        imp_algid = Algorithm.query.filter(Algorithm.implementations.any(id=imp._algorithm_id)).first().name
-        imp_urls = [url._url for url in imp._urls]
-        urls = '\n'.join([str(x) for x in imp_urls])
-        imp_tags = [tag.name for tag in Tag.query.filter(Tag.implementations.any(id=imp_id)).all()]
-        imp_items.append(ImpItem(imp_id, imp_name, imp_descr, imp_executable, imp_algid, urls, '\n'.join([str(x) for x in imp_tags])))
-    imp_table = ImpTable(imp_items)
-                                                                            
-    algorithm_form = AlgorithmForm()
-    algorithm_form.tags.choices = [(t.id, t.name) for t in
-                                   Tag.query.order_by('_name')]
-    
-    implementation_form = ImplementationForm(url_forms=URLS,
-                                             setup_scripts=SCRIPTS)
-    implementation_form.algorithm.choices = [(a.id, a.name) for a in
-                                             Algorithm.query.order_by('_name')]
-    implementation_form.tags.choices = [(t.id, t.name) for t in
-                                        Tag.query.order_by('_name')]
-    
-#    display_all_form = DisplayAllForm()
-#    display_all_form.algorithms.choices = [(da.id, da.name) for da in
-#                                           Algorithm.query.order_by('_name')]
-#    display_all_form.implementations.choices = ''
+    """ """
     return render_template('algorithms.html',
-                           algorithm_form=algorithm_form,
-                           implementation_form=implementation_form,
-                           #display_all_form=display_all_form,
-                           alg_table=alg_table,
-                           imp_table=imp_table)
+                           algorithm_form=create_algorithm_form(),
+                           implementation_form=create_implementation_form(),
+                           alg_table=create_algorithm_table(),
+                           imp_table=create_implementation_table())
 
 
 @algorithms.route('/submit_algorithm', methods=["Post"])
 @cache.cached(timeout=1000)
 @login_required
 def submit_algorithm():
-    all_algs = Algorithm.query.all()
-    alg_items = []
-    for alg in all_algs:
-        alg_id = alg.id
-        alg_name = alg.name
-        alg_descr = alg.description
-        alg_tags = [tag.name for tag in Tag.query.filter(Tag.algorithms.any(id=alg_id)).all()]
-        alg_items.append(AlgItem(alg_id, alg_name, alg_descr, '\n'.join([str(x) for x in alg_tags])))
-    alg_table = AlgTable(alg_items)
-    
-    all_imps = Implementation.query.all()
-    imp_items = []
-    for imp in all_imps:
-        imp_id = imp.id
-        imp_name = imp.name
-        imp_descr = imp.description
-        imp_executable = imp.executable
-        imp_algid = Algorithm.query.filter(Algorithm.implementations.any(id=imp._algorithm_id)).first().name
-        imp_urls = [url._url for url in imp._urls]
-        urls = '\n'.join([str(x) for x in imp_urls])
-        imp_tags = [tag.name for tag in Tag.query.filter(Tag.implementations.any(id=imp_id)).all()]
-        imp_items.append(ImpItem(imp_id, imp_name, imp_descr, imp_executable, imp_algid, urls, '\n'.join([str(x) for x in imp_tags])))
-    imp_table = ImpTable(imp_items)
-    
-    algorithm_form = AlgorithmForm()
-    algorithm_form.tags.choices = [(t.id, t.name) for t in
-                                   Tag.query.order_by('_name')]
-    
-    implementation_form = ImplementationForm(url_forms=URLS,
-                                             setup_scripts=SCRIPTS)
-    implementation_form.algorithm.choices = [(a.id, a.name) for a in
-                                             Algorithm.query.order_by('_name')]
-    implementation_form.tags.choices = [(t.id, t.name) for t in
-                                        Tag.query.order_by('_name')]
-    
-#    display_all_form = DisplayAllForm()
-#    display_all_form.algorithms.choices = [(da.id, da.name) for da in
-#                                           Algorithm.query.order_by('_name')]
-#    display_all_form.implementations.choices = ''
-
+    """ """
+    algorithm_form = create_algorithm_form()
     if algorithm_form.validate_on_submit():
-        tags = [Tag.query.filter_by(id=_id).first()
-                for _id in algorithm_form.tags.data]
-        algorithm = Algorithm(name=algorithm_form.name.data,
-                              description=algorithm_form.description.data,
-                              tags=tags)
-        db.session.add(algorithm)
+        db.session.add(Algorithm(name=algorithm_form.name.data,
+                                 description=algorithm_form.description.data,
+                                 tags=[Tag.query.filter_by(id=_id).first()
+                                       for _id in algorithm_form.tags.data]))
         db.session.commit()
         flash("New algorithm added successfully.", "success")
         return redirect(url_for("algorithms.algorithm"))
     flash('Failed validation', 'danger')
     return render_template('algorithms.html',
                            algorithm_form=algorithm_form,
-                           implementation_form=implementation_form,
-                           #display_all_form=display_all_form,
-                           alg_table=alg_table,
-                           imp_table=imp_table)
+                           implementation_form=create_implementation_form(),
+                           alg_table=create_algorithm_table(),
+                           imp_table=create_implementation_table())
 
 
 @algorithms.route('/submit_implementation', methods=["Post"])
 @cache.cached(timeout=1000)
 @login_required
 def submit_implementation():
-    all_algs = Algorithm.query.all()
-    alg_items = []
-    for alg in all_algs:
-        alg_id = alg.id
-        alg_name = alg.name
-        alg_descr = alg.description
-        alg_tags = [tag.name for tag in Tag.query.filter(Tag.algorithms.any(id=alg_id)).all()]
-        alg_items.append(AlgItem(alg_id, alg_name, alg_descr, '\n'.join([str(x) for x in alg_tags])))
-    alg_table = AlgTable(alg_items)
-    
-    all_imps = Implementation.query.all()
-    imp_items = []
-    for imp in all_imps:
-        imp_id = imp.id
-        imp_name = imp.name
-        imp_descr = imp.description
-        imp_executable = imp.executable
-        imp_algid = Algorithm.query.filter(Algorithm.implementations.any(id=imp._algorithm_id)).first().name
-        imp_urls = [url._url for url in imp._urls]
-        urls = '\n'.join([str(x) for x in imp_urls])
-        imp_tags = [tag.name for tag in Tag.query.filter(Tag.implementations.any(id=imp_id)).all()]
-        imp_items.append(ImpItem(imp_id, imp_name, imp_descr, imp_executable, imp_algid, urls, '\n'.join([str(x) for x in imp_tags])))
-    imp_table = ImpTable(imp_items)
-                                                                            
-    algorithm_form = AlgorithmForm()
-    algorithm_form.tags.choices = [(t.id, t.name) for t in
-                                   Tag.query.order_by('_name')]
-    
-    implementation_form = ImplementationForm(url_forms=URLS, setup_scripts=SCRIPTS)
-    implementation_form.algorithm.choices = [(a.id, a.name) for a in
-                                             Algorithm.query.order_by('_name')]
-    implementation_form.tags.choices = [(t.id, t.name) for t in
-                                        Tag.query.order_by('_name')]
-    
-#    display_all_form = DisplayAllForm()
-#    display_all_form.algorithms.choices = [(da.id, da.name) for da in
-#                                           Algorithm.query.order_by('_name')]
-#    display_all_form.implementations.choices = ''
-
+    """ """
+    implementation_form = create_implementation_form()
     if implementation_form.validate_on_submit():
-        tags = [Tag.query.filter_by(id=_id).first()
-                for _id in implementation_form.tags.data]
-        implementation = Implementation(
+        db.session.add(Implementation(
             algorithm_id=implementation_form.algorithm.data,
             name=implementation_form.name.data,
             description=implementation_form.description.data,
-            tags=tags,
+            tags=[Tag.query.filter_by(id=_id).first()
+                  for _id in implementation_form.tags.data],
             urls=[url_form.url.data for url_form in
                   implementation_form.url_forms],
             setup_scripts=[script.path.data for script in
                            implementation_form.setup_scripts],
-            executable=implementation_form.executable.data)
-        db.session.add(implementation)
+            executable=implementation_form.executable.data))
         db.session.commit()
         flash("New implementation added successfully", "success")
         return redirect(url_for("algorithms.algorithm"))
     flash('Failed validation', 'danger')
     return render_template('algorithms.html',
-                           algorithm_form=algorithm_form,
+                           algorithm_form=create_algorithm_form(),
                            implementation_form=implementation_form,
-                           #display_all_form=display_all_form,
-                           alg_table=alg_table,
-                           imp_table=imp_table)
+                           alg_table=create_algorithm_table(),
+                           imp_table=create_implementation_table())
 
-#@algorithms.route('/narrow', methods=['POST', 'GET'])
-#def narrow():
-#    display_all_form = DisplayAllForm()
-#    display_all_form.algorithms.choices = [(da.id, da.name) for da in
-#                                           Algorithm.query.order_by('_name')]
-#    display_all_form.implementations.choices = ''
-#    ret = ''
-#    for entry in Implementation.query.filter(Implementation._algorithm_id == display_all_form.algorithms.data).order_by('_name'):
-#        ret += '<option value="%i">%s</option>' % (entry.key, entry.value)
-#    return ret
 
 class AlgTable(Table):
     id = Col('Algorithm ID')
     name = Col('Algorithm Name')
     description = Col('Description')
     tags = Col('Tags')
+
     def tr_format(self, item):
         return '<tr valign="top">{}</tr>'
+
 
 class ImpTable(Table):
     id = Col('Implementation ID')
@@ -230,8 +99,10 @@ class ImpTable(Table):
     alg = Col('Associated Algorithm')
     urls = Col('URL')
     tags = Col('Tags')
+
     def tr_format(self, item):
         return '<tr valign="top">{}</tr>'
+
 
 class AlgItem(object):
     def __init__(self, id, name, description, tags):
@@ -239,6 +110,7 @@ class AlgItem(object):
         self.id = id
         self.description = description
         self.tags = tags
+
 
 class ImpItem(object):
     def __init__(self, id, name, description, executable, alg, urls, tags):
@@ -251,7 +123,43 @@ class ImpItem(object):
         self.tags = tags
 
 
+def create_algorithm_table():
+    """ """
+    return AlgTable([AlgItem(
+        alg.id,
+        alg.name,
+        alg.description,
+        '\n'.join([str(tag.name) for tag in Tag.query.filter(
+            Tag.algorithms.any(id=alg.id)).all()]))
+        for alg in Algorithm.query.all()])
 
 
+def create_implementation_table():
+    """ """
+    return ImpTable([ImpItem(
+        imp.id,
+        imp.name,
+        imp.description,
+        imp.executable,
+        Algorithm.query.filter(Algorithm.implementations.any(
+            id=imp._algorithm_id)).first().name,
+        '\n'.join([str(url._url) for url in imp._urls]),
+        '\n'.join([tag.name for tag in Tag.query.filter(
+            Tag.implementations.any(id=imp.id)).all()]))
+        for imp in Implementation.query.all()])
 
 
+def create_algorithm_form():
+    """ """
+    form = AlgorithmForm()
+    form.tags.choices = [(t.id, t.name) for t in Tag.query.order_by('_name')]
+    return form
+
+
+def create_implementation_form():
+    """ """
+    form = ImplementationForm(url_forms=URLS, setup_scripts=SCRIPTS)
+    form.algorithm.choices = [(a.id, a.name) for a in
+                              Algorithm.query.order_by('_name')]
+    form.tags.choices = [(t.id, t.name) for t in Tag.query.order_by('_name')]
+    return form
