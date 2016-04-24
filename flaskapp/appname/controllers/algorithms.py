@@ -2,15 +2,16 @@ from flask import (Blueprint,
                    render_template,
                    flash,
                    redirect,
-                   url_for)
+                   url_for, request, json, jsonify)
 from flask.ext.login import login_required
 from appname.extensions import cache
 from appname.forms import (AlgorithmForm,
-                           ImplementationForm)
+                           ImplementationForm,
+                           AlgorithmViewForm)
 from appname.models import (db,
                             Tag,
                             Algorithm,
-                            Implementation)
+                            Implementation, URL)
 from appname.controllers.constants import (URLS, SCRIPTS)
 from flask_table import (Table, Col)
 
@@ -27,7 +28,8 @@ def algorithm():
                            algorithm_form=create_algorithm_form(),
                            implementation_form=create_implementation_form(),
                            alg_table=create_algorithm_table(),
-                           imp_table=create_implementation_table())
+                           imp_table=create_implementation_table(),
+                           display_all_form=create_view_form())
 
 
 @algorithms.route('/submit_algorithm', methods=["Post"])
@@ -49,7 +51,8 @@ def submit_algorithm():
                            algorithm_form=algorithm_form,
                            implementation_form=create_implementation_form(),
                            alg_table=create_algorithm_table(),
-                           imp_table=create_implementation_table())
+                           imp_table=create_implementation_table(),
+                           display_all_form=create_view_form())
 
 
 @algorithms.route('/submit_implementation', methods=["Post"])
@@ -78,7 +81,45 @@ def submit_implementation():
                            algorithm_form=create_algorithm_form(),
                            implementation_form=implementation_form,
                            alg_table=create_algorithm_table(),
-                           imp_table=create_implementation_table())
+                           imp_table=create_implementation_table(),
+                           display_all_form=create_view_form())
+
+@algorithms.route('/narrow', methods=['POST', 'GET'])
+def narrow():
+    data = json.loads(request.form.get('data'))
+    algid = data['algid']
+    imps = '<option value="0">Select Implementation</option>'
+    tag_ret = ''
+    for entry in Implementation.query.filter(Implementation._algorithm_id == algid).all():
+        imps += '<option value="%i">%s</option>' % (entry.id, entry._name)
+    name = Algorithm.query.filter(Algorithm.id==algid).first().name
+    descr = Algorithm.query.filter(Algorithm.id==algid).first().description
+    tags = [tag.name for tag in Tag.query.filter(Tag.algorithms.any(id=algid)).all()]
+    for tag in tags:
+        tag_ret += '<p>%s</p>' % tag
+    return jsonify({'imps':imps, 'name':name, 'descr':descr, 'tags':tag_ret})
+
+@algorithms.route('/select_imp', methods=['POST', 'GET'])
+def select_imp():
+    data = json.loads(request.form.get('data'))
+    impid = data['impid']
+    url_ret = ''
+    script_ret = ''
+    tag_ret = ''
+    name = Implementation.query.filter(Implementation.id==impid).first().name
+    alg = Algorithm.query.filter(Algorithm.implementations.any(id=impid)).first().name
+    exe = Implementation.query.filter(Implementation.id==impid).first().executable
+    descr = Implementation.query.filter(Implementation.id==impid).first().description
+    tags = [tag.name for tag in Tag.query.filter(Tag.implementations.any(id=impid)).all()]
+    urls = [url.url for url in URL.query.filter(URL.implementation.has(id=impid)).all()]
+    scripts = Implementation.query.filter(Implementation.id==impid).first().setup_scripts
+    for scr in scripts:
+        script_ret += '<p>%s</p>' % scr
+    for tag in tags:
+        tag_ret += '<p>%s</p>' % tag
+    for url in urls:
+        url_ret += '<p>%s</p>' % url
+    return jsonify({'name':name, 'alg':alg, 'urls':url_ret, 'scripts':script_ret, 'exe':exe, 'descr':descr, 'tags':tag_ret})
 
 
 class AlgTable(Table):
@@ -163,3 +204,12 @@ def create_implementation_form():
                               Algorithm.query.order_by('_name')]
     form.tags.choices = [(t.id, t.name) for t in Tag.query.order_by('_name')]
     return form
+
+def create_view_form():
+    display_all_form = AlgorithmViewForm()
+    display_all_form.algorithms.choices = [(0, 'Select Algorithm')]+[(da.id, da.name) for da in
+                                                                     Algorithm.query.order_by('_name')]
+    display_all_form.implementations.choices = [(0, 'Select Implementation')]
+    return display_all_form
+
+

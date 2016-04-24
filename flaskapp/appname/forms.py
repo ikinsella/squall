@@ -393,7 +393,7 @@ class ArgumentForm(Form):
         return False
 """
 
-class DisplayAllForm(Form):
+class AlgorithmViewForm(Form):
 
     algorithms = SelectField(u'Algorithms', [Optional()],
                                coerce=int)
@@ -401,7 +401,48 @@ class DisplayAllForm(Form):
                                     coerce=int)
         
     def validate(self):
-        if super(AlgorithmForm, self).validate():
+        if super(AlgorithmViewForm, self).validate():
             return True  # If Our Validators Pass
         return False
 
+class DataViewForm(Form):
+
+    collections = SelectField(u'Data Collections', [Optional()],
+                               coerce=int)
+    sets = SelectField(u'Data Sets', [Optional()],
+                                    coerce=int)
+        
+    def validate(self):
+        if super(DataViewForm, self).validate():
+            return True  # If Our Validators Pass
+        return False
+
+class ExperimentViewForm(Form):
+
+    experiments = SelectField(u'Experiments', [Optional()],
+                               coerce=int)
+        
+    def validate(self):
+        if super(ExperimentViewForm, self).validate():
+            return True  # If Our Validators Pass
+        return False
+
+class BatchViewForm(Form):
+
+    batches = SelectField(u'Batches', [Optional()],
+                               coerce=int)
+        
+    def validate(self):
+        if super(BatchViewForm, self).validate():
+            return True  # If Our Validators Pass
+        return False
+
+class UserViewForm(Form):
+
+    users = SelectField(u'Users', [Optional()],
+                               coerce=int)
+        
+    def validate(self):
+        if super(UserViewForm, self).validate():
+            return True  # If Our Validators Pass
+        return False

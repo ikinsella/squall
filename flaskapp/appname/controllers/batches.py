@@ -4,10 +4,10 @@ from flask import (Blueprint,
                    redirect,
                    url_for,
                    current_app,
-                   send_from_directory)
+                   send_from_directory, request, json, jsonify)
 from flask.ext.login import login_required
 from appname.extensions import cache
-from appname.forms import (BatchForm, DownloadBatchForm, UploadResultsForm)
+from appname.forms import (BatchForm, BatchViewForm, DownloadBatchForm, UploadResultsForm)
 from appname.models import (db,
                             mongo,
                             Tag,
@@ -34,7 +34,8 @@ def batch():
                            batch_form=create_batch_form(),
                            download_form=create_download_form(),
                            results_form=create_results_form(),
-                           batch_table=create_batch_table())
+                           batch_table=create_batch_table(),
+                           display_all_form=create_view_form())
 
 
 @batches.route('/submit_batch', methods=["Post"])
@@ -65,7 +66,8 @@ def submit_batch():
                            batch_form=batch_form,
                            download_form=create_download_form(),
                            results_form=create_results_form(),
-                           batch_table=create_batch_table())
+                           batch_table=create_batch_table(),
+                           display_all_form=create_view_form())
 
 
 @batches.route('/download_batch', methods=["Get", "Post"])
@@ -85,7 +87,8 @@ def download_batch():
                            batch_form=create_batch_form(),
                            download_form=download_form,
                            results_form=create_results_form(),
-                           batch_table=create_batch_table())
+                           batch_table=create_batch_table(),
+                           display_all_form=create_view_form())
 
 
 @batches.route('/upload_results', methods=["Post"])
@@ -112,7 +115,40 @@ def upload_results():
                            batch_form=create_batch_form(),
                            download_form=create_download_form(),
                            results_form=results_form,
-                           batch_table=create_batch_table())
+                           batch_table=create_batch_table(),
+                           display_all_form=create_view_form())
+
+@batches.route('/select_batch', methods=['POST', 'GET'])
+def select_batch():
+    data = json.loads(request.form.get('data'))
+    batchid = data['batchid']
+    tag_ret = ''
+    param_ret=''
+    b = Batch.query.filter(Batch.id==batchid).first()
+    name = b.name
+    exp = Experiment.query.filter(Experiment.batches.any()).first().name
+    set = DataSet.query.filter(DataSet.batches.any()).first().name
+    imp = Implementation.query.filter(Implementation.batches.any()).first().name
+    params = b.params
+    mem = b.memory
+    disk = b.disk
+    flock = b.flock
+    glide = b.glide
+    descr = b.description
+    tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=batchid)).all()]
+    for tag in tags:
+        tag_ret += '<p>%s</p>' % tag
+    for param in params:
+        param_ret += '<p>%s</p>' % str(param)
+    return jsonify({'name':name, 'exp':exp, 'set':set, 'imp':imp, 'param':param_ret, 'mem':mem, 'disk':disk, 'flock':flock, 'glide':glide, 'descr':descr, 'tags':tag_ret})
+
+@batches.route('/select_upload', methods=['POST', 'GET'])
+def select_upload():
+    data = json.loads(request.form.get('data'))
+    batchid = data['batchid']
+    b = Batch.query.filter(Batch.id==batchid).first()
+    status = b.completed
+    return jsonify({'status':status})
 
 
 class BatchTable(Table):
@@ -201,3 +237,9 @@ def create_results_form():
     form.batch.choices = [(b.id, b.name) for b in
                           Batch.query.order_by('_name')]
     return form
+
+def create_view_form():
+    display_all_form = BatchViewForm()
+    display_all_form.batches.choices = [(0, 'Select Batch')]+[(b.id, b.name) for b in
+                                                            Batch.query.order_by('_name')]
+    return display_all_form

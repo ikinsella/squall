@@ -3,234 +3,311 @@
 {% block title %} Batches {% endblock %}
 
 {% block body %}
+<style>
+    p {
+        margin:0
+    }
+#batch_form {
+    display:none;
+}
+#launch_files_form {
+    display:none;
+}
+#results_form {
+    display:none;
+}
+.info_title {
+    font-weight:bold;
+}
+#batch_info {
+    display:none;
+}
+#batch_param {
+    display:none;
+}
+</style>
 
-<h1 class="text-center">Create Batch</h1>
-
+<h1 class="text-center">View All Batches</h1>
 <div class="row">
-  <div class="col-md-4"></div>
-  <div class="col-md-4">
-    <form role="form" action="{{ url_for('.submit_batch') }}" method="post" enctype=multipart/form-data>
-      {{ batch_form.hidden_tag() }}
-
-      <div class="form-group">
-        {{ batch_form.name.label }}
-        <p id="batches_name_info"></p>
-        <button onclick="toggleButton('batches_name_button', 'batches_name_info', 'Provide a unique name for batch identification. <strong>[Required]</strong>')" type="button" id="batches_name_button">info</button>
-        {% if batch_form.name.errors %}
-        {% for e in batch_form.name.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ batch_form.name(class_="form-control") }}
-      </div>
-      
-      <div class="form-group">
-        {{ batch_form.experiment.label }}
-        <p id="batches_experiment_info"></p>
-        <button onclick="toggleButton('batches_experiment_button', 'batches_experiment_info', 'Choose one experiment from which the batch will be derived. <strong>[Required]</strong>')" type="button" id="batches_experiment_button">info</button>
-        
-        {% if batch_form.experiment.errors %}
-        {% for e in batch_form.experiment.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ batch_form.experiment(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ batch_form.data_set.label }}
-        <p id="batches_data_set_info"></p>
-        <button onclick="toggleButton('batches_data_set_button', 'batches_data_set_info', 'Choose one data set from which the batch will be derived. <strong>[Required]</strong>')" type="button" id="batches_data_set_button">info</button>
-        
-        {% if batch_form.data_set.errors %}
-        {% for e in batch_form.data_set.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ batch_form.data_set(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ batch_form.implementation.label }}
-        <p id="batches_implementation_info"></p>
-        <button onclick="toggleButton('batches_implementation_button', 'batches_implementation_info', 'Choose one implementation from which the batch will be derived. <strong>[Required]</strong>')" type="button" id="batches_implementation_button">info</button>
-        
-        {% if batch_form.implementation.errors %}
-        {% for e in batch_form.implementation.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ batch_form.implementation(class_="form-control") }}
-      </div>
-      
-      <div class="form-group">
-        {{ batch_form.params.label }}
-        <p id="batches_param_file_info"></p>
-        <button onclick="toggleButton('batches_param_file_button', 'batches_param_file_info', 'Provide a file with selected implementation parameters. This file can be .yaml or .yml. <strong>[Required]</strong>')" type="button" id="batches_param_file_button">info</button>
-        
-        {% if batch_form.params.errors %}
-        {% for e in batch_form.params.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ batch_form.params(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ batch_form.memory.label }}
-        <p id="batches_memory_info"></p>
-        <button onclick="toggleButton('batches_memory_button', 'batches_memory_info', 'Specify the minimum memory per job. <strong>[Required]</strong>')" type="button" id="batches_memory_button">info</button>
-        
-        {% if batch_form.memory.errors %}
-        {% for e in batch_form.memory.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ batch_form.memory(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ batch_form.disk.label }}
-        <p id="batches_disk_space_info"></p>
-        <button onclick="toggleButton('batches_disk_space_button', 'batches_disk_space_info', 'Specify the minimum disk space per job. <strong>[Required]</strong>')" type="button" id="batches_disk_space_button">info</button>
-        
-        {% if batch_form.disk.errors %}
-        {% for e in batch_form.disk.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ batch_form.disk(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ batch_form.flock.label }}
-        <p id="batches_flock_info"></p>
-        <button onclick="toggleButton('batches_flock_button', 'batches_flock_info', 'Check \'Flock\' to expand pool to entire UW instead of just HTCondor.')" type="button" id="batches_flock_button">info</button>
-        
-        {% if batch_form.flock.errors %}
-        {% for e in batch_form.flock.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ batch_form.flock(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ batch_form.glide.label }}
-        <p id="batches_glide_info"></p>
-        <button onclick="toggleButton('batches_glide_button', 'batches_glide_info', 'Check \'Glide\' to expand pool to search the whole Open Science Grid.')" type="button" id="batches_glide_button">info</button>
-        
-        {% if batch_form.glide.errors %}
-        {% for e in batch_form.glide.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ batch_form.glide(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ batch_form.description.label }}
-        <p id="batches_description_info"></p>
-        <button onclick="toggleButton('batches_description_button', 'batches_description_info', 'Provide a succinct description for the given batch.')" type="button" id="batches_description_button">info</button>
-        
-        {% if batch_form.description.errors %}
-        {% for e in batch_form.description.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ batch_form.description(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-       {{ batch_form.tags.label }}
-       <p id="batches_tag_info"></p>
-       <button onclick="toggleButton('batches_tag_button', 'batches_tag_info', 'Provide tags to help organize and identify the batch.')" type="button" id="batches_tag_button">info</button>
-       
-      {% if batch_form.tags.errors %}
-      {% for e in batch_form.tags.errors %}
-      <p class="help-block">{{ e }}</p>
-      {% endfor %}{% endif %}
-      {{ batch_form.tags(class_="form-control") }}
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <form role="form">
+            <div class="form-group">
+                <h4>{{ display_all_form.batches.label }}</h4>
+                {{ display_all_form.batches(class_="form-control") }}
+            </div>
+            <div id="batch_info">
+                <p class="info_title">Name:</p>
+                <p class="batch_val" id="batch_name"></p>
+                <p class="info_title">Experiment:</p>
+                <p class="batch_val" id="batch_exp"></p>
+                <p class="info_title">Data Set:</p>
+                <p class="batch_val" id="batch_set"></p>
+                <p class="info_title">Implementation:</p>
+                <p class="batch_val" id="batch_imp"></p>
+                <p class="info_title">Parameter File: <button class="btn btn-xs" id="param_button">Show</button></p>
+                <p class="batch_val" id="batch_param"></p>
+                <p class="info_title">Memory:</p>
+                <p class="batch_val" id="batch_mem"></p>
+                <p class="info_title">Disk Space:</p>
+                <p class="batch_val" id="batch_disk"></p>
+                <p class="info_title">Flock:</p>
+                <p class="batch_val" id="batch_flock"></p>
+                <p class="info_title">Glide:</p>
+                <p class="batch_val" id="batch_glide"></p>
+                <p class="info_title">Description:</p>
+                <p class="batch_val" id="batch_descr"></p>
+                <p class="info_title">Tags:</p>
+                <p class="batch_val" id="batch_tags"></p>
+            </div>
+        </form>
     </div>
-
-    <button type="submit" class="btn btn-primary">Submit</button>
-
-  </form>
-</div>
-<div class="col-md-4"></div>
-</div>
-
-<h1 class="text-center">Download Launch Files</h1>
-
-<div class="row">
-  <div class="col-md-4"></div>
-  <div class="col-md-4">
-
-    <form role="form" action="{{ url_for('.download_batch') }}" method="Post">
-      {{ download_form.hidden_tag() }}
-      
-      <div class="form-group">
-        {{ download_form.batch.label }}
-        <p id="launch_file_batch_info"></p>
-        <button onclick="toggleButton('launch_file_batch_button', 'launch_file_batch_info', 'Select batch launch files. Make sure to be logged in as the user that will be launching the batch on HTCondor, as files generated will use the HTCondor directory associated with the logged in user. <strong>[Required]</strong>')" type="button" id="launch_file_batch_button">info</button>
-        
-        {% if download_form.batch.errors %}
-        {% for e in download_form.batch.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ download_form.batch(class_="form-control") }}
-      </div>
-
-      <button type="submit" class="btn btn-primary">Submit</button>
-
-    </form>
-  </div>
-  <div class="col-md-4"></div>
-</div>
-
-<h1 class="text-center">Upload Results</h1>
-
-<div class="row">
-  <div class="col-md-4"></div>
-  <div class="col-md-4">
-    <form role="form" action="{{ url_for('.upload_results') }}" method="post" enctype=multipart/form-data>
-      {{ results_form.hidden_tag() }}
-
-      <div class="form-group">
-        {{ results_form.batch.label }}
-        <p id="results_batch_info"></p>
-        <button onclick="toggleButton('results_batch_button', 'results_batch_info', 'Select the batch from which the results correspond to. <strong>[Required]</strong>')" type="button" id="results_batch_button">info</button>
-        
-        {% if results_form.batch.errors %}
-        {% for e in results_form.batch.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ results_form.batch(class_="form-control") }}
-      </div>
-      
-      <div class="form-group">
-        {{ results_form.results.label }}
-        <p id="results_results_info"></p>
-        <button onclick="toggleButton('results_results_button', 'results_results_info', 'Upload associated JSON results file returned from HTCondor. <strong>[Required]</strong>')" type="button" id="results_results_button">info</button>
-        
-        {% if results_form.results.errors %}
-        {% for e in results_form.results.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ results_form.results(class_="form-control") }}
-      </div>
-
-      <button type="submit" class="btn btn-primary">Submit</button>
-
-    </form>
-
-  </div>
-  <div class="col-md-4"></div>
-</div>
-<hr>
-<div class="row">
-    <div class="col-md-4"></div>
-    <style>
-        table, th, td {
-            padding-left: 8px;
-            padding-right: 8px;
-        }
-    </style>
-    <pre>
-    {{ batch_table }}
-    </pre>
     <div class="col-md-4"></div>
 </div>
 
+<br />
+
+<div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <button class="btn btn-block" id="batch_button">Create New Batch</button>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<div class="row" id="batch_form">
+    <h1 class="text-center">Create Batch</h1>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <form role="form" action="{{ url_for('.submit_batch') }}" method="post" enctype=multipart/form-data>
+            {{ batch_form.hidden_tag() }}
+            
+            <div class="form-group">
+                <p>{{ batch_form.name.label }}
+                <button class="btn btn-xs" onclick="toggleButton('batches_name_button', 'batches_name_info', 'Provide a unique name for batch identification. <strong>[Required]</strong>')" type="button" id="batches_name_button">info</button></p>
+                <p id="batches_name_info"></p>
+                {% if batch_form.name.errors %}
+                {% for e in batch_form.name.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ batch_form.name(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ batch_form.experiment.label }}
+                <button class="btn btn-xs" onclick="toggleButton('batches_experiment_button', 'batches_experiment_info', 'Choose one experiment from which the batch will be derived. <strong>[Required]</strong>')" type="button" id="batches_experiment_button">info</button></p>
+                <p id="batches_experiment_info"></p>
+                
+                {% if batch_form.experiment.errors %}
+                {% for e in batch_form.experiment.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ batch_form.experiment(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ batch_form.data_set.label }}
+                <button class="btn btn-xs" onclick="toggleButton('batches_data_set_button', 'batches_data_set_info', 'Choose one data set from which the batch will be derived. <strong>[Required]</strong>')" type="button" id="batches_data_set_button">info</button></p>
+                <p id="batches_data_set_info"></p>
+                
+                {% if batch_form.data_set.errors %}
+                {% for e in batch_form.data_set.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ batch_form.data_set(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ batch_form.implementation.label }}
+                <button class="btn btn-xs" onclick="toggleButton('batches_implementation_button', 'batches_implementation_info', 'Choose one implementation from which the batch will be derived. <strong>[Required]</strong>')" type="button" id="batches_implementation_button">info</button></p>
+                <p id="batches_implementation_info"></p>
+                
+                {% if batch_form.implementation.errors %}
+                {% for e in batch_form.implementation.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ batch_form.implementation(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ batch_form.params.label }}
+                <button class="btn btn-xs" onclick="toggleButton('batches_param_file_button', 'batches_param_file_info', 'Provide a file with selected implementation parameters. This file can be .yaml or .yml. <strong>[Required]</strong>')" type="button" id="batches_param_file_button">info</button></p>
+                <p id="batches_param_file_info"></p>
+                
+                {% if batch_form.params.errors %}
+                {% for e in batch_form.params.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ batch_form.params(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ batch_form.memory.label }}
+                <button class="btn btn-xs" onclick="toggleButton('batches_memory_button', 'batches_memory_info', 'Specify the minimum memory per job. <strong>[Required]</strong>')" type="button" id="batches_memory_button">info</button></p>
+                <p id="batches_memory_info"></p>
+                
+                {% if batch_form.memory.errors %}
+                {% for e in batch_form.memory.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ batch_form.memory(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ batch_form.disk.label }}
+                <button class="btn btn-xs" onclick="toggleButton('batches_disk_space_button', 'batches_disk_space_info', 'Specify the minimum disk space per job. <strong>[Required]</strong>')" type="button" id="batches_disk_space_button">info</button></p>
+                <p id="batches_disk_space_info"></p>
+                
+                {% if batch_form.disk.errors %}
+                {% for e in batch_form.disk.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ batch_form.disk(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ batch_form.flock.label }}
+                <button class="btn btn-xs" onclick="toggleButton('batches_flock_button', 'batches_flock_info', 'Check \'Flock\' to expand pool to entire UW instead of just HTCondor.')" type="button" id="batches_flock_button">info</button></p>
+                <p id="batches_flock_info"></p>
+                
+                {% if batch_form.flock.errors %}
+                {% for e in batch_form.flock.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ batch_form.flock(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ batch_form.glide.label }}
+                <button class="btn btn-xs" onclick="toggleButton('batches_glide_button', 'batches_glide_info', 'Check \'Glide\' to expand pool to search the whole Open Science Grid.')" type="button" id="batches_glide_button">info</button></p>
+                <p id="batches_glide_info"></p>
+                
+                {% if batch_form.glide.errors %}
+                {% for e in batch_form.glide.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ batch_form.glide(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ batch_form.description.label }}
+                <button class="btn btn-xs" onclick="toggleButton('batches_description_button', 'batches_description_info', 'Provide a succinct description for the given batch.')" type="button" id="batches_description_button">info</button></p>
+                <p id="batches_description_info"></p>
+                
+                {% if batch_form.description.errors %}
+                {% for e in batch_form.description.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ batch_form.description(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ batch_form.tags.label }}
+                <button class="btn btn-xs" onclick="toggleButton('batches_tag_button', 'batches_tag_info', 'Provide tags to help organize and identify the batch.')" type="button" id="batches_tag_button">info</button></p>
+                <p id="batches_tag_info"></p>
+                
+                {% if batch_form.tags.errors %}
+                {% for e in batch_form.tags.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ batch_form.tags(class_="form-control") }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
+            
+        </form>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<br />
+
+<div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <button class="btn btn-block" id="launch_files_button">Download Launch Files</button>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<div class="row" id="launch_files_form">
+    <h1 class="text-center">Download Launch Files</h1>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        
+        <form role="form" action="{{ url_for('.download_batch') }}" method="Post">
+            {{ download_form.hidden_tag() }}
+            
+            <div class="form-group">
+                <p>{{ download_form.batch.label }}
+                <button class="btn btn-xs" onclick="toggleButton('launch_file_batch_button', 'launch_file_batch_info', 'Select batch launch files. Make sure to be logged in as the user that will be launching the batch on HTCondor, as files generated will use the HTCondor directory associated with the logged in user. <strong>[Required]</strong>')" type="button" id="launch_file_batch_button">info</button></p>
+                <p id="launch_file_batch_info"></p>
+                
+                {% if download_form.batch.errors %}
+                {% for e in download_form.batch.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ download_form.batch(class_="form-control", id="dl_batch") }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
+            
+        </form>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<br />
+
+<div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <button class="btn btn-block" id="results_button">Upload Results</button>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<div class="row" id="results_form">
+    <h1 class="text-center">Upload Results</h1>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <form role="form" action="{{ url_for('.upload_results') }}" method="post" enctype=multipart/form-data>
+            {{ results_form.hidden_tag() }}
+            
+            <div class="form-group">
+                <p>{{ results_form.batch.label }}
+                <button class="btn btn-xs" onclick="toggleButton('results_batch_button', 'results_batch_info', 'Select the batch from which the results correspond to. <strong>[Required]</strong>')" type="button" id="results_batch_button">info</button></p>
+                <p id="results_batch_info"></p>
+                
+                {% if results_form.batch.errors %}
+                {% for e in results_form.batch.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ results_form.batch(class_="form-control") }}
+                <p id="batch_status"></p>
+            </div>
+            
+            <div class="form-group">
+                <p>{{ results_form.results.label }}
+                <button class="btn btn-xs" onclick="toggleButton('results_results_button', 'results_results_info', 'Upload associated JSON results file returned from HTCondor. <strong>[Required]</strong>')" type="button" id="results_results_button">info</button></p>
+                <p id="results_results_info"></p>
+                
+                {% if results_form.results.errors %}
+                {% for e in results_form.results.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ results_form.results(class_="form-control") }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
+            
+        </form>
+        
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
 <script src="{{ url_for("static", filename="js/toggle.js") }}"></script>
+<script src="{{ url_for("static", filename="js/batches.js") }}"></script>
 {% endblock %}

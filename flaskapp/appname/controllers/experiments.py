@@ -2,10 +2,10 @@ from flask import (Blueprint,
                    render_template,
                    flash,
                    redirect,
-                   url_for)
+                   url_for, request, json, jsonify)
 from flask.ext.login import login_required
 from appname.extensions import cache
-from appname.forms import ExperimentForm
+from appname.forms import ExperimentForm, ExperimentViewForm
 from appname.models import (db,
                             Tag,
                             DataCollection,
@@ -24,7 +24,8 @@ def experiment():
     """ """
     return render_template('experiments.html',
                            experiment_form=create_experiment_form(),
-                           exp_table=create_experiment_table())
+                           exp_table=create_experiment_table(),
+                           display_all_form=create_view_form())
 
 
 @experiments.route('/submit_experiment', methods=["Post"])
@@ -48,7 +49,28 @@ def submit_experiment():
     flash('Failed validation', 'danger')
     return render_template('experiments.html',
                            experiment_form=experiment_form,
-                           exp_table=create_experiment_table)
+                           exp_table=create_experiment_table,
+                           display_all_form=create_view_form())
+
+@experiments.route('/select_experiment', methods=['POST', 'GET'])
+def select_experiment():
+    data = json.loads(request.form.get('data'))
+    expid = data['expid']
+    tag_ret = ''
+    coll_ret = ''
+    alg_ret = ''
+    name = Experiment.query.filter(Experiment.id==expid).first().name
+    tags = [tag.name for tag in Tag.query.filter(Tag.experiments.any(id=expid)).all()]
+    colls = [coll.name for coll in DataCollection.query.filter(DataCollection.experiments.any(id=expid)).all()]
+    algs = [alg.name for alg in Algorithm.query.filter(Algorithm.experiments.any(id=expid)).all()]
+    descr = Experiment.query.filter(Experiment.id==expid).first().description
+    for tag in tags:
+        tag_ret += '<p>%s</p>' % tag
+    for coll in colls:
+        coll_ret += '<p>%s</p>' % coll
+    for alg in algs:
+        alg_ret += '<p>%s</p>' % alg
+    return jsonify({'name':name, 'descr':descr, 'tags':tag_ret, 'colls':coll_ret, 'algs':alg_ret})
 
 
 class ExpTable(Table):
@@ -97,3 +119,9 @@ def create_experiment_form():
     form.collections.choices = [(dc.id, dc.name) for dc in
                                 DataCollection.query.order_by('_name')]
     return form
+
+def create_view_form():
+    display_all_form = ExperimentViewForm()
+    display_all_form.experiments.choices = [(0, 'Select Experiment')]+[(e.id, e.name) for e in
+                                                            Experiment.query.order_by('_name')]
+    return display_all_form

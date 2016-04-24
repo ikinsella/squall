@@ -3,89 +3,141 @@
 {% block title %} Experiments {% endblock %}
 
 {% block body %}
-<h1 class="text-center">Experiments</h1>
+<style>
+    p { margin:0 }
+    #exp_form {
+        display:none;
+    }
+.info_title {
+    font-weight:bold;
+}
+#exp_info {
+    display:none;
+}
+</style>
 
+<h1 class="text-center">View All Experiments</h1>
 <div class="row">
-  <div class="col-md-4"></div>
-  <div class="col-md-4">
-    <form role="form" action="{{ url_for('.submit_experiment') }}" method="post">
-      {{ experiment_form.hidden_tag() }}
-
-      <div class="form-group">
-        {{ experiment_form.name.label }}
-        <p id="experiment_name_info"></p>
-        <button onclick="toggleButton('experiment_name_button', 'experiment_name_info', 'Provide a unique name for experiment identification. <strong>[Required]</strong>')" type="button" id="experiment_name_button">info</button>
-        
-        {% if experiment_form.name.errors %}{% for e in experiment_form.name.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ experiment_form.name(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ experiment_form.collections.label }}
-        <p id="experiment_collection_info"></p>
-        <button onclick="toggleButton('experiment_collection_button', 'experiment_collection_info', 'Choose at least one data collection from which the experiment will be derived. <strong>[Required]</strong>')" type="button" id="experiment_collection_button">info</button>
-        
-        {% if experiment_form.collections.errors %}{% for e in experiment_form.collections.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ experiment_form.collections(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ experiment_form.algorithms.label }}
-        <p id="experiment_algorithm_info"></p>
-        <button onclick="toggleButton('experiment_algorithm_button', 'experiment_algorithm_info', 'Choose at least one algorithm from which the experiment will be derived. <strong>[Required]</strong>')" type="button" id="experiment_algorithm_button">info</button>
-        
-        {% if experiment_form.algorithms.errors %}{% for e in experiment_form.algorithms.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ experiment_form.algorithms(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ experiment_form.description.label }}
-        <p id="experiment_description_info"></p>
-        <button onclick="toggleButton('experiment_description_button', 'experiment_description_info', 'Provide a succinct description for the given experiment.')" type="button" id="experiment_description_button">info</button>
-        
-        {% if experiment_form.description.errors %}{% for e in experiment_form.description.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ experiment_form.description(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ experiment_form.tags.label }}
-        <p id="experiment_tag_info"></p>
-        <button onclick="toggleButton('experiment_tag_button', 'experiment_tag_info', 'Provide tags to help organize and identify the experiment.')" type="button" id="experiment_tag_button">info</button>
-        
-        {% if experiment_form.tags.errors %}{% for e in experiment_form.tags.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ experiment_form.tags(class_="form-control") }}
-      </div>
-
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-  </div>
-  <div class="col-md-4"></div>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <form role="form">
+            <div class="form-group">
+                <h4>{{ display_all_form.experiments.label }}</h4>
+                {{ display_all_form.experiments(class_="form-control") }}
+            </div>
+            <div id="exp_info">
+                <p class="info_title">Name:</p>
+                <p class="exp_val" id="exp_name"></p>
+                <p class="info_title">Collections:</p>
+                <p class="exp_val" id="exp_colls"></p>
+                <p class="info_title">Algorithms:</p>
+                <p class="exp_val" id="exp_algs"></p>
+                <p class="info_title">Description:</p>
+                <p class="exp_val" id="exp_descr"></p>
+                <p class="info_title">Tags:</p>
+                <p class="exp_val" id="exp_tags"></p>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4"></div>
 </div>
-
-<hr>
+<br />
 
 <div class="row">
     <div class="col-md-4"></div>
-    <style>
-        table, th, td {
-            padding-left: 8px;
-            padding-right: 8px;
-        }
-    </style>
-    <pre>
-    {{ exp_table }}
-    </pre>
+    <div class="col-md-4">
+        <button class="btn btn-block" id="exp_button">Add New Experiment</button>
+    </div>
     <div class="col-md-4"></div>
 </div>
+
+<div class="row" id="exp_form">
+    <h1 class="text-center">Experiments</h1>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <form role="form" action="{{ url_for('.submit_experiment') }}" method="post">
+            {{ experiment_form.hidden_tag() }}
+            
+            <div class="form-group">
+                <p>{{ experiment_form.name.label }}
+                <button class="btn btn-xs" onclick="toggleButton('experiment_name_button', 'experiment_name_info', 'Provide a unique name for experiment identification. <strong>[Required]</strong>')" type="button" id="experiment_name_button">info</button></p>
+                <p id="experiment_name_info"></p>
+                
+                {% if experiment_form.name.errors %}
+                {% for e in experiment_form.name.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ experiment_form.name(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ experiment_form.collections.label }}
+                <button class="btn btn-xs" onclick="toggleButton('experiment_collection_button', 'experiment_collection_info', 'Choose at least one data collection from which the experiment will be derived. <strong>[Required]</strong>')" type="button" id="experiment_collection_button">info</button></p>
+                <p id="experiment_collection_info"></p>
+                
+                {% if experiment_form.collections.errors %}
+                {% for e in experiment_form.collections.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ experiment_form.collections(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ experiment_form.algorithms.label }}
+                <button class="btn btn-xs" onclick="toggleButton('experiment_algorithm_button', 'experiment_algorithm_info', 'Choose at least one algorithm from which the experiment will be derived. <strong>[Required]</strong>')" type="button" id="experiment_algorithm_button">info</button></p>
+                <p id="experiment_algorithm_info"></p>
+                
+                {% if experiment_form.algorithms.errors %}
+                {% for e in experiment_form.algorithms.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ experiment_form.algorithms(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ experiment_form.description.label }}
+                <button class="btn btn-xs" onclick="toggleButton('experiment_description_button', 'experiment_description_info', 'Provide a succinct description for the given experiment.')" type="button" id="experiment_description_button">info</button></p>
+                <p id="experiment_description_info"></p>
+                
+                {% if experiment_form.description.errors %}
+                {% for e in experiment_form.description.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ experiment_form.description(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ experiment_form.tags.label }}
+                <button class="btn btn-xs" onclick="toggleButton('experiment_tag_button', 'experiment_tag_info', 'Provide tags to help organize and identify the experiment.')" type="button" id="experiment_tag_button">info</button></p>
+                <p id="experiment_tag_info"></p>
+                
+                {% if experiment_form.tags.errors %}
+                {% for e in experiment_form.tags.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ experiment_form.tags(class_="form-control") }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<!--<div class="row">-->
+<!--    <div class="col-md-4"></div>-->
+<!--    <style>-->
+<!--        table, th, td {-->
+<!--            padding-left: 8px;-->
+<!--            padding-right: 8px;-->
+<!--        }-->
+<!--    </style>-->
+<!--    <pre>-->
+<!--    {{ exp_table }}-->
+<!--    </pre>-->
+<!--    <div class="col-md-4"></div>-->
+<!--</div>-->
+<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
 <script src="{{ url_for("static", filename="js/toggle.js") }}"></script>
+<script src="{{ url_for("static", filename="js/experiments.js") }}"></script>
 {% endblock %}

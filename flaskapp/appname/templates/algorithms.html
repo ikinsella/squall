@@ -3,202 +3,277 @@
 {% block title %} Algorithms {% endblock %}
 
 {% block body %}
-<h1 class="text-center">Algorithms</h1>
+<style>
+    p { margin:0 }
+    #imp_form {
+        display:none;
+    }
+#alg_form {
+    display:none;
+}
+.info_title {
+    font-weight:bold;
+}
+#alg_info {
+    display:none;
+}
+#imp_info {
+    display:none;
+}
+</style>
 
+<h1 class="text-center">View All Algorithms</h1>
 <div class="row">
-  <div class="col-md-4"></div>
-  <div class="col-md-4">
-    <form role="form" action="{{ url_for('.submit_algorithm') }}" method="post">
-      {{ algorithm_form.hidden_tag() }}
-
-      <div class="form-group">
-        {{ algorithm_form.name.label }}
-        <p id="algorithm_name_info"></p>
-        <button onclick="toggleButton('algorithm_name_button', 'algorithm_name_info', 'Provide a unique name for algorithm identification. <strong>[Required]</strong>')" type="button" id="algorithm_name_button">info</button>
-        {% if algorithm_form.name.errors %}
-        {% for e in algorithm_form.name.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ algorithm_form.name(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ algorithm_form.description.label }}
-        <p id="algorithm_description_info"></p>
-        <button onclick="toggleButton('algorithm_description_button', 'algorithm_description_info', 'Provide a succinct description for the given algorithm.')" type="button" id="algorithm_description_button">info</button>
-
-        {% if implementation_form.description.errors %}
-        {% for e in implementation_form.description.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}		
-        {{ algorithm_form.description(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ algorithm_form.tags.label }}
-        <p id="algorithm_tag_info"></p>
-        <button onclick="toggleButton('algorithm_tag_button', 'algorithm_tag_info', 'Provide tags to help organize and identify the algorithm.')" type="button" id="algorithm_tag_button">info</button>
-
-        {% if implementation_form.tags.errors %}
-        {% for e in implementation_form.tags.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ algorithm_form.tags(class_="form-control") }}
-      </div>
-
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-  </div>
-  <div class="col-md-4"></div>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <form role="form">
+            <div class="form-group">
+                <h4>{{ display_all_form.algorithms.label }}</h4>
+                {{ display_all_form.algorithms(class_="form-control") }}
+            </div>
+            <div id="alg_info">
+                <p class="info_title">Name:</p>
+                <p class="alg_val" id="alg_name"></p>
+                <p class="info_title">Description:</p>
+                <p class="alg_val" id="alg_descr"></p>
+                <p class="info_title">Tags:</p>
+                <p class="alg_val" id="alg_tags"></p>
+            </div>
+            <div class="form-group">
+                <h4>{{ display_all_form.implementations.label }}</h4>
+                {{ display_all_form.implementations(class_="form-control") }}
+            </div>
+            <div id="imp_info">
+                <p class="info_title">Name:</p>
+                <p class="imp_val" id="imp_name"></p>
+                <p class="info_title">Algorithm:</p>
+                <p class="imp_val" id="imp_alg"></p>
+                <p class="info_title">URL(s):</p>
+                <p class="imp_val" id="imp_urls"></p>
+                <p class="info_title">Setup Script(s):</p>
+                <p class="imp_val" id="imp_scripts"></p>
+                <p class="info_title">Executable:</p>
+                <p class="imp_val" id="imp_exe"></p>
+                <p class="info_title">Description:</p>
+                <p class="imp_val" id="imp_descr"></p>
+                <p class="info_title">Tags:</p>
+                <p class="imp_val" id="imp_tags"></p>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4"></div>
 </div>
-
-<h1 class="text-center">Implementations</h1>
-
-<div class="row">
-  <div class="col-md-4"></div>
-  <div class="col-md-4">
-    <form role="form" action="{{ url_for('.submit_implementation') }}" method="post">
-      {{ implementation_form.hidden_tag() }}
-
-      <div class="form-group">
-        {{ implementation_form.name.label }}
-        <p id="implementation_name_info"></p>
-        <button onclick="toggleButton('implementation_name_button', 'implementation_name_info', 'Provide a unique name for implementation identification. <strong>[Required]</strong>')" type="button" id="implementation_name_button">info</button>
-
-        {% if implementation_form.name.errors %}
-        {% for e in implementation_form.name.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ implementation_form.name(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ implementation_form.algorithm.label }}
-        <p id="implementation_algorithm_info"></p>
-        <button onclick="toggleButton('implementation_algorithm_button', 'implementation_algorithm_info', 'Choose one algorithm from which the implementation will be derived. <strong>[Required]</strong>')" type="button" id="implementation_algorithm_button">info</button>
-
-        {% if implementation_form.algorithm.errors %}
-        {% for e in implementation_form.algorithm.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ implementation_form.algorithm(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        <div data-toggle="fieldset" id="url-fieldset">
-          {{ implementation_form.url_forms.label }}
-          {% if implementation_form.url_forms.errors %}
-          {% for errors in implementation_form.url_forms.errors %}
-          {% for e in errors.get("url") %}
-          <p class="help-block">{{ e }}</p>
-          {% endfor %}{% endfor %}{% endif %}
-
-          <p id="implementation_url_info"></p>
-          <button onclick="toggleButton('implementation_url_button', 'implementation_url_info', 'Provide full addresses to code on the SQUID web proxy hosted by HTCondor. URLs should be addressed to tar.gz files. <strong>[Required - min: 1 max: 10]</strong>')" type="button" id="implementation_url_button">info</button>
-
-          <table>
-            <td><button type="button" data-toggle="fieldset-add-row" data-target="#url-fieldset">+</button></td>
-            {% for url_form in implementation_form.url_forms %}
-            <tr data-toggle="fieldset-entry">
-              <td id="urls-{{loop.index0}}">{{ url_form.url }}</td>
-              <td><button type="button" data-toggle="fieldset-remove-row" data-target="#url-fieldset" id="urls-{{loop.index0}}-remove">-</button></td>
-            </tr>
-            {% endfor %}
-          </table>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <div data-toggle="fieldset" id="script-fieldset">
-          {{ implementation_form.setup_scripts.label }}
-          {% if implementation_form.setup_scripts.errors %}
-          {% for errors in implementation_form.setup_scripts.errors %}
-          {% for e in errors.get("path") %}
-          <p class="help-block">{{ e }}</p>
-          {% endfor %}{% endfor %}{% endif %}
-
-          <p id="implementation_script_info"></p>
-          <button onclick="toggleButton('implementation_script_button', 'implementation_script_info', 'Provide an optional setup shell script to modify the environment prior to execution of the executable. The path provided must point to the location of the setup script within your source code directory. (Ex: un-tarred source code directory named \'MyCode\' with a setup script \'setup.sh\' would have the path \'MyCode/setup.sh\')')" type="button" id="implementation_script_button">info</button>
-
-          <table>
-            <td><button type="button" data-toggle="fieldset-add-row" data-target="#script-fieldset">+</button></td>
-            {% for script in implementation_form.setup_scripts %}
-            <tr data-toggle="fieldset-entry">
-              <td id="scripts-{{loop.index0}}">{{ script.path }}</td>
-              <td><button type="button" data-toggle="fieldset-remove-row" data-target="#script-fieldset" id="scripts-{{loop.index0}}-remove">-</button></td>
-            </tr>
-            {% endfor %}
-          </table>
-        </div>
-      </div>
-
-      <div class="form-group">
-        {{ implementation_form.executable.label }}
-
-        <p id="implementation_executable_info"></p>
-        <button onclick="toggleButton('implementation_executable_button', 'implementation_executable_info', 'Provide the address to the executable file. An example of an executable file is compiled MATLAB code. <strong>[Required]</strong>')" type="button" id="implementation_executable_button">info</button>
-
-        {% if implementation_form.executable.errors %}
-        {% for e in implementation_form.executable.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ implementation_form.executable(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ implementation_form.description.label }}
-
-        <p id="implementation_description_info"></p>
-        <button onclick="toggleButton('implementation_description_button', 'implementation_description_info', 'Provide a succinct description for the given implementation.')" type="button" id="implementation_description_button">info</button>
-
-        {% if implementation_form.description.errors %}
-        {% for e in implementation_form.description.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}		
-        {{ implementation_form.description(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ implementation_form.tags.label }}
-
-        <p id="implementation_tag_info"></p>
-        <button onclick="toggleButton('implementation_tag_button', 'implementation_tag_info', 'Provide tags to help organize and identify the implementation.')" type="button" id="implementation_tag_button">info</button>
-        {% if implementation_form.tags.errors %}
-        {% for e in implementation_form.tags.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}		
-        {{ implementation_form.tags(class_="form-control") }}
-      </div>
-
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-  </div>
-  <div class="col-md-4"></div>
-</div>
-
-<hr>
+<br />
 
 <div class="row">
     <div class="col-md-4"></div>
-    <style>
-        th, td {
-            padding-left: 8px;
-            padding-right: 8px;
-        }
-    </style>
-    <pre>
-    {{ alg_table }}
-    </pre>
-    <br>
-    <pre>
-    {{ imp_table }}
-    </pre>
+    <div class="col-md-4">
+        <button class="btn btn-block" id="alg_button">Add New Algorithm</button>
+    </div>
     <div class="col-md-4"></div>
 </div>
+
+<div class="row" id="alg_form">
+    <h1 class="text-center">Algorithms</h1>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <form role="form" action="{{ url_for('.submit_algorithm') }}" method="post">
+            {{ algorithm_form.hidden_tag() }}
+            
+            <div class="form-group">
+                <p>{{ algorithm_form.name.label }}
+                <button class="btn btn-xs" onclick="toggleButton('algorithm_name_button', 'algorithm_name_info', 'Provide a unique name for algorithm identification. <strong>[Required]</strong>')" type="button" id="algorithm_name_button">info</button></p>
+                <p id="algorithm_name_info"></p>
+                {% if algorithm_form.name.errors %}
+                {% for e in algorithm_form.name.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ algorithm_form.name(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ algorithm_form.description.label }}
+                <button class="btn btn-xs" onclick="toggleButton('algorithm_description_button', 'algorithm_description_info', 'Provide a succinct description for the given algorithm.')" type="button" id="algorithm_description_button">info</button></p>
+                <p id="algorithm_description_info"></p>
+                
+                {% if implementation_form.description.errors %}
+                {% for e in implementation_form.description.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ algorithm_form.description(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ algorithm_form.tags.label }}
+                <button class="btn btn-xs" onclick="toggleButton('algorithm_tag_button', 'algorithm_tag_info', 'Provide tags to help organize and identify the algorithm.')" type="button" id="algorithm_tag_button">info</button></p>
+                <p id="algorithm_tag_info"></p>
+                {% if implementation_form.tags.errors %}
+                {% for e in implementation_form.tags.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ algorithm_form.tags(class_="form-control") }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<br />
+
+<div class="row" id="overview">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <button class="btn btn-block" id="imp_button">Add New Implementation</button>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<div class="row" id="imp_form">
+    <h1 class="text-center">Implementations</h1>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <form role="form" action="{{ url_for('.submit_implementation') }}" method="post">
+            {{ implementation_form.hidden_tag() }}
+            
+            <div class="form-group">
+                <p>{{ implementation_form.name.label }}
+                <button class="btn btn-xs" onclick="toggleButton('implementation_name_button', 'implementation_name_info', 'Provide a unique name for implementation identification. <strong>[Required]</strong>')" type="button" id="implementation_name_button">info</button></p>
+                <p id="implementation_name_info"></p>
+                
+                {% if implementation_form.name.errors %}
+                {% for e in implementation_form.name.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ implementation_form.name(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ implementation_form.algorithm.label }}
+                <button class="btn btn-xs" onclick="toggleButton('implementation_algorithm_button', 'implementation_algorithm_info', 'Choose one algorithm from which the implementation will be derived. <strong>[Required]</strong>')" type="button" id="implementation_algorithm_button">info</button></p>
+                <p id="implementation_algorithm_info"></p>
+                
+                {% if implementation_form.algorithm.errors %}
+                {% for e in implementation_form.algorithm.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ implementation_form.algorithm(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <div data-toggle="fieldset" id="url-fieldset">
+                    <p>{{ implementation_form.url_forms.label }}
+                    <button class="btn btn-xs" onclick="toggleButton('implementation_url_button', 'implementation_url_info', 'Provide full addresses to code on the SQUID web proxy hosted by HTCondor. URLs should be addressed to tar.gz files. <strong>[Required - min: 1 max: 10]</strong>')" type="button" id="implementation_url_button">info</button></p>
+                    <p id="implementation_url_info"></p>
+                    
+                    {% if implementation_form.url_forms.errors %}
+                    {% for errors in implementation_form.url_forms.errors %}
+                    {% for e in errors.get("url") %}
+                    <p class="help-block">{{ e }}</p>
+                    {% endfor %}{% endfor %}{% endif %}
+                    
+                    <table>
+                        <td><button class="btn btn-block" type="button" data-toggle="fieldset-add-row" data-target="#url-fieldset">+</button></td>
+                        {% for url_form in implementation_form.url_forms %}
+                        <tr data-toggle="fieldset-entry">
+                            <td id="urls-{{loop.index0}}">{{ url_form.url }}</td>
+                            <td><button class="btn btn-xs" type="button" data-toggle="fieldset-remove-row" data-target="#url-fieldset" id="urls-{{loop.index0}}-remove">-</button></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <div data-toggle="fieldset" id="script-fieldset">
+                    <p>{{ implementation_form.setup_scripts.label }}
+                    <button class="btn btn-xs" onclick="toggleButton('implementation_script_button', 'implementation_script_info', 'Provide an optional setup shell script to modify the environment prior to execution of the executable. The path provided must point to the location of the setup script within your source code directory. (Ex: un-tarred source code directory named \'MyCode\' with a setup script \'setup.sh\' would have the path \'MyCode/setup.sh\')')" type="button" id="implementation_script_button">info</button></p>
+                    <p id="implementation_script_info"></p>
+                    
+                    {% if implementation_form.setup_scripts.errors %}
+                    {% for errors in implementation_form.setup_scripts.errors %}
+                    {% for e in errors.get("path") %}
+                    <p class="help-block">{{ e }}</p>
+                    {% endfor %}{% endfor %}{% endif %}
+                    
+                    <table>
+                        <td><button class="btn btn-block" type="button" data-toggle="fieldset-add-row" data-target="#script-fieldset">+</button></td>
+                        {% for script in implementation_form.setup_scripts %}
+                        <tr data-toggle="fieldset-entry">
+                            <td id="scripts-{{loop.index0}}">{{ script.path }}</td>
+                            <td><button class="btn btn-xs" type="button" data-toggle="fieldset-remove-row" data-target="#script-fieldset" id="scripts-{{loop.index0}}-remove">-</button></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <p>{{ implementation_form.executable.label }}
+                <button class="btn btn-xs" onclick="toggleButton('implementation_executable_button', 'implementation_executable_info', 'Provide the address to the executable file. An example of an executable file is compiled MATLAB code. <strong>[Required]</strong>')" type="button" id="implementation_executable_button">info</button></p>
+                <p id="implementation_executable_info"></p>
+                
+                {% if implementation_form.executable.errors %}
+                {% for e in implementation_form.executable.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ implementation_form.executable(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ implementation_form.description.label }}
+                <button class="btn btn-xs" onclick="toggleButton('implementation_description_button', 'implementation_description_info', 'Provide a succinct description for the given implementation.')" type="button" id="implementation_description_button">info</button></p>
+                <p id="implementation_description_info"></p>
+                
+                {% if implementation_form.description.errors %}
+                {% for e in implementation_form.description.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ implementation_form.description(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ implementation_form.tags.label }}
+                <button class="btn btn-xs" onclick="toggleButton('implementation_tag_button', 'implementation_tag_info', 'Provide tags to help organize and identify the implementation.')" type="button" id="implementation_tag_button">info</button></p>
+                <p id="implementation_tag_info"></p>
+                
+                {% if implementation_form.tags.errors %}
+                {% for e in implementation_form.tags.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ implementation_form.tags(class_="form-control") }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<!--<hr>-->
+
+<!--<div class="row">-->
+<!--    <div class="col-md-4"></div>-->
+<!--    <style>-->
+<!--        th, td {-->
+<!--            padding-left: 8px;-->
+<!--            padding-right: 8px;-->
+<!--        }-->
+<!--    </style>-->
+<!--    <pre>-->
+<!--    {{ alg_table }}-->
+<!--    </pre>-->
+<!--    <br>-->
+<!--    <pre>-->
+<!--    {{ imp_table }}-->
+<!--    </pre>-->
+<!--    <div class="col-md-4"></div>-->
+<!--</div>-->
 
 <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
 <script src="{{ url_for("static", filename="js/page.js") }}"></script>
 <script src="{{ url_for("static", filename="js/toggle.js") }}"></script>
-<!--script src="{{ url_for("static", filename="js/display.js") }}"></script-->
+<script src="{{ url_for("static", filename="js/algorithms.js") }}"></script>
 
 {% endblock %}
