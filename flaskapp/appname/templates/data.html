@@ -3,164 +3,220 @@
 {% block title %} Data {% endblock %}
 
 {% block body %}
-<h1 class="text-center">Data Collections</h1>
+<style>
+    p { margin:0 }
+    #set_form {
+        display:none;
+    }
+#coll_form {
+    display:none;
+}
+.info_title {
+    font-weight:bold;
+}
+#coll_info {
+    display:none;
+}
+#set_info {
+    display:none;
+}
+</style>
 
+<h1 class="text-center">View All Data</h1>
 <div class="row">
-  <div class="col-md-4"></div>
-  <div class="col-md-4">
-    <form role="form" action="{{ url_for('.submit_collection') }}" method="post">
-      {{ collection_form.hidden_tag() }}
-
-      <div class="form-group">
-        {{ collection_form.name.label }}
-        <p id="data_collection_name_info"></p>
-        <button onclick="toggleButton('data_collection_name_button', 'data_collection_name_info', 'Provide a unique name for data collection identification. <strong>[Required]</strong>')" type="button" id="data_collection_name_button">info</button>
-
-        {% if collection_form.name.errors %}
-        {% for e in collection_form.name.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ collection_form.name(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ collection_form.description.label }}
-        <p id="data_collection_description_info"></p>
-        <button onclick="toggleButton('data_collection_description_button', 'data_collection_description_info', 'Provide a succinct description for the given data collection.')" type="button" id="data_collection_description_button">info</button>
-        
-        {% if collection_form.description.errors %}
-        {% for e in collection_form.description.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}		
-        {{ collection_form.description(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ collection_form.tags.label }}
-        <p id="data_collection_tag_info"></p>
-        <button onclick="toggleButton('data_collection_tag_button', 'data_collection_tag_info', 'Provide tags to help organize and identify the data collection.')" type="button" id="data_collection_tag_button">info</button>
-        
-        {% if collection_form.tags.errors %}
-        {% for e in collection_form.tags.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}		
-        {{ collection_form.tags(class_="form-control") }}
-      </div>
-
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-  </div>
-  <div class="col-md-4"></div>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <form role="form">
+            <div class="form-group">
+                <h4>{{ display_all_form.collections.label }}</h4>
+                {{ display_all_form.collections(class_="form-control") }}
+            </div>
+            <div id="coll_info">
+                <p class="info_title">Name:</p>
+                <p class="coll_val" id="coll_name"></p>
+                <p class="info_title">Description:</p>
+                <p class="coll_val" id="coll_descr"></p>
+                <p class="info_title">Tags:</p>
+                <p class="coll_val" id="coll_tags"></p>
+            </div>
+            <div class="form-group">
+                <h4>{{ display_all_form.sets.label }}</h4>
+                {{ display_all_form.sets(class_="form-control") }}
+            </div>
+            <div id="set_info">
+                <p class="info_title">Name:</p>
+                <p class="set_val" id="set_name"></p>
+                <p class="info_title">Data Collection:</p>
+                <p class="set_val" id="set_coll"></p>
+                <p class="info_title">URL(s):</p>
+                <p class="set_val" id="set_urls"></p>
+                <p class="info_title">Description:</p>
+                <p class="set_val" id="set_descr"></p>
+                <p class="info_title">Tags:</p>
+                <p class="set_val" id="set_tags"></p>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4"></div>
 </div>
-
-<h1 class="text-center">Data Sets</h1>
-
-<div class="row">
-  <div class="col-md-4"></div>
-  <div class="col-md-4">
-    <form role="form" action="{{ url_for('.submit_data_set') }}" method="post">
-      {{ data_set_form.hidden_tag() }}
-
-      <div class="form-group">
-        {{ data_set_form.name.label }}	
-        <p id="data_set_name_info"></p>
-        <button onclick="toggleButton('data_set_name_button', 'data_set_name_info', 'Provide a unique name for data set identification. <strong>[Required]</strong>')" type="button" id="data_set_name_button">info</button>
-        
-        {% if data_set_form.name.errors %}
-        {% for e in data_set_form.name.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}	
-        {{ data_set_form.name(class_="form-control") }}
-      </div>
-
-      <div class="form-group">
-        {{ data_set_form.data_collection.label }}
-        <p id="collection_info"></p>
-        <button onclick="toggleButton('collection_button', 'collection_info', 'Choose one data collection from which the data set will be derived. <strong>[Required]</strong>')" type="button" id="collection_button">info</button>
-        
-	{% if data_set_form.data_collection.errors %}
-        {% for e in data_set_form.data_collection.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}		
-        {{ data_set_form.data_collection(class_="form-control") }}
-
-      </div>
-
-      <div class="form-group">
-        <div data-toggle="fieldset" id="url-fieldset">
-          {{ data_set_form.url_forms.label }}
-	   {% if data_set_form.url_forms.errors %}
-            {% for errors in data_set_form.url_forms.errors %}
-	     {% for e in errors.get("url") %}
-               <p class="help-block">{{ e }}</p>
-          {% endfor %}{% endfor %}{% endif %}
-
-          <p id="url_info"></p>
-          <button onclick="toggleButton('url_button', 'url_info', 'Provide full addresses to data files on the SQUID web proxy hosted by HTCondor. URLs should be addressed to tar.gz files. <strong>[Required - min: 1 max: 10]</strong>')" type="button" id="url_button">info</button>
-
-	  <table>
-              <td><button type="button" data-toggle="fieldset-add-row" data-target="#url-fieldset">+</button></td>
-              {% for url_form in data_set_form.url_forms %}
-              <tr data-toggle="fieldset-entry">
-                <td id="urls-{{loop.index0}}">{{ url_form.url }}</td>
-                  <td><button type="button" data-toggle="fieldset-remove-row" data-target="#url-fieldset" id="urls-{{loop.index0}}-remove">-</button></td>
-              </tr>
-              {% endfor %}
-          </table>
-        </div>
-      </div>
-
-      <div class="form-group">
-        {{ data_set_form.description.label }}
-        <p id="data_set_description_info"></p>
-        <button onclick="toggleButton('data_set_description_button', 'data_set_description_info', 'Provide a succinct description for the given data set.')" type="button" id="data_set_description_button">info</button>
-        
-        {% if data_set_form.description.errors %}
-        {% for e in data_set_form.description.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ data_set_form.description(class_="form-control") }}
-      </div>	      
-
-      <div class="form-group">
-        {{ data_set_form.tags.label }}
-        <p id="data_set_tag_info"></p>
-        <button onclick="toggleButton('data_set_tag_button', 'data_set_tag_info', 'Provide tags to help organize and identify the data set.')" type="button" id="data_set_tag_button">info</button>
-        
-        {% if data_set_form.tags.errors %}
-        {% for e in data_set_form.tags.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ data_set_form.tags(class_="form-control") }}
-      </div>
-
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-  </div>
-  <div class="col-md-4"></div>
-</div>
-
-<hr>
+<br />
 
 <div class="row">
     <div class="col-md-4"></div>
-    <style>
-        th, td {
-            padding-left: 8px;
-            padding-right: 8px;
-        }
-    </style>
-    <pre>
-    {{ coll_table }}
-    </pre>
-    <pre>
-    {{ set_table }}
-    </pre>
+    <div class="col-md-4">
+        <button class="btn btn-block" id="coll_button">Add New Data Collection</button>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<div class="row" id="coll_form">
+    <h1 class="text-center">Data Collections</h1>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <form role="form" action="{{ url_for('.submit_collection') }}" method="post">
+            {{ collection_form.hidden_tag() }}
+            
+            <div class="form-group">
+                <p>{{ collection_form.name.label }}
+                <button class="btn btn-xs" onclick="toggleButton('data_collection_name_button', 'data_collection_name_info', 'Provide a unique name for data collection identification. <strong>[Required]</strong>')" type="button" id="data_collection_name_button">info</button></p>
+                <p id="data_collection_name_info"></p>
+                
+                {% if collection_form.name.errors %}
+                {% for e in collection_form.name.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ collection_form.name(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ collection_form.description.label }}
+                <button class="btn btn-xs" onclick="toggleButton('data_collection_description_button', 'data_collection_description_info', 'Provide a succinct description for the given data collection.')" type="button" id="data_collection_description_button">info</button></p>
+                <p id="data_collection_description_info"></p>
+                
+                {% if collection_form.description.errors %}
+                {% for e in collection_form.description.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ collection_form.description(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ collection_form.tags.label }}
+                <button class="btn btn-xs" onclick="toggleButton('data_collection_tag_button', 'data_collection_tag_info', 'Provide tags to help organize and identify the data collection.')" type="button" id="data_collection_tag_button">info</button></p>
+                <p id="data_collection_tag_info"></p>
+                
+                {% if collection_form.tags.errors %}
+                {% for e in collection_form.tags.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ collection_form.tags(class_="form-control") }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<br />
+
+<div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <button class="btn btn-block" id="set_button">Add New Data Set</button>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<div class="row" id="set_form">
+    <h1 class="text-center">Data Sets</h1>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <form role="form" action="{{ url_for('.submit_data_set') }}" method="post">
+            {{ data_set_form.hidden_tag() }}
+            
+            <div class="form-group">
+                <p>{{ data_set_form.name.label }}
+                <button class="btn btn-xs" onclick="toggleButton('data_set_name_button', 'data_set_name_info', 'Provide a unique name for data set identification. <strong>[Required]</strong>')" type="button" id="data_set_name_button">info</button></p>
+                <p id="data_set_name_info"></p>
+                
+                {% if data_set_form.name.errors %}
+                {% for e in data_set_form.name.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ data_set_form.name(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ data_set_form.data_collection.label }}
+                <button class="btn btn-xs" onclick="toggleButton('collection_button', 'collection_info', 'Choose one data collection from which the data set will be derived. <strong>[Required]</strong>')" type="button" id="collection_button">info</button></p>
+                <p id="collection_info"></p>
+                
+                {% if data_set_form.data_collection.errors %}
+                {% for e in data_set_form.data_collection.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ data_set_form.data_collection(class_="form-control") }}
+                
+            </div>
+            
+            <div class="form-group">
+                <div data-toggle="fieldset" id="url-fieldset">
+                    <p>{{ data_set_form.url_forms.label }}
+                    <button class="btn btn-xs" onclick="toggleButton('url_button', 'url_info', 'Provide full addresses to data files on the SQUID web proxy hosted by HTCondor. URLs should be addressed to tar.gz files. <strong>[Required - min: 1 max: 10]</strong>')" type="button" id="url_button">info</button></p>
+                    <p id="url_info"></p>
+                    
+                    {% if data_set_form.url_forms.errors %}
+                    {% for errors in data_set_form.url_forms.errors %}
+                    {% for e in errors.get("url") %}
+                    <p class="help-block">{{ e }}</p>
+                    {% endfor %}{% endfor %}{% endif %}
+                    
+                    <table>
+                        <td><button class="btn btn-block" type="button" data-toggle="fieldset-add-row" data-target="#url-fieldset">+</button></td>
+                        {% for url_form in data_set_form.url_forms %}
+                        <tr data-toggle="fieldset-entry">
+                            <td id="urls-{{loop.index0}}">{{ url_form.url }}</td>
+                            <td><button class="btn btn-xs" type="button" data-toggle="fieldset-remove-row" data-target="#url-fieldset" id="urls-{{loop.index0}}-remove">-</button></td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <p>{{ data_set_form.description.label }}
+                <button class="btn btn-xs" onclick="toggleButton('data_set_description_button', 'data_set_description_info', 'Provide a succinct description for the given data set.')" type="button" id="data_set_description_button">info</button></p>
+                <p id="data_set_description_info"></p>
+                
+                {% if data_set_form.description.errors %}
+                {% for e in data_set_form.description.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ data_set_form.description(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                <p>{{ data_set_form.tags.label }}
+                <button class="btn btn-xs" onclick="toggleButton('data_set_tag_button', 'data_set_tag_info', 'Provide tags to help organize and identify the data set.')" type="button" id="data_set_tag_button">info</button></p>
+                <p id="data_set_tag_info"></p>
+                
+                {% if data_set_form.tags.errors %}
+                {% for e in data_set_form.tags.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ data_set_form.tags(class_="form-control") }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
     <div class="col-md-4"></div>
 </div>
 
 <script src="https://code.jquery.com/jquery-2.1.4.js"></script>
 <script src="{{ url_for("static", filename="js/page.js") }}"></script>
 <script src="{{ url_for("static", filename="js/toggle.js") }}"></script>
+<script src="{{ url_for("static", filename="js/data.js") }}"></script>
 
 {% endblock %}

@@ -2,13 +2,13 @@ from flask import (Blueprint,
                    render_template,
                    flash, request,
                    redirect,
-                   url_for)
+                   url_for, json, jsonify)
 from flask.ext.login import (login_user,
                              logout_user,
                              login_required)
 
 from appname.extensions import cache
-from appname.forms import LoginForm, CreateUserForm
+from appname.forms import LoginForm, CreateUserForm, UserViewForm
 from appname.models import db, User
 
 main = Blueprint('main', __name__)
@@ -45,6 +45,9 @@ def logout():
 @login_required
 def create_user():
     form = CreateUserForm()
+    display_all_form = UserViewForm()
+    display_all_form.users.choices = [(0, 'Select User')]+[(u.id, u.username) for u in
+                                                                     User.query.order_by('username')]
     if form.validate_on_submit():
         user = User(form.username.data,
                     form.launch_directory.data,
@@ -54,4 +57,13 @@ def create_user():
         flash("New user created successfully.", "success")
         return redirect(url_for(".home"))
     flash("Failed validation", "danger")
-    return render_template("create_user.html", form=form)
+    return render_template("create_user.html", form=form,
+                           display_all_form=display_all_form)
+
+@main.route('/select_user', methods=['POST', 'GET'])
+def select_user():
+    data = json.loads(request.form.get('data'))
+    userid = data['userid']
+    name = User.query.filter(User.id==userid).first().username
+    dir = User.query.filter(User.id==userid).first()._launch_directory
+    return jsonify({'name':name, 'dir':dir})

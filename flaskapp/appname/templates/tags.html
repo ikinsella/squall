@@ -3,45 +3,45 @@
 {% block title %} Algorithms {% endblock %}
 
 {% block body %}
-<h1 class="text-center">Tags</h1>
 
 <div class="row">
-  <div class="col-md-4"></div>
-  <div class="col-md-4">
-    <form role="form" action="{{ url_for('.submit_tag') }}" method="post">
-      {{ tag_form.hidden_tag() }}
-
-      <div class="form-group">
-        {{ tag_form.name.label }}
-        <p id="tags_name_info"></p>
-        <button onclick="toggleButton('tags_name_button', 'tags_name_info', 'Used to add meta-data to other objects.')" type="button" id="tags_name_button">info</button>
-        
-        {% if tag_form.name.errors %}
-        {% for e in tag_form.name.errors %}
-        <p class="help-block">{{ e }}</p>
-        {% endfor %}{% endif %}
-        {{ tag_form.name(class_="form-control") }}
-      </div>
-
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
-  </div>
-  <div class="col-md-4"></div>
-</div>
-<hr>
-<div class="row">
+    <h1 class="text-center">Tags</h1>
     <div class="col-md-4"></div>
-    <style>
-        th, td {
-            padding-left: 8px;
-            padding-right: 8px;
-        }
-    </style>
-    <pre>
-    {{ tag_table }}
-    </pre>
+    <div class="col-md-4">
+        <form role="form" action="{{ url_for('.submit_tag') }}" method="post">
+            {{ tag_form.hidden_tag() }}
+            
+            <div class="form-group">
+                <p>{{ tag_form.name.label }}
+                <button class="btn btn-xs" onclick="toggleButton('tags_name_button', 'tags_name_info', 'Used to add meta-data to other objects.')" type="button" id="tags_name_button">info</button></p>
+                <p id="tags_name_info"></p>
+                
+                {% if tag_form.name.errors %}
+                {% for e in tag_form.name.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ tag_form.name(class_="form-control") }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
     <div class="col-md-4"></div>
 </div>
+<!--<hr>-->
+<!--<div class="row">-->
+<!--    <div class="col-md-4"></div>-->
+<!--    <style>-->
+<!--        th, td {-->
+<!--            padding-left: 8px;-->
+<!--            padding-right: 8px;-->
+<!--        }-->
+<!--    </style>-->
+<!--    <pre>-->
+<!--    {{ tag_table }}-->
+<!--    </pre>-->
+<!--    <div class="col-md-4"></div>-->
+<!--</div>-->
 
 <script src="{{ url_for("static", filename="js/toggle.js") }}"></script>
 {% endblock %}

@@ -3,14 +3,57 @@
 {% block title %}Login{% endblock %}
 
 {% block body %}
-<h1 class="text-center">Create User</h1>
+
+<style>
+    p { margin:0 }
+    #user_form {
+        display:none;
+    }
+.info_title {
+    font-weight:bold;
+}
+#user_info {
+    display:none;
+}
+
+    </style>
+
+<h1 class="text-center">View All Users</h1>
+<div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <form role="form">
+            <div class="form-group">
+                <h4>{{ display_all_form.users.label }}</h4>
+                {{ display_all_form.users(class_="form-control") }}
+            </div>
+            <div id="user_info">
+                <p class="info_title">Name:</p>
+                <p class="user_val" id="user_name"></p>
+                <p class="info_title">HTCondor Submit Node Launch Directory:</p>
+                <p class="user_val" id="user_dir"></p>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+<br />
 
 <div class="row">
     <div class="col-md-4"></div>
     <div class="col-md-4">
+        <button class="btn btn-block" id="user_button">Create New User</button>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<div class="row" id="user_form">
+    <h1 class="text-center">Create User</h1>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
         <form role="form" action="{{ url_for('.create_user') }}" method="post">
             {{ form.hidden_tag() }}
-
+            
             <div class="form-group">
                 {{ form.username.label }}
                 {% if form.username.errors %}
@@ -20,39 +63,33 @@
                 {{ form.username(class_="form-control") }}
             </div>
             <div class="form-group">
-                {{ form.launch_directory.label }}
-                <p id="createUserNodeInfo"></p>
-                <button onclick="myShowCreateUserNode()" type="button">info</button>
-                <script>
-                function myShowCreateUserNode() {
-                  document.getElementById("createUserNodeInfo").innerHTML = "Choose the directory on the HTCondor submit node that is intended to submit jobs from. <strong>[Required]</strong>";
-              }
-              </script>
-              <button onclick="myHideCreateUserNode()" type="button">hide</button>
-              <script>
-              function myHideCreateUserNode() {
-                  document.getElementById("createUserNodeInfo").innerHTML = "";
-              }
-              </script>
-              {% if form.launch_directory.errors %}
-              {% for e in form.launch_directory.errors %}
-              <p class="help-block">{{ e }}</p>
-              {% endfor %}{% endif %}
-              {{ form.launch_directory(class_="form-control") }}
-          </div>
-
-          <div class="form-group">
-            {{ form.password.label }}
-            {% if form.password.errors %}
-            {% for e in form.password.errors %}
-            <p class="help-block">{{ e }}</p>
-            {% endfor %}{% endif %}
-            {{ form.password(class_="form-control") }}
-        </div>
-
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+                <p>{{ form.launch_directory.label }}
+                <button class="btn btn-xs" onclick="toggleButton('create_user_button', 'create_user_info', 'Choose the directory on the HTCondor submit node that is intended to submit jobs from. <strong>[Required]</strong>')" type="button" id="create_user_button">info</button></p>
+                <p id="create_user_info"></p>
+                
+                {% if form.launch_directory.errors %}
+                {% for e in form.launch_directory.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ form.launch_directory(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                {{ form.password.label }}
+                {% if form.password.errors %}
+                {% for e in form.password.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ form.password(class_="form-control") }}
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    <div class="col-md-4"></div>
 </div>
-<div class="col-md-4"></div>
-</div>
+
+<script src="https://code.jquery.com/jquery-2.1.4.js"></script>
+<script src="{{ url_for("static", filename="js/create_user.js") }}"></script>
+<script src="{{ url_for("static", filename="js/toggle.js") }}"></script>
 {% endblock %}
