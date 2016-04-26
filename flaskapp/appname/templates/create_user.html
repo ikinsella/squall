@@ -9,6 +9,9 @@
     #user_form {
         display:none;
     }
+#edit_form {
+    display:none;
+}
 .info_title {
     font-weight:bold;
 }
@@ -18,8 +21,8 @@
 
     </style>
 
-<h1 class="text-center">View All Users</h1>
 <div class="row">
+    <h1 class="text-center">View All Users</h1>
     <div class="col-md-4"></div>
     <div class="col-md-4">
         <form role="form">
@@ -83,7 +86,58 @@
                 {{ form.password(class_="form-control") }}
             </div>
             
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button id="create_submit" type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+
+<br/>
+<div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <button class="btn btn-block" id="edit_button">Edit User Information</button>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+<div class="row" id="edit_form">
+    <h1 class="text-center">Edit User</h1>
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <form role="form" action="{{ url_for('.edit_user') }}" method="post">
+            {{ edit_form.hidden_tag() }}
+            
+            <div class="form-group">
+                <p>{{ edit_form.edit_username.label }}
+                <div id="edit_display_name"></div></p>
+                {% if edit_form.edit_username.errors %}
+                {% for e in edit_form.edit_username.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ edit_form.edit_username(class_="form-control", readonly=true) }}
+            </div>
+            <div class="form-group">
+                <p>{{ edit_form.edit_dir.label }}
+                <button class="btn btn-xs" onclick="toggleButton('create_user_button', 'create_user_info', 'Choose the directory on the HTCondor submit node that is intended to submit jobs from. <strong>[Required]</strong>')" type="button" id="create_user_button">info</button></p>
+                <p id="create_user_info"></p>
+                
+                {% if edit_form.edit_dir.errors %}
+                {% for e in edit_form.edit_dir.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ edit_form.edit_dir(class_="form-control") }}
+            </div>
+            
+            <div class="form-group">
+                {{ edit_form.edit_pw.label }}
+                {% if edit_form.edit_pw.errors %}
+                {% for e in edit_form.edit_pw.errors %}
+                <p class="help-block">{{ e }}</p>
+                {% endfor %}{% endif %}
+                {{ edit_form.edit_pw(class_="form-control") }}
+            </div>
+            
+            <button id="edit_submit" type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
     <div class="col-md-4"></div>

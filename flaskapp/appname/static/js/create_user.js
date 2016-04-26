@@ -29,3 +29,16 @@ $(document).ready(function() {
                            
     });
 });
+
+$(document).ready(function() {
+    $("#edit_button").click(function() {
+        if ($("#edit_button").html() == "Edit User Information") {
+            $("#edit_button").html("Hide Edit Form");
+            $("#edit_form").show();
+        } else {
+            $("#edit_button").html("Edit User Information");
+            $("#edit_form").hide();
+        }
+                           
+    });
+});

@@ -5,13 +5,14 @@ from flask import (Blueprint,
                    url_for, json, jsonify)
 from flask.ext.login import (login_user,
                              logout_user,
-                             login_required)
+                             login_required, current_user)
 
 from appname.extensions import cache
-from appname.forms import LoginForm, CreateUserForm, UserViewForm
+from appname.forms import LoginForm, CreateUserForm, UserViewForm, EditUserForm
 from appname.models import db, User
 
 main = Blueprint('main', __name__)
+from werkzeug.security import generate_password_hash
 
 
 @main.route('/')
@@ -45,9 +46,6 @@ def logout():
 @login_required
 def create_user():
     form = CreateUserForm()
-    display_all_form = UserViewForm()
-    display_all_form.users.choices = [(0, 'Select User')]+[(u.id, u.username) for u in
-                                                                     User.query.order_by('username')]
     if form.validate_on_submit():
         user = User(form.username.data,
                     form.launch_directory.data,
@@ -56,9 +54,30 @@ def create_user():
         db.session.commit()
         flash("New user created successfully.", "success")
         return redirect(url_for(".home"))
+
     flash("Failed validation", "danger")
     return render_template("create_user.html", form=form,
-                           display_all_form=display_all_form)
+                           display_all_form=create_view_form(),
+                           edit_form=create_edit_form())
+
+@main.route("/edit_user", methods=["GET", "POST"])
+@login_required
+def edit_user():
+    edit_form = create_edit_form()
+    curr_user = User.query.filter_by(id=current_user.get_id()).first()
+    if edit_form.validate_on_submit():
+        curr_user.password = generate_password_hash(edit_form.edit_pw.data)
+        db.session.commit()
+        curr_user.launch_directory = edit_form.edit_dir.data
+        db.session.commit()
+        flash("User information updated", "success")
+        return redirect(url_for(".home"))
+
+    flash("Failed validation", "danger")
+    return render_template("create_user.html", form=CreateUserForm(),
+                           display_all_form=create_view_form(),
+                           edit_form=edit_form)
+
 
 @main.route('/select_user', methods=['POST', 'GET'])
 def select_user():
@@ -67,3 +86,19 @@ def select_user():
     name = User.query.filter(User.id==userid).first().username
     dir = User.query.filter(User.id==userid).first()._launch_directory
     return jsonify({'name':name, 'dir':dir})
+
+def create_view_form():
+    display_all_form = UserViewForm()
+    display_all_form.users.choices = [(0, 'Select User')]+[(u.id, u.username) for u in
+                                                           User.query.order_by('username')]
+    return display_all_form
+
+def create_edit_form():
+    curr_user = User.query.filter_by(id=current_user.get_id()).first()
+    curr_user_name = curr_user.username
+    edit_form = EditUserForm()
+    edit_form.edit_username.data = curr_user_name
+    return edit_form
+
+
+#edit current user using current_user variable see manage.py for how it is used...

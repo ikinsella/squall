@@ -9,7 +9,8 @@ from wtforms import (TextField,
                      IntegerField,
                      FieldList,
                      ValidationError,
-                     FormField)
+                     FormField,
+                     StringField)
 
 from wtforms.validators import (DataRequired,
                                 Optional,
@@ -28,6 +29,7 @@ from appname.models import (User,
                             Experiment,
                             Batch,
                             Tag)
+from flask.ext.login import current_user
 import wtforms
 import yaml
 import json
@@ -421,6 +423,8 @@ class ExperimentViewForm(Form):
 
     experiments = SelectField(u'Experiments', [Optional()],
                                coerce=int)
+    batches = SelectField(u'Batches', [Optional()],
+                               coerce=int)
         
     def validate(self):
         if super(ExperimentViewForm, self).validate():
@@ -444,5 +448,16 @@ class UserViewForm(Form):
         
     def validate(self):
         if super(UserViewForm, self).validate():
+            return True  # If Our Validators Pass
+        return False
+
+class EditUserForm(Form):
+    edit_username = TextField(u'Username')
+    edit_dir = TextField(u'HTCondor Submit Node Launch Directory',
+                                 [DataRequired(), Length(max=128)])
+    edit_pw = PasswordField(u'Password', [DataRequired(), Length(max=64)])
+
+    def validate(self):
+        if super(EditUserForm, self).validate():
             return True  # If Our Validators Pass
         return False
