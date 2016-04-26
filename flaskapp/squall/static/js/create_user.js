@@ -1,3 +1,7 @@
+//$(document).ready(function() {
+//                  $.post("get_curr_dir", function(response) {})
+//});
+
 $(document).ready(function() {
     $("#users").change(function() {
         var user = Number($('#users').val());
