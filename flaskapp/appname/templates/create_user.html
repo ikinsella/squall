@@ -118,8 +118,8 @@
             </div>
             <div class="form-group">
                 <p>{{ edit_form.edit_dir.label }}
-                <button class="btn btn-xs" onclick="toggleButton('create_user_button', 'create_user_info', 'Choose the directory on the HTCondor submit node that is intended to submit jobs from. <strong>[Required]</strong>')" type="button" id="create_user_button">info</button></p>
-                <p id="create_user_info"></p>
+                <button class="btn btn-xs" onclick="toggleButton('edit_user_button', 'edit_user_info', 'Choose the directory on the HTCondor submit node that is intended to submit jobs from. <strong>[Required]</strong>')" type="button" id="edit_user_button">info</button></p>
+                <p id="edit_user_info"></p>
                 
                 {% if edit_form.edit_dir.errors %}
                 {% for e in edit_form.edit_dir.errors %}
