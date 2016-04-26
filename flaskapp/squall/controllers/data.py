@@ -4,14 +4,14 @@ from flask import (Blueprint,
                    redirect,
                    url_for, request, json, jsonify)
 from flask.ext.login import login_required
-from appname.extensions import cache
-from appname.forms import (DataCollectionForm,
-                           DataSetForm, DataViewForm)
-from appname.models import (db,
-                            Tag,
-                            DataCollection,
-                            DataSet, URL)
-from appname.controllers.constants import URLS
+from squall.extensions import cache
+from squall.forms import (DataCollectionForm,
+                          DataSetForm, DataViewForm)
+from squall.models import (db,
+                           Tag,
+                           DataCollection,
+                           DataSet, URL)
+from squall.controllers.constants import URLS
 from flask_table import (Table, Col)
 
 data = Blueprint('data', __name__)

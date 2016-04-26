@@ -6,39 +6,68 @@ from flask import (Blueprint,
                    current_app,
                    send_from_directory, request, json, jsonify)
 from flask.ext.login import login_required
-from appname.extensions import cache
-from appname.forms import (BatchForm, BatchViewForm, DownloadBatchForm, UploadResultsForm)
-from appname.models import (db,
-                            mongo,
-                            Tag,
-                            Experiment,
-                            Implementation,
-                            DataSet,
-                            Batch)
-from appname.controllers.constants import (MEMORY,
-                                           DISK,
-                                           FLOCK,
-                                           GLIDE)
+from squall.extensions import cache
+from squall.forms import (ExperimentForm,
+                          ExperimentViewForm,
+                          BatchForm,
+                          DownloadBatchForm,
+                          UploadResultsForm)
+from squall.models import (db,
+                           mongo,
+                           Tag,
+                           DataCollection,
+                           Algorithm,
+                           Experiment, Implementation, DataSet, Batch)
+from squall.controllers.constants import (MEMORY,
+                                          DISK,
+                                          FLOCK,
+                                          GLIDE)
 from flask_table import (Table, Col)
 
 
-batches = Blueprint('batches', __name__)
+experiments = Blueprint('experiments', __name__)
 
 
-@batches.route('/')
+@experiments.route('/')
 @cache.cached(timeout=1000)
 @login_required
-def batch():
+def experiment():
     """ """
-    return render_template('batches.html',
+    return render_template('experiments.html',
                            batch_form=create_batch_form(),
                            download_form=create_download_form(),
                            results_form=create_results_form(),
-                           batch_table=create_batch_table(),
+                           experiment_form=create_experiment_form(),
                            display_all_form=create_view_form())
 
 
-@batches.route('/submit_batch', methods=["Post"])
+@experiments.route('/submit_experiment', methods=["Post"])
+@cache.cached(timeout=1000)
+@login_required
+def submit_experiment():
+    experiment_form = create_experiment_form()
+    if experiment_form.validate_on_submit():
+        db.session.add(Experiment(
+            name=experiment_form.name.data,
+            description=experiment_form.description.data,
+            tags=[Tag.query.filter_by(id=_id).first()
+                  for _id in experiment_form.tags.data],
+            algorithms=[Algorithm.query.filter_by(id=_id).first()
+                        for _id in experiment_form.algorithms.data],
+            collections=[DataCollection.query.filter_by(id=_id).first()
+                         for _id in experiment_form.collections.data]))
+        db.session.commit()
+        flash("New experiment added successfully.", "success")
+        return redirect(url_for("experiments.experiment"))
+    flash('Failed validation', 'danger')
+    return render_template('experiments.html',
+                           batch_form=create_batch_form(),
+                           download_form=create_download_form(),
+                           results_form=create_results_form(),
+                           experiment_form=experiment_form,
+                           display_all_form=create_view_form())
+
+@experiments.route('/submit_batch', methods=["Post"])
 @cache.cached(timeout=1000)
 @login_required
 def submit_batch():
@@ -60,17 +89,17 @@ def submit_batch():
             glide=batch_form.glide.data))
         db.session.commit()
         flash("New batch added successfully", "success")
-        return redirect(url_for("batches.batch"))
+        return redirect(url_for("experiments.experiment"))
     flash("Failed validation", "danger")
-    return render_template('batches.html',
+    return render_template('experiments.html',
                            batch_form=batch_form,
                            download_form=create_download_form(),
                            results_form=create_results_form(),
-                           batch_table=create_batch_table(),
+                           experiment_form=create_experiment_form(),
                            display_all_form=create_view_form())
 
 
-@batches.route('/download_batch', methods=["Get", "Post"])
+@experiments.route('/download_batch', methods=["Get", "Post"])
 @cache.cached(timeout=1000)
 @login_required
 def download_batch():
@@ -83,15 +112,15 @@ def download_batch():
                                    batch.package(),
                                    as_attachment=True)
     flash("Failed validation", "danger")
-    return render_template('batches.html',
+    return render_template('experiments.html',
                            batch_form=create_batch_form(),
                            download_form=download_form,
                            results_form=create_results_form(),
-                           batch_table=create_batch_table(),
+                           experiment_form=create_experiment_form(),
                            display_all_form=create_view_form())
 
 
-@batches.route('/upload_results', methods=["Post"])
+@experiments.route('/upload_results', methods=["Post"])
 @cache.cached(timeout=1000)
 @login_required
 def upload_results():
@@ -109,16 +138,39 @@ def upload_results():
         db.session.add(batch)
         db.session.commit()
         flash("Results Stored In MongoDB", "success")
-        return redirect(url_for("batches.batch"))
+        return redirect(url_for("experiments.experiment"))
     flash("Upload Failed: Validation Error", "danger")
-    return render_template('batches.html',
+    return render_template('experiments.html',
                            batch_form=create_batch_form(),
                            download_form=create_download_form(),
                            results_form=results_form,
-                           batch_table=create_batch_table(),
+                           experiment_form=create_experiment_form(),
                            display_all_form=create_view_form())
 
-@batches.route('/select_batch', methods=['POST', 'GET'])
+@experiments.route('/select_experiment', methods=['POST', 'GET'])
+def select_experiment():
+    data = json.loads(request.form.get('data'))
+    expid = data['expid']
+    tag_ret = ''
+    coll_ret = ''
+    alg_ret = ''
+    batches = '<option value="0">Select Batch</option>'
+    for entry in Batch.query.filter(Batch.experiment_id==expid).all():
+        batches += '<option value="%i">%s</option>' % (entry.id, entry._name)
+    name = Experiment.query.filter(Experiment.id==expid).first().name
+    tags = [tag.name for tag in Tag.query.filter(Tag.experiments.any(id=expid)).all()]
+    colls = [coll.name for coll in DataCollection.query.filter(DataCollection.experiments.any(id=expid)).all()]
+    algs = [alg.name for alg in Algorithm.query.filter(Algorithm.experiments.any(id=expid)).all()]
+    descr = Experiment.query.filter(Experiment.id==expid).first().description
+    for tag in tags:
+        tag_ret += '<p>%s</p>' % tag
+    for coll in colls:
+        coll_ret += '<p>%s</p>' % coll
+    for alg in algs:
+        alg_ret += '<p>%s</p>' % alg
+    return jsonify({'name':name, 'descr':descr, 'tags':tag_ret, 'colls':coll_ret, 'algs':alg_ret, 'batches':batches})
+
+@experiments.route('/select_batch', methods=['POST', 'GET'])
 def select_batch():
     data = json.loads(request.form.get('data'))
     batchid = data['batchid']
@@ -142,7 +194,7 @@ def select_batch():
         param_ret += '<p>%s</p>' % str(param)
     return jsonify({'name':name, 'exp':exp, 'set':set, 'imp':imp, 'param':param_ret, 'mem':mem, 'disk':disk, 'flock':flock, 'glide':glide, 'descr':descr, 'tags':tag_ret})
 
-@batches.route('/select_upload', methods=['POST', 'GET'])
+@experiments.route('/select_upload', methods=['POST', 'GET'])
 def select_upload():
     data = json.loads(request.form.get('data'))
     batchid = data['batchid']
@@ -150,65 +202,52 @@ def select_upload():
     status = b.completed
     return jsonify({'status':status})
 
-
-class BatchTable(Table):
-    id = Col('Batch ID')
-    name = Col('Batch Name')
-    exp = Col('Experiment')
-    set = Col('Data Set')
-    imp = Col('Algorithm Implemention')
-    mem = Col('Memory (MB)')
-    disk = Col('Disk Space (KB)')
-    flock = Col('Flock')
-    glide = Col('Glide')
-    descr = Col('Description')
+class ExpTable(Table):
+    id = Col('Experiment ID')
+    name = Col('Experiment Name')
+    collections = Col('Data Collections')
+    algorithms = Col('Algorithms')
+    description = Col('Description')
     tags = Col('Tags')
-    size = Col('Size')
-    completed = Col('Completed')
 
     def tr_format(self, item):
         return '<tr valign="top">{}</tr>'
 
 
-class BatchItem(Table):
-    def __init__(self, id, name, exp, set, imp, mem, disk,
-                 flock, glide, descr, tags, size, completed):
+class ExpItem(object):
+    def __init__(self, id, name, collections, algorithms, description, tags):
         self.name = name
         self.id = id
-        self.exp = exp
-        self.set = set
-        self.imp = imp
-        self.mem = mem
-        self.disk = disk
-        self.flock = flock
-        self.glide = glide
-        self.descr = descr
+        self.collections = collections
+        self.algorithms = algorithms
+        self.description = description
         self.tags = tags
-        self.size = size
-        self.completed = completed
 
 
-def create_batch_table():
+def create_experiment_table():
     """ """
-    return BatchTable([BatchItem(
-        batch.id,
-        batch.name,
-        Experiment.query.filter(
-            Experiment.batches.any()).first().name,
-        DataSet.query.filter(
-            DataSet.batches.any()).first().name,
-        Implementation.query.filter(
-            Implementation.batches.any()).first().name,
-        batch.memory,
-        batch.disk,
-        batch.flock,
-        batch.glide,
-        batch.description,
-        '\n'.join([str(tag.name) for tag in
-                   Tag.query.filter(Tag.batches.any(id=batch.id)).all()]),
-        batch.size,
-        batch.completed) for batch in Batch.query.all()])
+    return ExpTable([ExpItem(
+        exp.id,
+        exp.name,
+        '\n'.join([str(coll.name) for coll in DataCollection.query.filter(
+            DataCollection.experiments.any(id=exp.id)).all()]),
+        '\n'.join([str(alg.name) for alg in Algorithm.query.filter(
+            Algorithm.experiments.any(id=exp.id)).all()]),
+        exp.description,
+        '\n'.join([tag.name for tag in Tag.query.filter(Tag.experiments.any(
+            id=exp.id)).all()])) for exp in Experiment.query.all()])
 
+
+def create_experiment_form():
+    """ """
+    form = ExperimentForm()
+    form.tags.choices = [(t.id, t.name) for t in
+                         Tag.query.order_by('_name')]
+    form.algorithms.choices = [(a.id, a.name) for a in
+                               Algorithm.query.order_by('_name')]
+    form.collections.choices = [(dc.id, dc.name) for dc in
+                                DataCollection.query.order_by('_name')]
+    return form
 
 def create_batch_form():
     """ """
@@ -239,7 +278,8 @@ def create_results_form():
     return form
 
 def create_view_form():
-    display_all_form = BatchViewForm()
-    display_all_form.batches.choices = [(0, 'Select Batch')]+[(b.id, b.name) for b in
-                                                            Batch.query.order_by('_name')]
+    display_all_form = ExperimentViewForm()
+    display_all_form.experiments.choices = [(0, 'Select Experiment')]+[(e.id, e.name) for e in
+                                                            Experiment.query.order_by('_name')]
+    display_all_form.batches.choices = [(0, 'Select Batch')]
     return display_all_form

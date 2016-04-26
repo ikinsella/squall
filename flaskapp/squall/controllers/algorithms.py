@@ -4,15 +4,15 @@ from flask import (Blueprint,
                    redirect,
                    url_for, request, json, jsonify)
 from flask.ext.login import login_required
-from appname.extensions import cache
-from appname.forms import (AlgorithmForm,
-                           ImplementationForm,
-                           AlgorithmViewForm)
-from appname.models import (db,
-                            Tag,
-                            Algorithm,
-                            Implementation, URL)
-from appname.controllers.constants import (URLS, SCRIPTS)
+from squall.extensions import cache
+from squall.forms import (AlgorithmForm,
+                          ImplementationForm,
+                          AlgorithmViewForm)
+from squall.models import (db,
+                           Tag,
+                           Algorithm,
+                           Implementation, URL)
+from squall.controllers.constants import (URLS, SCRIPTS)
 from flask_table import (Table, Col)
 
 

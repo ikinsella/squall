@@ -4,9 +4,9 @@ from flask import (Blueprint,
                    redirect,
                    url_for)
 from flask.ext.login import login_required
-from appname.extensions import cache
-from appname.forms import TagForm
-from appname.models import (db, Tag)
+from squall.extensions import cache
+from squall.forms import TagForm
+from squall.models import (db, Tag)
 from flask_table import (Table, Col)
 
 
