@@ -8,8 +8,8 @@ addParameter(p , 'B'  , -1     , @isscalar );
 if nargin > 0
     parse(p, varargin{:});
 else
-    param_struct = loadjson('../params.json');
-    param_names = fieldnames(jdat);
+    param_struct = loadjson('params.json');
+    param_names = fieldnames(param_struct);
     param_cell = [param_names'; struct2cell(param_struct)'];
     parse(p, param_cell{:});
 end

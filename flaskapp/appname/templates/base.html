@@ -40,15 +40,13 @@
 		  <li><a href="{{ url_for('algorithms.algorithm') }}">Algorithms</a></li>
 		  <li><a href="{{ url_for('data.collection') }}">Data</a></li>
 		  <li><a href="{{ url_for('experiments.experiment') }}">Experiments</a></li>
-		  <li><a href="{{ url_for('batches.batch') }}">Batches</a></li>
+		  <li><a href="{{ url_for('main.create_user') }}">Users</a></li>
 		  <li><a href="{{ url_for('tags.tag') }}">Tags</a></li>		  
                     {% if not current_user.is_authenticated %}
                         <li><a href="{{ url_for('main.login') }}">Login</a></li>
                     {% else %}
                         <li><a href="{{ url_for('main.logout') }}">Logout</a></li>
                     {% endif %}
-
-                    <li><a href="{{ url_for('main.create_user') }}">Create User</a></li>
                 </ul>
             </div><!--/.nav-collapse -->
         </div>

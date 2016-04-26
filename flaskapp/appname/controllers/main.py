@@ -10,9 +10,9 @@ from flask.ext.login import (login_user,
 from appname.extensions import cache
 from appname.forms import LoginForm, CreateUserForm, UserViewForm, EditUserForm
 from appname.models import db, User
+from werkzeug.security import generate_password_hash
 
 main = Blueprint('main', __name__)
-from werkzeug.security import generate_password_hash
 
 
 @main.route('/')
@@ -60,6 +60,7 @@ def create_user():
                            display_all_form=create_view_form(),
                            edit_form=create_edit_form())
 
+
 @main.route("/edit_user", methods=["GET", "POST"])
 @login_required
 def edit_user():
@@ -81,24 +82,21 @@ def edit_user():
 
 @main.route('/select_user', methods=['POST', 'GET'])
 def select_user():
-    data = json.loads(request.form.get('data'))
-    userid = data['userid']
-    name = User.query.filter(User.id==userid).first().username
-    dir = User.query.filter(User.id==userid).first()._launch_directory
-    return jsonify({'name':name, 'dir':dir})
+    userid = json.loads(request.form.get('data'))['userid']
+    return jsonify({'name': User.query.filter(
+        User.id == userid).first().username, 'dir': User.query.filter(
+            User.id == userid).first()._launch_directory})
+
 
 def create_view_form():
     display_all_form = UserViewForm()
-    display_all_form.users.choices = [(0, 'Select User')]+[(u.id, u.username) for u in
-                                                           User.query.order_by('username')]
+    display_all_form.users.choices = [(0, 'Select User')] + [
+        (u.id, u.username) for u in User.query.order_by('username')]
     return display_all_form
 
+
 def create_edit_form():
-    curr_user = User.query.filter_by(id=current_user.get_id()).first()
-    curr_user_name = curr_user.username
     edit_form = EditUserForm()
-    edit_form.edit_username.data = curr_user_name
+    edit_form.edit_username.data = User.query.filter_by(
+        id=current_user.get_id()).first().username
     return edit_form
-
-
-#edit current user using current_user variable see manage.py for how it is used...
