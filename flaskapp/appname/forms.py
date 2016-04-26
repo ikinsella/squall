@@ -9,8 +9,7 @@ from wtforms import (TextField,
                      IntegerField,
                      FieldList,
                      ValidationError,
-                     FormField,
-                     StringField)
+                     FormField)
 
 from wtforms.validators import (DataRequired,
                                 Optional,

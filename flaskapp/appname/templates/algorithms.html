@@ -177,7 +177,7 @@
                         <td><button class="btn btn-block" type="button" data-toggle="fieldset-add-row" data-target="#url-fieldset">+</button></td>
                         {% for url_form in implementation_form.url_forms %}
                         <tr data-toggle="fieldset-entry">
-                            <td id="urls-{{loop.index0}}">{{ url_form.url(class_="form-control") }}</td>
+                            <td style="width:100%" id="urls-{{loop.index0}}">{{ url_form.url(class_="form-control") }}</td>
                             <td><button class="btn btn-xs" type="button" data-toggle="fieldset-remove-row" data-target="#url-fieldset" id="urls-{{loop.index0}}-remove">-</button></td>
                         </tr>
                         {% endfor %}
@@ -201,7 +201,7 @@
                         <td><button class="btn btn-block" type="button" data-toggle="fieldset-add-row" data-target="#script-fieldset">+</button></td>
                         {% for script in implementation_form.setup_scripts %}
                         <tr data-toggle="fieldset-entry">
-                            <td id="scripts-{{loop.index0}}">{{ script.path(class_="form-control") }}</td>
+                            <td style="width:100%" id="scripts-{{loop.index0}}">{{ script.path(class_="form-control") }}</td>
                             <td><button class="btn btn-xs" type="button" data-toggle="fieldset-remove-row" data-target="#script-fieldset" id="scripts-{{loop.index0}}-remove">-</button></td>
                         </tr>
                         {% endfor %}
