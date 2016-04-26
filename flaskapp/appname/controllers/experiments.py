@@ -2,11 +2,14 @@ from flask import (Blueprint,
                    render_template,
                    flash,
                    redirect,
-                   url_for, request, json, jsonify)
+                   url_for,
+                   current_app,
+                   send_from_directory, request, json, jsonify)
 from flask.ext.login import login_required
 from appname.extensions import cache
 from appname.forms import ExperimentForm, ExperimentViewForm, BatchForm, DownloadBatchForm, UploadResultsForm
 from appname.models import (db,
+                            mongo,
                             Tag,
                             DataCollection,
                             Algorithm,
@@ -82,9 +85,9 @@ def submit_batch():
             glide=batch_form.glide.data))
         db.session.commit()
         flash("New batch added successfully", "success")
-        return redirect(url_for("batches.batch"))
+        return redirect(url_for("experiments.experiment"))
     flash("Failed validation", "danger")
-    return render_template('batches.html',
+    return render_template('experiments.html',
                            batch_form=batch_form,
                            download_form=create_download_form(),
                            results_form=create_results_form(),
@@ -105,7 +108,7 @@ def download_batch():
                                    batch.package(),
                                    as_attachment=True)
     flash("Failed validation", "danger")
-    return render_template('batches.html',
+    return render_template('experiments.html',
                            batch_form=create_batch_form(),
                            download_form=download_form,
                            results_form=create_results_form(),
@@ -131,9 +134,9 @@ def upload_results():
         db.session.add(batch)
         db.session.commit()
         flash("Results Stored In MongoDB", "success")
-        return redirect(url_for("batches.batch"))
+        return redirect(url_for("experiments.experiment"))
     flash("Upload Failed: Validation Error", "danger")
-    return render_template('batches.html',
+    return render_template('experiments.html',
                            batch_form=create_batch_form(),
                            download_form=create_download_form(),
                            results_form=results_form,
