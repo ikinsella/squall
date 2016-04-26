@@ -103,7 +103,8 @@ class ValidParamFile(object):
             else:
                 field_lengths[idx] = len(params[field])
 
-        enum_params = [static_data for _ in xrange(int(field_lengths.prod()))]
+        enum_params = [copy.copy(static_data) for
+                       _ in xrange(int(field_lengths.prod()))]
 
         # Enumerate Expand Fields
         for cdx, enum_param in enumerate(enum_params):
