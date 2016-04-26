@@ -9,8 +9,7 @@ from wtforms import (TextField,
                      IntegerField,
                      FieldList,
                      ValidationError,
-                     FormField,
-                     StringField)
+                     FormField)
 
 from wtforms.validators import (DataRequired,
                                 Optional,
@@ -21,15 +20,15 @@ from wtforms.validators import (DataRequired,
 from flask_wtf.file import (FileField,
                             FileRequired)
 
-from appname.models import (User,
-                            Algorithm,
-                            Implementation,
-                            DataCollection,
-                            DataSet,
-                            Experiment,
-                            Batch,
-                            Tag)
-from flask.ext.login import current_user
+from squall.models import (User,
+                           Algorithm,
+                           Implementation,
+                           DataCollection,
+                           DataSet,
+                           Experiment,
+                           Batch,
+                           Tag)
+
 import wtforms
 import yaml
 import json

@@ -6,18 +6,22 @@ from flask import (Blueprint,
                    current_app,
                    send_from_directory, request, json, jsonify)
 from flask.ext.login import login_required
-from appname.extensions import cache
-from appname.forms import ExperimentForm, ExperimentViewForm, BatchForm, DownloadBatchForm, UploadResultsForm
-from appname.models import (db,
-                            mongo,
-                            Tag,
-                            DataCollection,
-                            Algorithm,
-                            Experiment, Implementation, DataSet, Batch)
-from appname.controllers.constants import (MEMORY,
-                                           DISK,
-                                           FLOCK,
-                                           GLIDE)
+from squall.extensions import cache
+from squall.forms import (ExperimentForm,
+                          ExperimentViewForm,
+                          BatchForm,
+                          DownloadBatchForm,
+                          UploadResultsForm)
+from squall.models import (db,
+                           mongo,
+                           Tag,
+                           DataCollection,
+                           Algorithm,
+                           Experiment, Implementation, DataSet, Batch)
+from squall.controllers.constants import (MEMORY,
+                                          DISK,
+                                          FLOCK,
+                                          GLIDE)
 from flask_table import (Table, Col)
 
 

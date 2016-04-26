@@ -3,16 +3,16 @@
 from flask import Flask
 from webassets.loaders import PythonLoader as PythonAssetsLoader
 
-from appname import assets
-from appname.models import (db,
-                            mongo)
-from appname.controllers import (main,
-                                 algorithms,
-                                 data,
-                                 experiments,
-                                 tags)
+from squall import assets
+from squall.models import (db,
+                           mongo)
+from squall.controllers import (main,
+                                algorithms,
+                                data,
+                                experiments,
+                                tags)
 
-from appname.extensions import (
+from squall.extensions import (
     cache,
     assets_env,
     debug_toolbar,
@@ -27,7 +27,7 @@ def create_app(object_name, env="prod"):
 
     Arguments:
         object_name: the python path of the config object,
-                     e.g. appname.settings.ProdConfig
+                     e.g. squall.settings.ProdConfig
 
         env: The name of the current environment, e.g. prod or dev
     """

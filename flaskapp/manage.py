@@ -7,12 +7,12 @@ from migrate.versioning import api
 from flask.ext.script import (Manager, Server)
 from flask.ext.script.commands import (ShowUrls, Clean)
 from flask.ext.login import current_user
-from appname import create_app
-from appname.models import (db, User, DataSet, Implementation)
+from squall import create_app
+from squall.models import (db, User, DataSet, Implementation)
 
 # default to dev config because no one should use this in production anyway
-env = os.environ.get('APPNAME_ENV', 'dev')
-app = create_app('appname.settings.%sConfig' % env.capitalize(), env=env)
+env = os.environ.get('SQUALL_ENV', 'dev')
+app = create_app('squall.settings.%sConfig' % env.capitalize(), env=env)
 
 manager = Manager(app)
 manager.add_command("server", Server())

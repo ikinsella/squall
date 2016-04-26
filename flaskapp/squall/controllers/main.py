@@ -7,9 +7,9 @@ from flask.ext.login import (login_user,
                              logout_user,
                              login_required, current_user)
 
-from appname.extensions import cache
-from appname.forms import LoginForm, CreateUserForm, UserViewForm, EditUserForm
-from appname.models import db, User
+from squall.extensions import cache
+from squall.forms import LoginForm, CreateUserForm, UserViewForm, EditUserForm
+from squall.models import db, User
 from werkzeug.security import generate_password_hash
 
 main = Blueprint('main', __name__)
