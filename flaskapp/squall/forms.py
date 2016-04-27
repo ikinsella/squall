@@ -395,66 +395,64 @@ class ArgumentForm(Form):
         return False
 """
 
+
 class AlgorithmViewForm(Form):
 
-    algorithms = SelectField(u'Algorithms', [Optional()],
-                               coerce=int)
-    implementations = SelectField(u'Implementations', [Optional()],
-                                    coerce=int)
-        
+    algorithms = SelectField(u'Algorithms', [Optional()], coerce=int)
+    implementations = SelectField(u'Implementations', [Optional()], coerce=int)
+
     def validate(self):
         if super(AlgorithmViewForm, self).validate():
             return True  # If Our Validators Pass
         return False
 
+
 class DataViewForm(Form):
 
-    collections = SelectField(u'Data Collections', [Optional()],
-                               coerce=int)
-    sets = SelectField(u'Data Sets', [Optional()],
-                                    coerce=int)
-        
+    collections = SelectField(u'Data Collections', [Optional()], coerce=int)
+    sets = SelectField(u'Data Sets', [Optional()], coerce=int)
+
     def validate(self):
         if super(DataViewForm, self).validate():
             return True  # If Our Validators Pass
         return False
 
+
 class ExperimentViewForm(Form):
 
-    experiments = SelectField(u'Experiments', [Optional()],
-                               coerce=int)
-    batches = SelectField(u'Batches', [Optional()],
-                               coerce=int)
-        
+    experiments = SelectField(u'Experiments', [Optional()], coerce=int)
+    batches = SelectField(u'Batches', [Optional()], coerce=int)
+
     def validate(self):
         if super(ExperimentViewForm, self).validate():
             return True  # If Our Validators Pass
         return False
 
+
 class BatchViewForm(Form):
 
-    batches = SelectField(u'Batches', [Optional()],
-                               coerce=int)
-        
+    batches = SelectField(u'Batches', [Optional()], coerce=int)
+
     def validate(self):
         if super(BatchViewForm, self).validate():
             return True  # If Our Validators Pass
         return False
 
+
 class UserViewForm(Form):
 
-    users = SelectField(u'Users', [Optional()],
-                               coerce=int)
-        
+    users = SelectField(u'Users', [Optional()], coerce=int)
+
     def validate(self):
         if super(UserViewForm, self).validate():
             return True  # If Our Validators Pass
         return False
 
+
 class EditUserForm(Form):
     edit_username = TextField(u'Username')
     edit_dir = TextField(u'HTCondor Submit Node Launch Directory',
-                                 [DataRequired(), Length(max=128)])
+                         [DataRequired(), Length(max=128)])
     edit_pw = PasswordField(u'Password', [DataRequired(), Length(max=64)])
 
     def validate(self):
