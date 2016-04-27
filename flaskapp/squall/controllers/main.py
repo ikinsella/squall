@@ -44,14 +44,14 @@ def logout():
 
 @main.route("/restricted")
 @login_required
-def create_user():
+def user():
     return render_template("create_user.html", form=CreateUserForm(),
                            display_all_form=create_view_form(),
                            edit_form=create_edit_form())
 
 @main.route("/create_user", methods=["Get", "Post"])
 @login_required
-def add_user():
+def create_user():
     form = CreateUserForm()
     if form.validate_on_submit():
         user = User(form.username.data,
