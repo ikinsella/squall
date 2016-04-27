@@ -1,6 +1,9 @@
-//$(document).ready(function() {
-//                  $.post("get_curr_dir", function(response) {})
-//});
+$(document).ready(function() {
+                  var data = {};
+                  $.post("get_curr_dir", data, function(response) {
+                         $('#edit_dir').val(response.dir);
+                });
+});
 
 $(document).ready(function() {
     $("#users").change(function() {

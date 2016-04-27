@@ -44,7 +44,7 @@ def logout():
 
 @main.route("/restricted")
 @login_required
-def create_user():
+def user():
     return render_template("create_user.html", form=CreateUserForm(),
                            display_all_form=create_view_form(),
                            edit_form=create_edit_form())
@@ -52,7 +52,7 @@ def create_user():
 
 @main.route("/create_user", methods=["Get", "Post"])
 @login_required
-def add_user():
+def create_user():
     form = CreateUserForm()
     if form.validate_on_submit():
         user = User(form.username.data,
@@ -95,6 +95,10 @@ def select_user():
         User.id == userid).first().username, 'dir': User.query.filter(
             User.id == userid).first()._launch_directory})
 
+@main.route('/get_curr_dir', methods=['POST', 'GET'])
+def get_curr_dir():
+    curr_user = User.query.filter_by(id=current_user.get_id()).first()
+    return jsonify({'dir':curr_user.launch_directory})
 
 def create_view_form():
     display_all_form = UserViewForm()
