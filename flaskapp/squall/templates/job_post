@@ -3,7 +3,7 @@ import json
 import os
 import sys
 
-rootdir = os.path.join("{{ user.launch_directory }}", "{{ batch.name }}")
+rootdir = os.path.join("{{ user.launch_directory }}", "{{ batch.safe_name }}")
 uid = sys.argv[1]
 with open(os.path.join(rootdir, uid, 'results.json'), 'rb') as readfile:
     results = json.load(readfile)  # Access job results

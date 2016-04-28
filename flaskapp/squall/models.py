@@ -1,8 +1,9 @@
 import os
 import shutil
 import json
-import yaml  # TODO: Check for params errors in __init__
+import yaml
 import zipfile
+import re
 
 from flask import (render_template, current_app)
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -654,7 +655,7 @@ class Batch(db.Model):
     def package(self):  # TODO: Remove after, replace zip if exists,
         """Packages the files to run a batch of jobs into a directory"""
         rootdir = makedir(
-            os.path.join(current_app.config['STAGING_AREA'], self.name))
+            os.path.join(current_app.config['STAGING_AREA'], self.safe_name))
         makedir(os.path.join(rootdir, self.results_dir))
         sharedir = makedir(os.path.join(rootdir, self.share_dir))
         self.write_template('sweep', os.path.join(rootdir, self.sweep))
@@ -705,6 +706,11 @@ class Batch(db.Model):
                 'DataCollection': dc.serialize,
                 'Algorithm': alg.serialize,
                 'Implementation': imp.serialize}
+
+    @hybrid_property
+    def safe_name(self):
+        """Remove non-word characters & replace whitespace with underscore"""
+        return re.sub(r"\s+", '_', re.sub(r"[^\w\s]", '', self.name))
 
     @hybrid_property
     def name(self):
@@ -995,7 +1001,7 @@ class Job(db.Model):
 
     @hybrid_property
     def batch_name(self):
-        return self.batch.name
+        return self.batch.safe_name
 
     @hybrid_property
     def tags(self):
