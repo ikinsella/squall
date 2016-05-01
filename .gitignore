@@ -62,3 +62,4 @@ target/
 flaskapp/db_repository/*
 flaskapp/assembly/*
 
+.Rproj.user

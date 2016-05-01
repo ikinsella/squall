@@ -1,22 +1,24 @@
-# Reusable Input Parameters
-MREV=R2014b
-MCC=/usr/local/MATLAB/$(MREV)/bin/mcc
-MEX=/usr/local/MATLAB/$(MREV)/bin/mex
-MFLAGS=-mv -R -singleCompThread -R -nodisplay -R -nojvm
-SUBMIT=interactive_build.sub
-SRCTAR=source_code.tar.gz
-BINTAR=MatFib.tar.gz
-SETUP_SCRIPT=setup.sh
-EXE=executable
-PROJ=`pwd`
-DIR=`pwd|sed 'sA.*/AA'`
-
 # Architecture Dependent Parameters
+MREV=R2014b
 WRAPPER=FibWrapper.m
+DIR=MatFib
+BINTAR=$(DIR).tar.gz
+
+# Reusable Input Parameters
 SRC=Src
 DEP=Dependencies
 JSON=$(DEP)/jsonlab
 SETUP=$(DEP)/setupMCR
+MCC=/usr/local/MATLAB/$(MREV)/bin/mcc
+MEX=/usr/local/MATLAB/$(MREV)/bin/mex
+SUBMIT=interactive_build.sub
+SRCTAR=source_code.tar.gz
+SETUP_SCRIPT=setup.sh
+EXE=$(patsubst %.m, %, $(WRAPPER))
+PROJ=`pwd`
+
+# Compiler Parameters
+MFLAGS=-mv -R -singleCompThread -R -nodisplay -R -nojvm
 INCL=-I $(SRC) -I $(JSON)
 
 # Targets & Recipes
@@ -25,6 +27,7 @@ INCL=-I $(SRC) -I $(JSON)
 all: condor postbuild
 
 condor:
+	-echo $(EXE)
 	-scp -r $(PROJ) $(CHTC_USER)@$(SUBMIT_NODE):~/
 	-ssh $(CHTC_USER)@$(SUBMIT_NODE) "cd $(DIR); make snode;"
 
@@ -50,9 +53,9 @@ $(SETUP_SCRIPT): $(SETUP)/setup$(MREV).sh
 	-cp $< $@
 
 $(BINTAR): $(EXE) $(SETUP_SCRIPT)
-	-mkdir bin/
-	-mv $^ bin/
-	-tar cvzf $@ bin/
+	-mkdir $(DIR)/
+	-mv $^ $(DIR)/
+	-tar cvzf $@ $(DIR)/
 
 clean: $(BINTAR)
 	-rm $(SRCTAR)

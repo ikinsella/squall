@@ -1,0 +1,15 @@
+#!/usr/bin/env RWrapper
+
+# Load External Packages
+library("jsonlite")
+# Source Project Files
+sapply(list.files(pattern="[.]R$", path="RFib/Src/", full.names=TRUE), source);
+
+# Load Params
+
+# Call Compute Sequences
+f <- fib(10,11)
+print(f)
+
+# Write Results
+# params <- jsonlite::

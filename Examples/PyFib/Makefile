@@ -1,7 +1,7 @@
 # Project Dependent Parameters
 PDIST=Python-2.7
 PBIN=python2.7
-WRAPPER=FibWrapper.py
+WRAPPER=FibWrapper
 DIR=PyFib
 DTAR=$(DIR).tar.gz
 
@@ -27,7 +27,7 @@ PIP=https://bootstrap.pypa.io/get-pip.py
 PROJ=`pwd`
 
 # Targets & Recipes
-.PHONY: $(PBIN) $(PTAR) $(DTAR) $(SETUP) $(WRAPPER) clean postbuild extract sdist enode snode condor submit distribution all
+.PHONY: $(PBIN) $(PTAR) $(DTAR) $(SETUP) $(WRAPPER) $(REQ) clean postbuild extract sdist enode snode condor submit distribution all
 
 all: condor postbuild
 
@@ -59,10 +59,9 @@ $(PBIN): python/bin/$(PBIN)
 	-cp $< python/bin/python
 
 $(REQ):
-	-export PATH=$(pwd)/python/bin:$PATH
 	-wget $(PIP)
-	-python get-pip.py
-	-pip install -r $@
+	-python/bin/python get-pip.py
+	-python/bin/pip install -r $@
 
 $(DIR): $(WRAPPER) $(SETUP) $(SRC)
 	-mkdir $@
