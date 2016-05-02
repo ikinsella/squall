@@ -6,10 +6,9 @@ library("jsonlite")
 sapply(list.files(pattern="[.]R$", path="RFib/Src/", full.names=TRUE), source);
 
 # Load Params
-
+params <- fromJSON('params.json')
 # Call Compute Sequences
-f <- fib(10,11)
-print(f)
+results <- fib_prod(params$A, params$B)
 
 # Write Results
-# params <- jsonlite::
+write(toJSON(results), 'results.json')
