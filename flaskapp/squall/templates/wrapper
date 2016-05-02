@@ -99,7 +99,7 @@ fname=$(basename "{{ url }}")
 echo "Downloading $fname from {{ url }} ..."
 download "{{ url }}"
 echo "SUCCESS! Untarring $fname into $(pwd) ..."
-tar xvzf "$fname"
+tar xzf "$fname"
 {% endfor %}
 
 # Download data files listed in Data Set URLS
