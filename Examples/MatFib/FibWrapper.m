@@ -1,4 +1,4 @@
-function [] = fibwrapper(varargin)
+function [] = FibWrapper(varargin)
 % Define Params
 p = inputParser;
 addParameter(p , 'A'  , -1     , @isscalar );
@@ -25,7 +25,7 @@ rng('shuffle');
 [ product, fibA, fibB, cpuA, cpuB ] = fib(A, B);
 
 % Create Results Struct & Write To JSON
-results.Product = product;
+results.product = product;
 results.fibA = fibA;
 results.fibB = fibB;
 results.cpuA = cpuA;

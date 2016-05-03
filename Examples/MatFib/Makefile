@@ -68,6 +68,8 @@ clean: $(BINTAR)
 	-exit
 
 postbuild:
+	-echo "Sleeping so condor file transfer can complete..."
+	-sleep 60
 	-scp $(CHTC_USER)@$(SUBMIT_NODE):~/$(DIR)/$(BINTAR) $(PROJ)/$(BINTAR)
 	-ssh $(CHTC_USER)@$(SUBMIT_NODE) "yes|rm -rf $(DIR)"
 	-echo "SUCCESS! Compiled Binaries placed in: $(PROJ)/$(BINTAR)"
