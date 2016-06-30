@@ -78,20 +78,29 @@ def submit_data_set():
                            set_table=create_data_set_table(),
                            display_all_form=create_view_form())
 
+
 @data.route('/show_sets', methods=['POST', 'GET'])
 def show_sets():
     data = json.loads(request.form.get('data'))
     collid = data['collid']
     sets = '<option value="0">Select Set</option>'
     tag_ret = ''
-    for entry in DataSet.query.filter(DataSet.data_collection_id == collid).all():
+    for entry in DataSet.query.filter(
+            DataSet.data_collection_id == collid).all():
         sets += '<option value="%i">%s</option>' % (entry.id, entry.name)
-    name = DataCollection.query.filter(DataCollection.id==collid).first().name
-    descr = DataCollection.query.filter(DataCollection.id==collid).first().description
-    tags = [tag.name for tag in Tag.query.filter(Tag.data_collections.any(id=collid)).all()]
+    name = DataCollection.query.filter(
+        DataCollection.id == collid).first().name
+    descr = DataCollection.query.filter(
+        DataCollection.id == collid).first().description
+    tags = [tag.name for tag in Tag.query.filter(
+        Tag.data_collections.any(id=collid)).all()]
     for tag in tags:
         tag_ret += '<p>%s</p>' % tag
-    return jsonify({'sets':sets, 'name':name, 'descr':descr, 'tags':tag_ret})
+    return jsonify({'sets': sets,
+                    'name': name,
+                    'descr': descr,
+                    'tags': tag_ret})
+
 
 @data.route('/select_set', methods=['POST', 'GET'])
 def select_set():
@@ -99,16 +108,24 @@ def select_set():
     setid = data['setid']
     url_ret = ''
     tag_ret = ''
-    name = DataSet.query.filter(DataSet.id==setid).first().name
-    coll = DataCollection.query.filter(DataCollection.data_sets.any(id=setid)).first().name
-    descr = DataSet.query.filter(DataSet.id==setid).first().description
-    tags = [tag.name for tag in Tag.query.filter(Tag.data_sets.any(id=setid)).all()]
-    urls = [url.url for url in URL.query.filter(URL.data_set.has(id=setid)).all()]
+    name = DataSet.query.filter(DataSet.id == setid).first().name
+    coll = DataCollection.query.filter(
+        DataCollection.data_sets.any(id=setid)).first().name
+    descr = DataSet.query.filter(
+        DataSet.id == setid).first().description
+    tags = [tag.name for tag in Tag.query.filter(
+        Tag.data_sets.any(id=setid)).all()]
+    urls = [url.url for url in URL.query.filter(
+        URL.data_set.has(id=setid)).all()]
     for tag in tags:
         tag_ret += '<p>%s</p>' % tag
     for url in urls:
         url_ret += '<p>%s</p>' % url
-    return jsonify({'name':name, 'coll':coll, 'urls':url_ret, 'descr':descr, 'tags':tag_ret})
+    return jsonify({'name': name,
+                    'coll': coll,
+                    'urls': url_ret,
+                    'descr': descr,
+                    'tags': tag_ret})
 
 
 class CollTable(Table):
@@ -191,10 +208,10 @@ def create_data_set_form():
                                     DataCollection.query.order_by('_name')]
     return form
 
+
 def create_view_form():
     display_all_form = DataViewForm()
-    display_all_form.collections.choices = [(0, 'Select Data Collection')]+[(dc.id, dc.name) for dc in
-                                                            DataCollection.query.order_by('_name')]
+    display_all_form.collections.choices = [(0, 'Select Data Collection')] + \
+                                           [(dc.id, dc.name) for dc in DataCollection.query.order_by('_name')]
     display_all_form.sets.choices = [(0, 'Select Data Set')]
     return display_all_form
-

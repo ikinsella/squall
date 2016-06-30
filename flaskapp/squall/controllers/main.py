@@ -95,10 +95,12 @@ def select_user():
         User.id == userid).first().username, 'dir': User.query.filter(
             User.id == userid).first()._launch_directory})
 
+
 @main.route('/get_curr_dir', methods=['POST', 'GET'])
 def get_curr_dir():
     curr_user = User.query.filter_by(id=current_user.get_id()).first()
-    return jsonify({'dir':curr_user.launch_directory})
+    return jsonify({'dir': curr_user.launch_directory})
+
 
 def create_view_form():
     display_all_form = UserViewForm()

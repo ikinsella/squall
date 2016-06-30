@@ -67,6 +67,7 @@ def submit_experiment():
                            experiment_form=experiment_form,
                            display_all_form=create_view_form())
 
+
 @experiments.route('/submit_batch', methods=["Post"])
 @cache.cached(timeout=1000)
 @login_required
@@ -120,7 +121,7 @@ def download_batch():
                            display_all_form=create_view_form())
 
 
-@experiments.route('/upload_results', methods=["Post"])
+@experiments.route('/upload_results', methods=["Get", "Post"])
 @cache.cached(timeout=1000)
 @login_required
 def upload_results():
@@ -147,6 +148,7 @@ def upload_results():
                            experiment_form=create_experiment_form(),
                            display_all_form=create_view_form())
 
+
 @experiments.route('/select_experiment', methods=['POST', 'GET'])
 def select_experiment():
     data = json.loads(request.form.get('data'))
@@ -155,52 +157,76 @@ def select_experiment():
     coll_ret = ''
     alg_ret = ''
     batches = '<option value="0">Select Batch</option>'
-    for entry in Batch.query.filter(Batch.experiment_id==expid).all():
+    for entry in Batch.query.filter(Batch.experiment_id == expid).all():
         batches += '<option value="%i">%s</option>' % (entry.id, entry._name)
-    name = Experiment.query.filter(Experiment.id==expid).first().name
-    tags = [tag.name for tag in Tag.query.filter(Tag.experiments.any(id=expid)).all()]
-    colls = [coll.name for coll in DataCollection.query.filter(DataCollection.experiments.any(id=expid)).all()]
-    algs = [alg.name for alg in Algorithm.query.filter(Algorithm.experiments.any(id=expid)).all()]
-    descr = Experiment.query.filter(Experiment.id==expid).first().description
+    name = Experiment.query.filter(Experiment.id == expid).first().name
+    tags = [tag.name for tag in Tag.query.filter(
+        Tag.experiments.any(id=expid)).all()]
+    colls = [coll.name for coll in DataCollection.query.filter(
+        DataCollection.experiments.any(id=expid)).all()]
+    algs = [alg.name for alg in Algorithm.query.filter(
+        Algorithm.experiments.any(id=expid)).all()]
+    descr = Experiment.query.filter(Experiment.id == expid).first().description
     for tag in tags:
         tag_ret += '<p>%s</p>' % tag
     for coll in colls:
         coll_ret += '<p>%s</p>' % coll
     for alg in algs:
         alg_ret += '<p>%s</p>' % alg
-    return jsonify({'name':name, 'descr':descr, 'tags':tag_ret, 'colls':coll_ret, 'algs':alg_ret, 'batches':batches})
+    return jsonify({'name': name,
+                    'descr': descr,
+                    'tags': tag_ret,
+                    'colls': coll_ret,
+                    'algs': alg_ret,
+                    'batches': batches})
+
 
 @experiments.route('/select_batch', methods=['POST', 'GET'])
 def select_batch():
     data = json.loads(request.form.get('data'))
     batchid = data['batchid']
     tag_ret = ''
-    param_ret=''
-    b = Batch.query.filter(Batch.id==batchid).first()
-    name = b.name
-    exp = Experiment.query.filter(Experiment.batches.any()).first().name
-    set = DataSet.query.filter(DataSet.batches.any()).first().name
-    imp = Implementation.query.filter(Implementation.batches.any()).first().name
-    params = b.params
-    mem = b.memory
-    disk = b.disk
-    flock = b.flock
-    glide = b.glide
-    descr = b.description
-    tags = [tag.name for tag in Tag.query.filter(Tag.batches.any(id=batchid)).all()]
+    param_ret = ''
+    batch = Batch.query.filter(Batch.id == batchid).first()
+    name = batch.name
+    exp = Experiment.query.filter(
+        Experiment.batches.any(id=batchid)).first().name
+    set = DataSet.query.filter(DataSet.batches.any(id=batchid)).first().name
+    imp = Implementation.query.filter(
+        Implementation.batches.any(id=batchid)).first().name
+    params = batch.params
+    mem = batch.memory
+    disk = batch.disk
+    flock = batch.flock
+    glide = batch.glide
+    descr = batch.description
+    tags = [tag.name for tag in Tag.query.filter(
+        Tag.batches.any(id=batchid)).all()]
     for tag in tags:
         tag_ret += '<p>%s</p>' % tag
     for param in params:
         param_ret += '<p>%s</p>' % str(param)
-    return jsonify({'name':name, 'exp':exp, 'set':set, 'imp':imp, 'param':param_ret, 'mem':mem, 'disk':disk, 'flock':flock, 'glide':glide, 'descr':descr, 'tags':tag_ret})
+    return jsonify({'name': name,
+                    'exp': exp,
+                    'set': set,
+                    'imp': imp,
+                    'param': param_ret,
+                    'mem': mem,
+                    'disk': disk,
+                    'flock': flock,
+                    'glide': glide,
+                    'descr': descr,
+                    'tags': tag_ret})
+
 
 @experiments.route('/select_upload', methods=['POST', 'GET'])
 def select_upload():
     data = json.loads(request.form.get('data'))
     batchid = data['batchid']
-    b = Batch.query.filter(Batch.id==batchid).first()
-    status = b.completed
-    return jsonify({'status':status})
+    batch = Batch.query.filter(Batch.id == batchid).first()
+    status = batch.completed
+    return jsonify({'status': status})
+
 
 class ExpTable(Table):
     id = Col('Experiment ID')
@@ -249,6 +275,7 @@ def create_experiment_form():
                                 DataCollection.query.order_by('_name')]
     return form
 
+
 def create_batch_form():
     """ """
     form = BatchForm(memory=MEMORY, disk=DISK, flock=FLOCK, glide=GLIDE)
@@ -277,9 +304,11 @@ def create_results_form():
                           Batch.query.order_by('_name')]
     return form
 
+
 def create_view_form():
     display_all_form = ExperimentViewForm()
-    display_all_form.experiments.choices = [(0, 'Select Experiment')]+[(e.id, e.name) for e in
-                                                            Experiment.query.order_by('_name')]
+    display_all_form.experiments.choices = [(0, 'Select Experiment')] + \
+                                           [(exp.id, exp.name) for exp in
+                                            Experiment.query.order_by('_name')]
     display_all_form.batches.choices = [(0, 'Select Batch')]
     return display_all_form
