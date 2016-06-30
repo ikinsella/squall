@@ -2,6 +2,7 @@
 
 import os
 import imp
+import subprocess
 
 from migrate.versioning import api
 from flask.ext.script import (Manager, Server)
@@ -15,8 +16,8 @@ env = os.environ.get('SQUALL_ENV', 'dev')
 app = create_app('squall.settings.%sConfig' % env.capitalize(), env=env)
 
 manager = Manager(app)
-manager.add_command("server", Server())
 manager.add_command("show-urls", ShowUrls())
+manager.add_command("server", Server())
 manager.add_command("clean", Clean())
 
 
@@ -59,6 +60,12 @@ def make_shell_context():
         in the context of the app
     """
     return dict(app=app, db=db, User=User)
+
+
+@manager.command
+def mongoserv():
+        subprocess.Popen(['mongod', '--dbpath', '/data/db'])
+        Server()
 
 
 @manager.command
